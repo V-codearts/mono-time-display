@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
   const collectionRef = useRef<HTMLDivElement>(null);
+  const otherRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,8 +34,20 @@ const DigitalClock = () => {
     });
   };
 
-  const handleClick = () => {
+  const scrollToCollection = () => {
     collectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
+  const scrollToOther = () => {
+    otherRef.current?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
+  const scrollToAbout = () => {
+    aboutRef.current?.scrollIntoView({ 
       behavior: 'smooth' 
     });
   };
@@ -43,7 +57,7 @@ const DigitalClock = () => {
       {/* Clock Section */}
       <div 
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
-        onClick={handleClick}
+        onClick={scrollToCollection}
       >
         <div className="text-center space-y-4">
           <div className="text-2xl md:text-4xl font-normal tracking-wider">
@@ -61,11 +75,37 @@ const DigitalClock = () => {
       {/* Collection Section */}
       <div 
         ref={collectionRef}
-        className="min-h-screen flex flex-col items-center justify-center"
+        className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
+        onClick={scrollToOther}
       >
         <div className="text-center">
           <div className="text-2xl md:text-4xl font-normal tracking-wider">
             COLLECTION
+          </div>
+        </div>
+      </div>
+
+      {/* Other Section */}
+      <div 
+        ref={otherRef}
+        className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
+        onClick={scrollToAbout}
+      >
+        <div className="text-center">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+            OTHER
+          </div>
+        </div>
+      </div>
+
+      {/* About Section */}
+      <div 
+        ref={aboutRef}
+        className="min-h-screen flex flex-col items-center justify-center"
+      >
+        <div className="text-center">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+            ABOUT
           </div>
         </div>
       </div>

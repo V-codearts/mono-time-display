@@ -66,6 +66,18 @@
     --input: 0 0% 30%;
     --ring: 0 0% 100%;
   }
+  
+  /* Hide scrollbars */
+  html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+  
+  html::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none; /* Safari and Chrome */
+  }
 }
 
 @layer base {
@@ -76,5 +88,6 @@
   body {
     @apply bg-background text-foreground font-mono;
     font-family: 'Roboto Mono', monospace;
+    overflow-x: hidden;
   }
 }
