@@ -34,13 +34,13 @@ const DigitalClock = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono">
       <div className="text-center space-y-4">
-        <div className="text-4xl md:text-6xl font-medium tracking-wider">
+        <div className="text-2xl md:text-4xl font-normal tracking-wider">
           {formatDay(time)}
         </div>
-        <div className="text-2xl md:text-4xl font-normal tracking-wide text-muted-foreground">
+        <div className="text-2xl md:text-4xl font-normal tracking-wide">
           {formatDate(time)}
         </div>
-        <div className="text-3xl md:text-5xl font-medium tracking-widest">
+        <div className="text-2xl md:text-4xl font-normal tracking-widest">
           {formatTime(time)}
         </div>
       </div>
