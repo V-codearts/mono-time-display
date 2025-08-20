@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
+  const collectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -31,17 +32,41 @@ const DigitalClock = () => {
     });
   };
 
+  const handleClick = () => {
+    collectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono">
-      <div className="text-center space-y-4">
-        <div className="text-2xl md:text-4xl font-normal tracking-wider">
-          {formatDay(time)}
+    <div className="bg-background text-foreground font-mono">
+      {/* Clock Section */}
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
+        onClick={handleClick}
+      >
+        <div className="text-center space-y-4">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+            {formatDay(time)}
+          </div>
+          <div className="text-2xl md:text-4xl font-normal tracking-wide">
+            {formatDate(time)}
+          </div>
+          <div className="text-2xl md:text-4xl font-normal tracking-widest">
+            {formatTime(time)}
+          </div>
         </div>
-        <div className="text-2xl md:text-4xl font-normal tracking-wide">
-          {formatDate(time)}
-        </div>
-        <div className="text-2xl md:text-4xl font-normal tracking-widest">
-          {formatTime(time)}
+      </div>
+
+      {/* Collection Section */}
+      <div 
+        ref={collectionRef}
+        className="min-h-screen flex flex-col items-center justify-center"
+      >
+        <div className="text-center">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+            COLLECTION
+          </div>
         </div>
       </div>
     </div>
