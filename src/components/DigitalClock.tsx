@@ -32,10 +32,7 @@ const DigitalClock = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono relative">
-      <div className="absolute top-4 right-4 text-2xl md:text-4xl font-mono opacity-20">
-        ©LAARKO
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-mono">
       <div className="text-center space-y-4">
         <div className="text-2xl md:text-4xl font-normal tracking-wider">
           {formatDay(time)}
