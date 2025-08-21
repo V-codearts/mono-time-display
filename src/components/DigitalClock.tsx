@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 
 const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
+  const [isIdle, setIsIdle] = useState(false);
   const collectionRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -12,6 +14,37 @@ const DigitalClock = () => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Idle detection
+  useEffect(() => {
+    const resetIdleTimer = () => {
+      setIsIdle(false);
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+      idleTimerRef.current = setTimeout(() => {
+        setIsIdle(true);
+      }, 3000); // 3 seconds of inactivity
+    };
+
+    const events = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
+    
+    events.forEach(event => {
+      document.addEventListener(event, resetIdleTimer, true);
+    });
+
+    // Initialize timer
+    resetIdleTimer();
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, resetIdleTimer, true);
+      });
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+    };
   }, []);
 
   const formatDay = (date: Date) => {
@@ -52,8 +85,15 @@ const DigitalClock = () => {
     });
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ 
+      top: 0, 
+      behavior: 'smooth' 
+    });
+  };
+
   return (
-    <div className="bg-background text-foreground font-mono">
+    <div className={`bg-background text-foreground font-mono transition-opacity duration-500 ${isIdle ? 'opacity-30' : 'opacity-100'}`}>
       {/* Clock Section */}
       <div 
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
@@ -79,7 +119,7 @@ const DigitalClock = () => {
         onClick={scrollToOther}
       >
         <div className="text-center">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider hover:font-bold transition-all duration-200">
             COLLECTION
           </div>
         </div>
@@ -92,7 +132,7 @@ const DigitalClock = () => {
         onClick={scrollToAbout}
       >
         <div className="text-center">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider hover:font-bold transition-all duration-200">
             OTHER
           </div>
         </div>
@@ -101,10 +141,11 @@ const DigitalClock = () => {
       {/* About Section */}
       <div 
         ref={aboutRef}
-        className="min-h-screen flex flex-col items-center justify-center"
+        className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
+        onClick={scrollToTop}
       >
         <div className="text-center">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+          <div className="text-2xl md:text-4xl font-normal tracking-wider hover:font-bold transition-all duration-200">
             ABOUT
           </div>
         </div>

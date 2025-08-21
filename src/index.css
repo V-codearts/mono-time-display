@@ -89,5 +89,9 @@
     @apply bg-background text-foreground font-mono;
     font-family: 'Roboto Mono', monospace;
     overflow-x: hidden;
+    user-select: none; /* Prevent text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
 }
