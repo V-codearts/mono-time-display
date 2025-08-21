@@ -4,6 +4,7 @@ const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
   const [isIdle, setIsIdle] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isCompactView, setIsCompactView] = useState(false);
   const collectionRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -106,8 +107,77 @@ const DigitalClock = () => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const toggleCompactView = () => {
+    setIsCompactView(!isCompactView);
+  };
+
+  if (isCompactView) {
+    return (
+      <div className={`bg-background text-foreground font-mono transition-all duration-1000 ${isIdle ? 'opacity-30' : 'opacity-100'} min-h-screen flex flex-col`}>
+        {/* Compact View Toggle */}
+        <div 
+          className="fixed top-4 left-4 text-lg md:text-2xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
+          onClick={toggleCompactView}
+        >
+          -
+        </div>
+        
+        {/* Theme Toggle Dot */}
+        <div 
+          className="fixed top-4 right-4 w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+          onClick={toggleTheme}
+        />
+        
+        {/* All Sections in One Page */}
+        <div className="flex-1 flex flex-col justify-evenly items-center p-8">
+          {/* Clock Section */}
+          <div className="text-center">
+            <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight">
+              {formatDay(time)}
+            </div>
+            <div className="text-lg md:text-2xl font-normal tracking-wide leading-tight">
+              {formatDate(time)}
+            </div>
+            <div className="text-lg md:text-2xl font-normal tracking-widest leading-tight">
+              {formatTime(time)}
+            </div>
+          </div>
+
+          {/* Collection Section */}
+          <div className="text-center">
+            <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+              COLLECTION
+            </div>
+          </div>
+
+          {/* Other Section */}
+          <div className="text-center">
+            <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+              OTHER
+            </div>
+          </div>
+
+          {/* About Section */}
+          <div className="text-center">
+            <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+              ABOUT
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-background text-foreground font-mono transition-all duration-1000 ${isIdle ? 'opacity-30' : 'opacity-100'}`}>
+      {/* Compact View Toggle */}
+      <div 
+        className="fixed top-4 left-4 text-lg md:text-2xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
+        onClick={toggleCompactView}
+      >
+        +
+      </div>
+      
       {/* Theme Toggle Dot */}
       <div 
         className="fixed top-4 right-4 w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
@@ -119,14 +189,14 @@ const DigitalClock = () => {
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
         onClick={scrollToCollection}
       >
-        <div className="text-center space-y-4">
-          <div className="text-lg md:text-2xl font-normal tracking-wider">
+        <div className="text-center leading-tight">
+          <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight">
             {formatDay(time)}
           </div>
-          <div className="text-lg md:text-2xl font-normal tracking-wide">
+          <div className="text-lg md:text-2xl font-normal tracking-wide leading-tight">
             {formatDate(time)}
           </div>
-          <div className="text-lg md:text-2xl font-normal tracking-widest">
+          <div className="text-lg md:text-2xl font-normal tracking-widest leading-tight">
             {formatTime(time)}
           </div>
         </div>
