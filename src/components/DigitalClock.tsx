@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
   const [isIdle, setIsIdle] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const collectionRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -15,6 +16,15 @@ const DigitalClock = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Theme toggle effect
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   // Idle detection
   useEffect(() => {
@@ -92,21 +102,31 @@ const DigitalClock = () => {
     });
   };
 
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
-    <div className={`bg-background text-foreground font-mono transition-opacity duration-500 ${isIdle ? 'opacity-30' : 'opacity-100'}`}>
+    <div className={`bg-background text-foreground font-mono transition-all duration-1000 ${isIdle ? 'opacity-30' : 'opacity-100'}`}>
+      {/* Theme Toggle Dot */}
+      <div 
+        className="fixed top-4 right-4 w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        onClick={toggleTheme}
+      />
+      
       {/* Clock Section */}
       <div 
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
         onClick={scrollToCollection}
       >
         <div className="text-center space-y-4">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider">
+          <div className="text-lg md:text-2xl font-normal tracking-wider">
             {formatDay(time)}
           </div>
-          <div className="text-2xl md:text-4xl font-normal tracking-wide">
+          <div className="text-lg md:text-2xl font-normal tracking-wide">
             {formatDate(time)}
           </div>
-          <div className="text-2xl md:text-4xl font-normal tracking-widest">
+          <div className="text-lg md:text-2xl font-normal tracking-widest">
             {formatTime(time)}
           </div>
         </div>
@@ -119,7 +139,7 @@ const DigitalClock = () => {
         onClick={scrollToOther}
       >
         <div className="text-center">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+          <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
             COLLECTION
           </div>
         </div>
@@ -132,7 +152,7 @@ const DigitalClock = () => {
         onClick={scrollToAbout}
       >
         <div className="text-center">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+          <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
             OTHER
           </div>
         </div>
@@ -145,7 +165,7 @@ const DigitalClock = () => {
         onClick={scrollToTop}
       >
         <div className="text-center">
-          <div className="text-2xl md:text-4xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+          <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
             ABOUT
           </div>
         </div>
