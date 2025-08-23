@@ -116,7 +116,7 @@ const DigitalClock = () => {
       <div className={`bg-background text-foreground font-mono transition-all duration-1000 ${isIdle ? 'opacity-30' : 'opacity-100'} min-h-screen flex flex-col`}>
         {/* Compact View Toggle */}
         <div 
-          className="fixed top-4 left-4 text-lg md:text-2xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
+          className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] text-lg md:text-2xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
           onClick={toggleCompactView}
         >
           -
@@ -124,41 +124,41 @@ const DigitalClock = () => {
         
         {/* Theme Toggle Dot */}
         <div 
-          className="fixed top-4 right-4 w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+          className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
           onClick={toggleTheme}
         />
         
         {/* All Sections in One Page */}
         <div className="flex-1 flex flex-col justify-evenly items-center p-8">
           {/* Clock Section */}
-          <div className="text-center">
-            <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight">
+          <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               {formatDay(time)}
             </div>
-            <div className="text-lg md:text-2xl font-normal tracking-wide leading-tight">
+            <div className="text-lg md:text-2xl font-normal tracking-wide leading-tight transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
               {formatDate(time)}
             </div>
-            <div className="text-lg md:text-2xl font-normal tracking-widest leading-tight">
+            <div className="text-lg md:text-2xl font-normal tracking-widest leading-tight transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
               {formatTime(time)}
             </div>
           </div>
 
           {/* Collection Section */}
-          <div className="text-center">
+          <div className="text-center transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.5s' }}>
             <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
               COLLECTION
             </div>
           </div>
 
           {/* Other Section */}
-          <div className="text-center">
+          <div className="text-center transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
               OTHER
             </div>
           </div>
 
           {/* About Section */}
-          <div className="text-center">
+          <div className="text-center transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.7s' }}>
             <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
               ABOUT
             </div>
@@ -172,7 +172,7 @@ const DigitalClock = () => {
     <div className={`bg-background text-foreground font-mono transition-all duration-1000 ${isIdle ? 'opacity-30' : 'opacity-100'}`}>
       {/* Compact View Toggle */}
       <div 
-        className="fixed top-4 left-4 text-lg md:text-2xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
+        className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] text-lg md:text-2xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
         onClick={toggleCompactView}
       >
         +
@@ -180,7 +180,7 @@ const DigitalClock = () => {
       
       {/* Theme Toggle Dot */}
       <div 
-        className="fixed top-4 right-4 w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
         onClick={toggleTheme}
       />
       
