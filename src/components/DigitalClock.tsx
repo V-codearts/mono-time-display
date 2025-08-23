@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
@@ -10,7 +9,6 @@ const DigitalClock = () => {
   const otherRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -133,43 +131,34 @@ const DigitalClock = () => {
         {/* All Sections in One Page */}
         <div className="flex-1 flex flex-col justify-evenly items-center p-8">
           {/* Clock Section */}
-          <div className="text-center animate-slide-in animate-slide-in-delay-1">
-            <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight animate-slide-in animate-slide-in-delay-2">
+          <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               {formatDay(time)}
             </div>
-            <div className="text-lg md:text-2xl font-normal tracking-wide leading-tight animate-slide-in animate-slide-in-delay-3">
+            <div className="text-lg md:text-2xl font-normal tracking-wide leading-tight transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
               {formatDate(time)}
             </div>
-            <div className="text-lg md:text-2xl font-normal tracking-widest leading-tight animate-slide-in animate-slide-in-delay-4">
+            <div className="text-lg md:text-2xl font-normal tracking-widest leading-tight transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
               {formatTime(time)}
             </div>
           </div>
 
           {/* Collection Section */}
-          <div 
-            className="text-center animate-slide-in animate-slide-in-delay-5 cursor-pointer"
-            onClick={() => navigate('/collection')}
-          >
+          <div className="text-center transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.5s' }}>
             <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
               COLLECTION
             </div>
           </div>
 
           {/* Other Section */}
-          <div 
-            className="text-center animate-slide-in animate-slide-in-delay-6 cursor-pointer"
-            onClick={() => navigate('/other')}
-          >
+          <div className="text-center transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
               OTHER
             </div>
           </div>
 
           {/* About Section */}
-          <div 
-            className="text-center animate-slide-in animate-slide-in-delay-7 cursor-pointer"
-            onClick={() => navigate('/about')}
-          >
+          <div className="text-center transform translate-y-4 animate-fade-in" style={{ animationDelay: '0.7s' }}>
             <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
               ABOUT
             </div>
@@ -217,7 +206,7 @@ const DigitalClock = () => {
       <div 
         ref={collectionRef}
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
-        onClick={() => navigate('/collection')}
+        onClick={scrollToOther}
       >
         <div className="text-center">
           <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
@@ -230,7 +219,7 @@ const DigitalClock = () => {
       <div 
         ref={otherRef}
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
-        onClick={() => navigate('/other')}
+        onClick={scrollToAbout}
       >
         <div className="text-center">
           <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
@@ -243,7 +232,7 @@ const DigitalClock = () => {
       <div 
         ref={aboutRef}
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
-        onClick={() => navigate('/about')}
+        onClick={scrollToTop}
       >
         <div className="text-center">
           <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
