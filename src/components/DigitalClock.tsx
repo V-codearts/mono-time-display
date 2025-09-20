@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
+import Gallery from './Gallery';
 
 const DigitalClock = () => {
   const [time, setTime] = useState(new Date());
   const [isIdle, setIsIdle] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isCompactView, setIsCompactView] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
   const galleryRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -36,7 +37,7 @@ const DigitalClock = () => {
       }
       idleTimerRef.current = setTimeout(() => {
         setIsIdle(true);
-      }, 3000); // 3 seconds of inactivity
+      }, 13000); // 13 seconds of inactivity
     };
 
     const events = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
@@ -78,10 +79,8 @@ const DigitalClock = () => {
     });
   };
 
-  const scrollToGallery = () => {
-    galleryRef.current?.scrollIntoView({ 
-      behavior: 'smooth' 
-    });
+  const openGallery = () => {
+    setShowGallery(true);
   };
 
   const scrollToOther = () => {
@@ -107,20 +106,12 @@ const DigitalClock = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // Disabled compact view toggle
-  const toggleCompactView = () => {
-    // Functionality disabled
-  };
+  if (showGallery) {
+    return <Gallery onBack={() => setShowGallery(false)} />;
+  }
 
   return (
     <div className={`bg-background text-foreground font-mono transition-all duration-1000 ${isIdle ? 'opacity-30' : 'opacity-100'}`}>
-      {/* Disabled Compact View Toggle */}
-      <div 
-        className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] text-lg md:text-2xl font-normal opacity-50 z-50"
-      >
-        +
-      </div>
-      
       {/* Theme Toggle Dot */}
       <div 
         className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
@@ -130,7 +121,7 @@ const DigitalClock = () => {
       {/* Clock Section */}
       <div 
         className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
-        onClick={scrollToGallery}
+        onClick={openGallery}
       >
         <div className="text-center leading-tight">
           <div className="text-lg md:text-2xl font-normal tracking-wider leading-tight">
@@ -152,7 +143,13 @@ const DigitalClock = () => {
         onClick={scrollToOther}
       >
         <div className="text-center">
-          <div className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200">
+          <div 
+            className="text-lg md:text-2xl font-normal tracking-wider hover:font-bold transition-all duration-200"
+            onClick={(e) => {
+              e.stopPropagation();
+              openGallery();
+            }}
+          >
             GALLERY
           </div>
         </div>
