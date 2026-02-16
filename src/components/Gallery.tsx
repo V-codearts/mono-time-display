@@ -2,10 +2,12 @@ import { useState } from 'react';
 import ImageViewer from './ImageViewer';
 
 interface GalleryProps {
-  onBack: () => void;
+  onBack?: () => void;
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
 }
 
-const Gallery = ({ onBack }: GalleryProps) => {
+const Gallery = ({ isDarkMode, onToggleTheme }: GalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   // Placeholder images data
@@ -49,6 +51,8 @@ const Gallery = ({ onBack }: GalleryProps) => {
         <ImageViewer
           image={imageData}
           onBack={() => setSelectedImage(null)}
+          isDarkMode={isDarkMode}
+          onToggleTheme={onToggleTheme}
         />
       );
     }
@@ -56,13 +60,11 @@ const Gallery = ({ onBack }: GalleryProps) => {
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
-      {/* Back Button */}
+      {/* Theme Toggle Dot */}
       <div 
-        className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] text-lg md:text-2xl font-normal cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
-        onClick={onBack}
-      >
-        &lt;
-      </div>
+        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        onClick={onToggleTheme}
+      />
 
       {/* Gallery Grid */}
       <div className="flex flex-col items-center justify-start min-h-screen py-20">
