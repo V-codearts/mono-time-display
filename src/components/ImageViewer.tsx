@@ -10,9 +10,11 @@ interface ImageData {
 interface ImageViewerProps {
   image: ImageData;
   onBack: () => void;
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
 }
 
-const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
+const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerProps) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
 
@@ -34,6 +36,12 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
         &lt;
       </div>
 
+      {/* Theme Toggle Dot */}
+      <div 
+        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        onClick={onToggleTheme}
+      />
+
       {/* Image Viewer */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         {/* Main Image */}
@@ -44,11 +52,6 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
           onClick={nextVariation}
         />
 
-        {/* Variation Counter */}
-        <div className="mt-4 text-sm opacity-60">
-          {currentVariation + 1} / {image.variations.length}
-        </div>
-
         {/* Description Toggle */}
         <div className="mt-6 flex flex-col items-center">
           <button
@@ -58,11 +61,13 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
             {showDescription ? '−' : '+'}
           </button>
           
-          {showDescription && (
-            <div className="mt-4 max-w-2xl text-center text-sm md:text-base leading-relaxed animate-fade-in">
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
+          >
+            <div className="max-w-2xl text-center text-sm md:text-base leading-relaxed">
               {image.description}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
