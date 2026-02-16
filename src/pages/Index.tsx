@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import Gallery from '@/components/Gallery';
 
 const Index = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved !== null ? saved === 'dark' : true;
+  });
 
   useEffect(() => {
     if (isDarkMode) {
@@ -10,6 +13,7 @@ const Index = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
