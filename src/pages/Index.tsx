@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Gallery from '@/components/Gallery';
+import IntroVideo from '@/components/IntroVideo';
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
     return saved !== null ? saved === 'dark' : true;
   });
+  const [showIntro, setShowIntro] = useState(true);
+  const [galleryFadingIn, setGalleryFadingIn] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -18,11 +21,32 @@ const Index = () => {
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
+  const handleIntroComplete = useCallback(() => {
+    setShowIntro(false);
+    // Start at opacity 0, then trigger fade to 1 on next frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setGalleryFadingIn(false);
+      });
+    });
+  }, []);
+
+  if (showIntro) {
+    return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
+  }
+
   return (
-    <Gallery
-      isDarkMode={isDarkMode}
-      onToggleTheme={toggleTheme}
-    />
+    <div
+      style={{
+        opacity: galleryFadingIn ? 0 : 1,
+        transition: galleryFadingIn ? 'none' : 'opacity 0.333s ease-out',
+      }}
+    >
+      <Gallery
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleTheme}
+      />
+    </div>
   );
 };
 
