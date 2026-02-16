@@ -67,7 +67,7 @@ const Gallery = ({ isDarkMode, onToggleTheme }: GalleryProps) => {
       />
 
       {/* Gallery Grid */}
-      <div className="flex flex-col items-center justify-start min-h-screen py-20">
+      <div className="flex flex-col items-center justify-start min-h-screen">
         {images.map((image) => (
           <div 
             key={image.id}

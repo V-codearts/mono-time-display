@@ -49,6 +49,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
           src={image.variations[currentVariation]}
           alt={`Variation ${currentVariation + 1}`}
           className="max-w-[90vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
+          style={{ transition: 'none' }}
           onClick={nextVariation}
         />
 
