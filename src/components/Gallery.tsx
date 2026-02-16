@@ -80,6 +80,8 @@ const Gallery = ({ isDarkMode, onToggleTheme }: GalleryProps) => {
               src={image.main}
               alt={`Gallery item ${image.id}`}
               className="w-[80vmin] h-[80vmin] object-cover border border-foreground/20 hover:scale-105 transition-transform duration-300 cursor-pointer"
+              loading={image.id === 1 ? "eager" : "lazy"}
+              decoding="async"
               onClick={() => setSelectedImage(image.id)}
             />
           </div>
