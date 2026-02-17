@@ -10,10 +10,10 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Start fade out at 3s - 0.633s = 2.367s
+    // Start fade out at 1.33s - 0.33s = 1.0s
     timerRef.current = setTimeout(() => {
       setIsFadingOut(true);
-    }, 2367);
+    }, 1000);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -24,7 +24,7 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
     if (isFadingOut) {
       const fadeTimer = setTimeout(() => {
         onComplete();
-      }, 633);
+      }, 330);
       return () => clearTimeout(fadeTimer);
     }
   }, [isFadingOut, onComplete]);
@@ -35,7 +35,7 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
         className="w-[80vmin] h-[80vmin] flex items-center justify-center border border-foreground/20"
         style={{
           opacity: isFadingOut ? 0 : 1,
-          transition: 'opacity 0.633s ease-out',
+          transition: 'opacity 0.33s ease-out',
         }}
       >
         {/* Placeholder: simple animated square */}

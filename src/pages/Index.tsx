@@ -39,7 +39,7 @@ const Index = () => {
     <div
       style={{
         opacity: galleryFadingIn ? 0 : 1,
-        transition: galleryFadingIn ? 'none' : 'opacity 0.333s ease-out',
+        transition: galleryFadingIn ? 'none' : 'opacity 0.625s ease-out',
       }}
     >
       <Gallery
