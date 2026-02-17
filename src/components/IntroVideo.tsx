@@ -13,15 +13,18 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Trigger fade-in on next frame
-    requestAnimationFrame(() => setIsFadedIn(true));
+    // Wait 0.1s showing only background, then trigger fade-in
+    const delayTimer = setTimeout(() => {
+      requestAnimationFrame(() => setIsFadedIn(true));
+    }, 100);
 
-    // Start fade out at 1.0s (total intro = 1.33s)
+    // Start fade out at 1.1s (0.1s delay + 1.0s show = total ~1.43s)
     timerRef.current = setTimeout(() => {
       setIsFadingOut(true);
-    }, 1000);
+    }, 1100);
 
     return () => {
+      clearTimeout(delayTimer);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
