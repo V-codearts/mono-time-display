@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import introDark from '@/assets/intro-dark.mp4';
+import introLight from '@/assets/intro-light.mp4';
 
 interface IntroVideoProps {
   isDarkMode: boolean;
@@ -32,22 +34,19 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
       <div
-        className="w-[80vmin] h-[80vmin] flex items-center justify-center border border-foreground/20"
+        className="w-[80vmin] h-[80vmin] flex items-center justify-center"
         style={{
           opacity: isFadingOut ? 0 : 1,
           transition: 'opacity 0.33s ease-out',
         }}
       >
-        {/* Placeholder: simple animated square */}
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div
-            className="w-16 h-16 border-2 border-foreground animate-spin"
-            style={{ animationDuration: '2s' }}
-          />
-          <span className="text-foreground/50 text-xs font-mono tracking-widest uppercase">
-            {isDarkMode ? 'dark' : 'light'} intro placeholder
-          </span>
-        </div>
+        <video
+          className="w-full h-full object-cover"
+          src={isDarkMode ? introDark : introLight}
+          autoPlay
+          muted
+          playsInline
+        />
       </div>
     </div>
   );
