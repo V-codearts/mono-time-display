@@ -8,7 +8,7 @@ const Index = () => {
     return saved !== null ? saved === 'dark' : true;
   });
   const [showIntro, setShowIntro] = useState(true);
-  const [galleryFadingIn, setGalleryFadingIn] = useState(false);
+  const [galleryFadingIn, setGalleryFadingIn] = useState(true);
 
   useEffect(() => {
     if (isDarkMode) {
