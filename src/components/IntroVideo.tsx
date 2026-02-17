@@ -9,10 +9,14 @@ interface IntroVideoProps {
 
 const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [isFadedIn, setIsFadedIn] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Start fade out at 1.33s - 0.33s = 1.0s
+    // Trigger fade-in on next frame
+    requestAnimationFrame(() => setIsFadedIn(true));
+
+    // Start fade out at 1.0s (total intro = 1.33s)
     timerRef.current = setTimeout(() => {
       setIsFadingOut(true);
     }, 1000);
@@ -34,14 +38,15 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
       <div
-        className="w-[80vmin] h-[80vmin] flex items-center justify-center"
+        className="w-[80vmin] h-[80vmin] flex items-center justify-center overflow-hidden"
         style={{
-          opacity: isFadingOut ? 0 : 1,
-          transition: 'opacity 0.33s ease-out',
+          opacity: isFadingOut ? 0 : isFadedIn ? 1 : 0,
+          transition: isFadingOut ? 'opacity 0.33s ease-out' : 'opacity 0.25s ease-out',
         }}
       >
         <video
           className="w-full h-full object-cover"
+          style={{ marginLeft: '-4px', width: 'calc(100% + 4px)' }}
           src={isDarkMode ? introDark : introLight}
           autoPlay
           muted
