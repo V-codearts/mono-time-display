@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Gallery from '@/components/Gallery';
 import IntroVideo from '@/components/IntroVideo';
+import About from '@/pages/About';
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -9,6 +10,7 @@ const Index = () => {
   });
   const [showIntro, setShowIntro] = useState(true);
   const [galleryFadingIn, setGalleryFadingIn] = useState(true);
+  const [currentPage, setCurrentPage] = useState<'gallery' | 'about'>('gallery');
 
   useEffect(() => {
     if (isDarkMode) {
@@ -23,7 +25,6 @@ const Index = () => {
 
   const handleIntroComplete = useCallback(() => {
     setShowIntro(false);
-    // Start at opacity 0, then trigger fade to 1 on next frame
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setGalleryFadingIn(false);
@@ -31,8 +32,22 @@ const Index = () => {
     });
   }, []);
 
+  const handleNavigate = (page: string) => {
+    if (page === 'about') setCurrentPage('about');
+  };
+
   if (showIntro) {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
+  }
+
+  if (currentPage === 'about') {
+    return (
+      <About
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleTheme}
+        onBack={() => setCurrentPage('gallery')}
+      />
+    );
   }
 
   return (
@@ -45,6 +60,7 @@ const Index = () => {
       <Gallery
         isDarkMode={isDarkMode}
         onToggleTheme={toggleTheme}
+        onNavigate={handleNavigate}
       />
     </div>
   );

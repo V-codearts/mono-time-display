@@ -10,10 +10,12 @@ interface GalleryProps {
   onBack?: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-const Gallery = ({ isDarkMode, onToggleTheme }: GalleryProps) => {
+const Gallery = ({ isDarkMode, onToggleTheme, onNavigate }: GalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const images = [
     {
@@ -63,6 +65,31 @@ const Gallery = ({ isDarkMode, onToggleTheme }: GalleryProps) => {
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
+      {/* Nav Menu Toggle */}
+      <div className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] z-50">
+        <div 
+          className="text-lg md:text-2xl font-normal cursor-pointer hover:scale-110 transition-transform duration-200"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? '−' : '+'}
+        </div>
+        
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'}`}
+        >
+          <div className="flex flex-col gap-2 text-xs md:text-sm tracking-wider">
+            <span className="text-foreground cursor-default font-normal">GALLERY</span>
+            <span 
+              className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
+              onClick={() => onNavigate?.('about')}
+            >
+              ABOUT
+            </span>
+            <span className="text-muted-foreground cursor-default">OTHER</span>
+          </div>
+        </div>
+      </div>
+
       {/* Theme Toggle Dot */}
       <div 
         className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
