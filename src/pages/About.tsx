@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 
 interface AboutProps {
   isDarkMode: boolean;
@@ -6,20 +6,21 @@ interface AboutProps {
   onBack: () => void;
   onNavigate: (page: string) => void;
   currentPage: 'about' | 'other';
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
 }
 
-const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage }: AboutProps) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage, menuOpen, setMenuOpen }: AboutProps) => {
 
   const pageContent: Record<string, React.ReactNode> = {
     about: (
       <div className="w-full flex items-center justify-center h-screen">
-        <p className="text-sm md:text-base text-muted-foreground tracking-wider uppercase">PORTFOLIO</p>
+        <p className="text-muted-foreground tracking-wider uppercase">PORTFOLIO</p>
       </div>
     ),
     other: (
       <div className="w-full flex items-center justify-center h-screen">
-        <p className="text-sm md:text-base text-muted-foreground tracking-wider uppercase">PORTFOLIO</p>
+        <p className="text-muted-foreground tracking-wider uppercase">PORTFOLIO</p>
       </div>
     ),
   };
@@ -27,9 +28,9 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage }: A
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
       {/* Nav Menu Toggle */}
-      <div className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] z-50">
+      <div className="fixed top-[3px] md:top-[9px] left-[18px] md:left-[24px] z-50">
         <div 
-          className="text-lg md:text-2xl cursor-pointer transition-all duration-200 hover:font-bold"
+          className="cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? '−' : '+'}
@@ -38,7 +39,7 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage }: A
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'}`}
         >
-          <div className="flex flex-col gap-2 text-xs md:text-sm tracking-wider uppercase">
+          <div className="flex flex-col gap-2 tracking-wider uppercase">
             <span 
               className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
               onClick={onBack}
@@ -51,10 +52,7 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage }: A
             >
               ABOUT
             </span>
-            <span 
-              className={`${currentPage === 'other' ? 'text-foreground cursor-default' : 'text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200'}`}
-              onClick={() => currentPage !== 'other' && onNavigate('other')}
-            >
+            <span className="text-muted-foreground cursor-default">
               OTHER
             </span>
           </div>

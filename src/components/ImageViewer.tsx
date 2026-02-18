@@ -30,7 +30,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
     <div className="bg-background text-foreground font-mono min-h-screen flex flex-col">
       {/* Back Button */}
       <div 
-        className="fixed top-[18px] md:top-[24px] left-[18px] md:left-[24px] text-lg md:text-2xl font-normal cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        className="fixed top-[3px] md:top-[9px] left-[18px] md:left-[24px] font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
         onClick={onBack}
       >
         &lt;
@@ -57,7 +57,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
         <div className="mt-6 flex flex-col items-center">
           <button
             onClick={toggleDescription}
-            className="text-lg md:text-2xl cursor-pointer transition-all duration-200 hover:font-bold"
+            className="cursor-pointer transition-all duration-200 hover:font-bold"
           >
             {showDescription ? '−' : '+'}
           </button>
@@ -65,7 +65,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
           <div
             className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
           >
-            <div className="max-w-2xl text-center text-sm md:text-base leading-relaxed">
+            <div className="max-w-2xl text-center leading-relaxed uppercase">
               {image.description}
             </div>
           </div>

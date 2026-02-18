@@ -89,10 +89,15 @@
   body {
     @apply bg-background text-foreground font-mono;
     font-family: 'Roboto Mono', monospace;
+    font-size: 20px;
     overflow-x: hidden;
-    user-select: none; /* Prevent text selection */
+    user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+  }
+
+  * {
+    font-size: inherit;
   }
 }
