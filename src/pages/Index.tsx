@@ -11,6 +11,7 @@ const Index = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [galleryFadingIn, setGalleryFadingIn] = useState(true);
   const [currentPage, setCurrentPage] = useState<'gallery' | 'about' | 'other'>('gallery');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -48,6 +49,8 @@ const Index = () => {
         onBack={() => setCurrentPage('gallery')}
         onNavigate={handleNavigate}
         currentPage={currentPage}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
       />
     );
   }
@@ -63,6 +66,8 @@ const Index = () => {
         isDarkMode={isDarkMode}
         onToggleTheme={toggleTheme}
         onNavigate={handleNavigate}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
       />
     </div>
   );
