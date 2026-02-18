@@ -10,7 +10,7 @@ const Index = () => {
   });
   const [showIntro, setShowIntro] = useState(true);
   const [galleryFadingIn, setGalleryFadingIn] = useState(true);
-  const [currentPage, setCurrentPage] = useState<'gallery' | 'about'>('gallery');
+  const [currentPage, setCurrentPage] = useState<'gallery' | 'about' | 'other'>('gallery');
 
   useEffect(() => {
     if (isDarkMode) {
@@ -33,19 +33,21 @@ const Index = () => {
   }, []);
 
   const handleNavigate = (page: string) => {
-    if (page === 'about') setCurrentPage('about');
+    if (page === 'about' || page === 'other') setCurrentPage(page as 'about' | 'other');
   };
 
   if (showIntro) {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
   }
 
-  if (currentPage === 'about') {
+  if (currentPage === 'about' || currentPage === 'other') {
     return (
       <About
         isDarkMode={isDarkMode}
         onToggleTheme={toggleTheme}
         onBack={() => setCurrentPage('gallery')}
+        onNavigate={handleNavigate}
+        currentPage={currentPage}
       />
     );
   }

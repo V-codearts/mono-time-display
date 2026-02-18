@@ -57,7 +57,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
         <div className="mt-6 flex flex-col items-center">
           <button
             onClick={toggleDescription}
-            className="text-lg md:text-2xl font-normal cursor-pointer hover:scale-110 transition-transform duration-200"
+            className="text-lg md:text-2xl cursor-pointer transition-all duration-200 hover:font-bold"
           >
             {showDescription ? '−' : '+'}
           </button>
