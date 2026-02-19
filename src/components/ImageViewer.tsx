@@ -54,7 +54,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
         />
 
         {/* Description Toggle */}
-        <div className="flex flex-col items-center" style={{ marginTop: '-12px' }}>
+        <div className="mt-6 flex flex-col items-center">
           <button
             onClick={toggleDescription}
             className="text-xl cursor-pointer transition-all duration-200 hover:font-bold"
@@ -63,10 +63,9 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
           </button>
           
           <div
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-            style={{ marginTop: showDescription ? '-16px' : '0px' }}
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
           >
-            <div className="max-w-2xl text-center leading-tight uppercase">
+            <div className="max-w-2xl text-center leading-relaxed uppercase">
               {image.description}
             </div>
           </div>
