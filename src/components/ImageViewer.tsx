@@ -30,7 +30,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
     <div className="bg-background text-foreground font-mono min-h-screen flex flex-col">
       {/* Back Button */}
       <div 
-        className="fixed top-[3px] md:top-[9px] left-[18px] md:left-[24px] font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
+        className="fixed top-[3px] md:top-[9px] left-[18px] md:left-[24px] text-xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
         onClick={onBack}
       >
         &lt;
@@ -57,7 +57,7 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
         <div className="mt-6 flex flex-col items-center">
           <button
             onClick={toggleDescription}
-            className="cursor-pointer transition-all duration-200 hover:font-bold"
+            className="text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           >
             {showDescription ? '−' : '+'}
           </button>

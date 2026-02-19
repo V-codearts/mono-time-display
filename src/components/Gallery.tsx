@@ -69,7 +69,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       {/* Nav Menu Toggle */}
       <div className="fixed top-[3px] md:top-[9px] left-[18px] md:left-[24px] z-50">
         <div 
-          className="cursor-pointer transition-all duration-200 hover:font-bold"
+          className="text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? '−' : '+'}
