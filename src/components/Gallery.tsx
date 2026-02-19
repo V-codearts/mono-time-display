@@ -67,7 +67,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
       {/* Nav Menu Toggle */}
-      <div className="fixed top-[3px] md:top-[9px] left-[18px] md:left-[24px] z-50">
+      <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50">
         <div 
           className="text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -76,9 +76,10 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
         </div>
         
         <div
-          className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0 mt-0'}`}
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+          style={{ marginTop: menuOpen ? '-9px' : '0px' }}
         >
-          <div className="flex flex-col gap-0.5 tracking-wider uppercase">
+          <div className="flex flex-col tracking-wider uppercase" style={{ gap: '0px' }}>
             <span className="text-foreground cursor-default font-normal">GALLERY</span>
             <span 
               className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
