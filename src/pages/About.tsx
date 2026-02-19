@@ -37,9 +37,9 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage, men
         </div>
         
         <div
-          className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'}`}
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0 mt-0'}`}
         >
-          <div className="flex flex-col gap-2 tracking-wider uppercase">
+          <div className="flex flex-col gap-0.5 tracking-wider uppercase">
             <span 
               className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
               onClick={onBack}
