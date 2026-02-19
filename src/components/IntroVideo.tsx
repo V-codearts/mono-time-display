@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import introDark from '@/assets/intro-dark.mp4';
 import introLight from '@/assets/intro-light.mp4';
 
@@ -11,20 +11,48 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isFadedIn, setIsFadedIn] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hasStarted = useRef(false);
 
-  useEffect(() => {
-    // Wait 0.1s showing only background, then trigger fade-in
-    const delayTimer = setTimeout(() => {
+  const startSequence = useCallback(() => {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
+    // Small delay then fade in
+    setTimeout(() => {
       requestAnimationFrame(() => setIsFadedIn(true));
     }, 100);
 
-    // Start fade out at 1.1s (0.1s delay + 1.0s show = total ~1.43s)
+    // Fade out after intro plays (0.1s delay + 1.0s show)
     timerRef.current = setTimeout(() => {
       setIsFadingOut(true);
     }, 1100);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // If video is already ready (cached), start immediately
+    if (video.readyState >= 3) {
+      startSequence();
+      return;
+    }
+
+    const onCanPlay = () => startSequence();
+    video.addEventListener('canplay', onCanPlay);
+
+    // Fallback: if video never loads after 3s, start anyway
+    const fallback = setTimeout(() => startSequence(), 3000);
 
     return () => {
-      clearTimeout(delayTimer);
+      video.removeEventListener('canplay', onCanPlay);
+      clearTimeout(fallback);
+    };
+  }, [startSequence]);
+
+  useEffect(() => {
+    return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
@@ -48,12 +76,14 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
         }}
       >
         <video
+          ref={videoRef}
           className="w-full h-full object-cover"
           style={{ marginLeft: '-4px', marginBottom: '-4px', width: 'calc(100% + 4px)', height: 'calc(100% + 4px)' }}
           src={isDarkMode ? introDark : introLight}
           autoPlay
           muted
           playsInline
+          preload="auto"
         />
       </div>
     </div>
