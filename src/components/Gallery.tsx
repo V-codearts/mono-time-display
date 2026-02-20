@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ImageViewer from './ImageViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
@@ -17,6 +17,7 @@ interface GalleryProps {
 
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const scrollRef = useRef(0);
 
   const images = [
     {
@@ -48,13 +49,25 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       description: ""
     }
   ];
+  const handleSelectImage = (id: number) => {
+    scrollRef.current = window.scrollY;
+    setSelectedImage(id);
+  };
+
+  const handleBack = () => {
+    setSelectedImage(null);
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollRef.current);
+    });
+  };
+
   if (selectedImage !== null) {
     const imageData = images.find(img => img.id === selectedImage);
     if (imageData) {
       return (
         <ImageViewer
           image={imageData}
-          onBack={() => setSelectedImage(null)}
+          onBack={handleBack}
           isDarkMode={isDarkMode}
           onToggleTheme={onToggleTheme}
         />
@@ -110,7 +123,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
               className="w-[80vmin] h-[80vmin] object-cover border border-foreground/20 hover:scale-105 transition-transform duration-300 cursor-pointer"
               loading={image.id === 1 ? "eager" : "lazy"}
               decoding="async"
-              onClick={() => setSelectedImage(image.id)}
+              onClick={() => handleSelectImage(image.id)}
             />
           </div>
         ))}
