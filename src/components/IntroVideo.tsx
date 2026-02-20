@@ -78,7 +78,7 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
-          style={{ margin: '-4px', width: 'calc(100% + 8px)', height: 'calc(100% + 8px)' }}
+          style={{ margin: '-34px', width: 'calc(100% + 68px)', height: 'calc(100% + 68px)' }}
           src={isDarkMode ? introDark : introLight}
           autoPlay
           muted
