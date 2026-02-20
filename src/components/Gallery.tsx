@@ -22,32 +22,30 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
     {
       id: 1,
       main: gallery1,
-      variations: [gallery1, gallery2, gallery3],
-      description: "A stunning landscape captured during golden hour, showcasing the natural beauty of untouched wilderness."
+      variations: [gallery1, gallery2, gallery3, gallery4],
+      title: "T",
+      description: "COTTON"
     },
     {
       id: 2,
       main: gallery2,
-      variations: [gallery2, gallery4, gallery5],
-      description: "Urban architecture meets modern design in this captivating cityscape photograph."
+      variations: [gallery2, gallery3, gallery4, gallery5],
+      title: "HOODIE",
+      description: "COTTON"
     },
     {
       id: 3,
       main: gallery3,
-      variations: [gallery3, gallery1, gallery4],
-      description: "Intimate portrait work that captures the essence and emotion of the subject."
+      variations: [gallery3, gallery4, gallery5, gallery1],
+      title: "SHERPA JACKET",
+      description: "COTTON LINING"
     },
     {
       id: 4,
       main: gallery4,
-      variations: [gallery4, gallery5, gallery2],
-      description: "Abstract composition exploring form, color, and movement in contemporary art."
-    },
-    {
-      id: 5,
-      main: gallery5,
-      variations: [gallery5, gallery3, gallery1],
-      description: "Nature's intricate patterns revealed through macro photography techniques."
+      variations: [gallery4, gallery5, gallery1, gallery2],
+      title: "FUTURE DENIM",
+      description: ""
     }
   ];
   if (selectedImage !== null) {

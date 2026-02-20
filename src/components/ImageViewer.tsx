@@ -4,6 +4,7 @@ interface ImageData {
   id: number;
   main: string;
   variations: string[];
+  title: string;
   description: string;
 }
 
@@ -66,7 +67,8 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
             className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
           >
             <div className="max-w-2xl text-center leading-relaxed uppercase">
-              {image.description}
+              <div>{image.title}</div>
+              {image.description && <div>{image.description}</div>}
             </div>
           </div>
         </div>
