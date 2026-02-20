@@ -69,7 +69,7 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
       <div
-        className="w-[80vmin] h-[80vmin] flex items-center justify-center overflow-hidden"
+        className="relative w-[80vmin] h-[80vmin] flex items-center justify-center overflow-hidden"
         style={{
           opacity: isFadingOut ? 0 : isFadedIn ? 1 : 0,
           transition: isFadingOut ? 'opacity 0.165s ease-out' : 'opacity 0.325s ease-out',
@@ -77,14 +77,18 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
       >
         <video
           ref={videoRef}
-          className="w-full h-full object-cover bg-background"
-          style={{ margin: '-5px', width: 'calc(100% + 10px)', height: 'calc(100% + 10px)' }}
+          className="w-full h-full object-cover"
           src={isDarkMode ? introDark : introLight}
           autoPlay
           muted
           playsInline
           preload="auto"
         />
+        {/* Edge bars to hide video artifacts */}
+        <div className="absolute top-0 left-0 right-0 h-[5px] bg-background" />
+        <div className="absolute bottom-0 left-0 right-0 h-[5px] bg-background" />
+        <div className="absolute top-0 left-0 bottom-0 w-[5px] bg-background" />
+        <div className="absolute top-0 right-0 bottom-0 w-[5px] bg-background" />
       </div>
     </div>
   );
