@@ -44,7 +44,7 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage, men
               className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
               onClick={onBack}
             >
-              GALLERY
+              COLLECTION
             </span>
             <span 
               className={`${currentPage === 'about' ? 'text-foreground cursor-default' : 'text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200'}`}
