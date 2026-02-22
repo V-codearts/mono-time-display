@@ -25,21 +25,21 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       main: gallery1,
       variations: [gallery1, gallery2, gallery3, gallery4],
       title: "T",
-      description: "COTTON"
+      description: ""
     },
     {
       id: 2,
       main: gallery2,
       variations: [gallery2, gallery3, gallery4, gallery5],
       title: "HOODIE",
-      description: "COTTON"
+      description: ""
     },
     {
       id: 3,
       main: gallery3,
       variations: [gallery3, gallery4, gallery5, gallery1],
       title: "SHERPA JACKET",
-      description: "COTTON LINING"
+      description: ""
     },
     {
       id: 4,
@@ -90,7 +90,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
           className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0 mt-0'}`}
         >
           <div className="flex flex-col gap-0.5 tracking-wider uppercase">
-            <span className="text-foreground cursor-default font-normal">GALLERY</span>
+            <span className="text-foreground cursor-default font-normal">COLLECTION</span>
             <span 
               className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
               onClick={() => onNavigate?.('about')}
