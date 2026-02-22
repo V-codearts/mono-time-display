@@ -17,6 +17,7 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const startSequence = useCallback(() => {
     if (hasStarted.current) return;
     hasStarted.current = true;
+    console.log('[IntroVideo] startSequence fired, video readyState:', videoRef.current?.readyState);
 
     // Small delay then fade in
     setTimeout(() => {
@@ -33,20 +34,32 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
     const video = videoRef.current;
     if (!video) return;
 
+    console.log('[IntroVideo] mounted, readyState:', video.readyState, 'src:', video.src);
+
+    const onError = () => console.error('[IntroVideo] video error:', video.error);
+    video.addEventListener('error', onError);
+
     // If video is already ready (cached), start immediately
     if (video.readyState >= 3) {
       startSequence();
       return;
     }
 
-    const onCanPlay = () => startSequence();
+    const onCanPlay = () => {
+      console.log('[IntroVideo] canplay fired');
+      startSequence();
+    };
     video.addEventListener('canplay', onCanPlay);
 
     // Fallback: if video never loads after 3s, start anyway
-    const fallback = setTimeout(() => startSequence(), 3000);
+    const fallback = setTimeout(() => {
+      console.log('[IntroVideo] fallback triggered, readyState:', video.readyState);
+      startSequence();
+    }, 3000);
 
     return () => {
       video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('error', onError);
       clearTimeout(fallback);
     };
   }, [startSequence]);
