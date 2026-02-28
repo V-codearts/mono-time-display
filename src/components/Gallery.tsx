@@ -1,10 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import ImageViewer from './ImageViewer';
-import gallery1 from '@/assets/gallery-1.jpg';
-import gallery2 from '@/assets/gallery-2.jpg';
-import gallery3 from '@/assets/gallery-3.jpg';
-import gallery4 from '@/assets/gallery-4.jpg';
-import gallery5 from '@/assets/gallery-5.jpg';
+import { useState, useEffect } from 'react';
 
 interface GalleryProps {
   onBack?: () => void;
@@ -16,64 +10,16 @@ interface GalleryProps {
 }
 
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const scrollRef = useRef(0);
+  const [time, setTime] = useState(new Date());
 
-  const images = [
-    {
-      id: 1,
-      main: gallery1,
-      variations: [gallery1, gallery2, gallery3, gallery4],
-      title: "T",
-      description: ""
-    },
-    {
-      id: 2,
-      main: gallery2,
-      variations: [gallery2, gallery3, gallery4, gallery5],
-      title: "HOODIE",
-      description: ""
-    },
-    {
-      id: 3,
-      main: gallery3,
-      variations: [gallery3, gallery4, gallery5, gallery1],
-      title: "SHERPA JACKET",
-      description: ""
-    },
-    {
-      id: 4,
-      main: gallery4,
-      variations: [gallery4, gallery5, gallery1, gallery2],
-      title: "FUTURE DENIM",
-      description: ""
-    }
-  ];
-  const handleSelectImage = (id: number) => {
-    scrollRef.current = window.scrollY;
-    setSelectedImage(id);
-  };
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleBack = () => {
-    setSelectedImage(null);
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollRef.current);
-    });
-  };
-
-  if (selectedImage !== null) {
-    const imageData = images.find(img => img.id === selectedImage);
-    if (imageData) {
-      return (
-        <ImageViewer
-          image={imageData}
-          onBack={handleBack}
-          isDarkMode={isDarkMode}
-          onToggleTheme={onToggleTheme}
-        />
-      );
-    }
-  }
+  const dayName = time.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  const date = time.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
@@ -110,23 +56,12 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
         onClick={onToggleTheme}
       />
 
-      {/* Gallery Grid */}
-      <div className="flex flex-col items-center justify-start min-h-screen">
-        {images.map((image) => (
-          <div 
-            key={image.id}
-            className="w-full flex items-center justify-center h-screen"
-          >
-            <img 
-              src={image.main}
-              alt={`Gallery item ${image.id}`}
-              className="w-[80vmin] h-[80vmin] object-cover border border-foreground/20 hover:scale-105 transition-transform duration-300 cursor-pointer"
-              loading={image.id === 1 ? "eager" : "lazy"}
-              decoding="async"
-              onClick={() => handleSelectImage(image.id)}
-            />
-          </div>
-        ))}
+      {/* Time Display */}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center tracking-widest uppercase">
+          <div className="text-sm md:text-base">{dayName} {date}</div>
+          <div className="text-sm md:text-base mt-1">{timeStr}</div>
+        </div>
       </div>
     </div>
   );
