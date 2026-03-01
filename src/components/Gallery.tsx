@@ -38,14 +38,33 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
           className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0 mt-0'}`}
         >
           <div className="flex flex-col gap-0.5 tracking-wider uppercase">
-            <span className="text-foreground cursor-default font-normal">COLLECTION</span>
             <span 
-              className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
+              className="text-foreground cursor-default font-normal transition-all duration-300 ease-in-out"
+              style={{
+                transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
+                opacity: menuOpen ? 1 : 0,
+                transitionDelay: menuOpen ? '0ms' : '100ms',
+              }}
+            >COLLECTION</span>
+            <span 
+              className="text-muted-foreground cursor-pointer hover:text-foreground transition-all duration-300 ease-in-out"
+              style={{
+                transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
+                opacity: menuOpen ? 1 : 0,
+                transitionDelay: menuOpen ? '50ms' : '50ms',
+              }}
               onClick={() => onNavigate?.('about')}
             >
               ABOUT
             </span>
-            <span className="text-muted-foreground cursor-default">
+            <span 
+              className="text-muted-foreground cursor-default transition-all duration-300 ease-in-out"
+              style={{
+                transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
+                opacity: menuOpen ? 1 : 0,
+                transitionDelay: menuOpen ? '100ms' : '0ms',
+              }}
+            >
               OTHER
             </span>
           </div>

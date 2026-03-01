@@ -41,18 +41,35 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage, men
         >
           <div className="flex flex-col gap-0.5 tracking-wider uppercase">
             <span 
-              className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200"
+              className="text-muted-foreground cursor-pointer hover:text-foreground transition-all duration-300 ease-in-out"
+              style={{
+                transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
+                opacity: menuOpen ? 1 : 0,
+                transitionDelay: menuOpen ? '0ms' : '100ms',
+              }}
               onClick={onBack}
             >
               COLLECTION
             </span>
             <span 
-              className={`${currentPage === 'about' ? 'text-foreground cursor-default' : 'text-muted-foreground cursor-pointer hover:text-foreground transition-colors duration-200'}`}
+              className={`${currentPage === 'about' ? 'text-foreground cursor-default' : 'text-muted-foreground cursor-pointer hover:text-foreground'} transition-all duration-300 ease-in-out`}
+              style={{
+                transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
+                opacity: menuOpen ? 1 : 0,
+                transitionDelay: menuOpen ? '50ms' : '50ms',
+              }}
               onClick={() => currentPage !== 'about' && onNavigate('about')}
             >
               ABOUT
             </span>
-            <span className="text-muted-foreground cursor-default">
+            <span 
+              className="text-muted-foreground cursor-default transition-all duration-300 ease-in-out"
+              style={{
+                transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
+                opacity: menuOpen ? 1 : 0,
+                transitionDelay: menuOpen ? '100ms' : '0ms',
+              }}
+            >
               OTHER
             </span>
           </div>
