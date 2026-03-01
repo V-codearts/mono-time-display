@@ -15,12 +15,12 @@ const About = ({ isDarkMode, onToggleTheme, onBack, onNavigate, currentPage, men
   const pageContent: Record<string, React.ReactNode> = {
     about: (
       <div className="w-full flex items-center justify-center h-screen">
-        <p className="text-muted-foreground tracking-wider uppercase">PORTFOLIO</p>
+        <p className="text-foreground tracking-wider uppercase">PORTFOLIO</p>
       </div>
     ),
     other: (
       <div className="w-full flex items-center justify-center h-screen">
-        <p className="text-muted-foreground tracking-wider uppercase">PORTFOLIO</p>
+        <p className="text-foreground tracking-wider uppercase">PORTFOLIO</p>
       </div>
     ),
   };
