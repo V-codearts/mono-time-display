@@ -28,29 +28,29 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       {/* Nav Menu Toggle */}
       <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50">
         <div 
-          className="text-xl cursor-pointer transition-all duration-200 hover:font-bold"
+          className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold w-5 h-6 flex items-center justify-center"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? '−' : '+'}
+          <span className={`absolute transition-opacity duration-200 ${menuOpen ? 'opacity-0' : 'opacity-100'}`}>+</span>
+          <span className={`absolute transition-opacity duration-200 ${menuOpen ? 'opacity-100' : 'opacity-0'}`}>−</span>
         </div>
         
         <div
-          className={`overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0 mt-0'}`}
+          className={`transition-all duration-300 ease-in-out mt-1 ${menuOpen ? 'max-h-96' : 'max-h-0'}`}
+          style={{ clipPath: 'inset(0 0 0 -20px)' }}
         >
           <div className="flex flex-col gap-0.5 tracking-wider uppercase">
             <span 
-              className="text-foreground cursor-default font-normal transition-all duration-300 ease-in-out"
+              className="text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out"
               style={{
                 transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
-                opacity: menuOpen ? 1 : 0,
                 transitionDelay: menuOpen ? '0ms' : '100ms',
               }}
             >COLLECTION</span>
             <span 
-              className="text-muted-foreground cursor-pointer hover:text-foreground transition-all duration-300 ease-in-out"
+              className="text-muted-foreground cursor-pointer hover:text-foreground transition-transform duration-300 ease-in-out"
               style={{
                 transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
-                opacity: menuOpen ? 1 : 0,
                 transitionDelay: menuOpen ? '50ms' : '50ms',
               }}
               onClick={() => onNavigate?.('about')}
@@ -58,10 +58,9 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
               ABOUT
             </span>
             <span 
-              className="text-muted-foreground cursor-default transition-all duration-300 ease-in-out"
+              className="text-muted-foreground cursor-default transition-transform duration-300 ease-in-out"
               style={{
                 transform: menuOpen ? 'translateX(0)' : 'translateX(-12px)',
-                opacity: menuOpen ? 1 : 0,
                 transitionDelay: menuOpen ? '100ms' : '0ms',
               }}
             >
