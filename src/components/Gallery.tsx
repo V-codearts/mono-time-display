@@ -17,8 +17,10 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
     return () => clearInterval(interval);
   }, []);
 
-  const dayName = time.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
-  const date = time.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  const month = String(time.getMonth() + 1).padStart(2, '0');
+  const day = String(time.getDate()).padStart(2, '0');
+  const year = time.getFullYear();
+  const date = `${month} ${day} ${year}`;
   const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
@@ -59,7 +61,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       {/* Time Display */}
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center tracking-widest uppercase">
-          <div className="text-sm md:text-base">{dayName} {date}</div>
+          <div className="text-sm md:text-base">{date}</div>
           <div className="text-sm md:text-base mt-1">{timeStr}</div>
         </div>
       </div>
