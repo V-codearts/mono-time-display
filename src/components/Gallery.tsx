@@ -40,13 +40,6 @@ const ITEMS: ItemData[] = [
     description: '',
   },
   {
-    id: 3,
-    title: 'SHERPA JACKET',
-    main: gallery3,
-    variations: [gallery3, gallery4, gallery5, gallery1],
-    description: '',
-  },
-  {
     id: 4,
     title: 'FUTURE DENIM',
     main: gallery4,
@@ -130,16 +123,20 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
         onClick={onToggleTheme}
       />
 
-      {/* Collection Items — vertical stack */}
-      <div className="flex flex-col items-center pt-24 pb-16 gap-24">
+      {/* Collection Items — one per viewport */}
+      <div className="flex flex-col items-center">
         {ITEMS.map((item) => (
-          <img
+          <div
             key={item.id}
-            src={item.main}
-            alt={item.title}
-            className="max-w-[80vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
-            onClick={() => handleSelectItem(item)}
-          />
+            className="h-screen w-full flex items-center justify-center"
+          >
+            <img
+              src={item.main}
+              alt={item.title}
+              className="max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20"
+              onClick={() => handleSelectItem(item)}
+            />
+          </div>
         ))}
       </div>
     </div>
