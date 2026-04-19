@@ -24,35 +24,33 @@ interface ItemData {
 }
 
 // Placeholder items — swap `main` and `variations` URLs when real photos arrive.
-const PLACEHOLDER = '/placeholder.svg';
-
 const ITEMS: ItemData[] = [
   {
     id: 1,
     title: 'T',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery1,
+    variations: [gallery1, gallery2, gallery3, gallery4],
     description: '',
   },
   {
     id: 2,
     title: 'HOODIE',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery2,
+    variations: [gallery2, gallery3, gallery4, gallery5],
     description: '',
   },
   {
     id: 3,
     title: 'SHERPA JACKET',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery3,
+    variations: [gallery3, gallery4, gallery5, gallery1],
     description: '',
   },
   {
     id: 4,
     title: 'FUTURE DENIM',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery4,
+    variations: [gallery4, gallery5, gallery1, gallery2],
     description: '',
   },
 ];
