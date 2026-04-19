@@ -130,15 +130,13 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       {/* Collection Items — vertical stack */}
       <div className="flex flex-col items-center pt-24 pb-16 gap-24">
         {ITEMS.map((item) => (
-          <div key={item.id} className="flex flex-col items-center">
-            <img
-              src={item.main}
-              alt={item.title}
-              className="max-w-[80vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
-              onClick={() => handleSelectItem(item)}
-            />
-            <div className="mt-3 text-sm md:text-base tracking-widest uppercase">{item.title}</div>
-          </div>
+          <img
+            key={item.id}
+            src={item.main}
+            alt={item.title}
+            className="max-w-[80vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
+            onClick={() => handleSelectItem(item)}
+          />
         ))}
       </div>
     </div>
