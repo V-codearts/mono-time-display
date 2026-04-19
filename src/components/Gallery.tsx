@@ -40,13 +40,6 @@ const ITEMS: ItemData[] = [
     description: '',
   },
   {
-    id: 3,
-    title: 'SHERPA JACKET',
-    main: gallery3,
-    variations: [gallery3, gallery4, gallery5, gallery1],
-    description: '',
-  },
-  {
     id: 4,
     title: 'FUTURE DENIM',
     main: gallery4,
