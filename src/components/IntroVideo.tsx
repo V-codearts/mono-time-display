@@ -10,7 +10,7 @@ interface IntroVideoProps {
 const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isFadedIn, setIsFadedIn] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasStarted = useRef(false);
 
