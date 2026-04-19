@@ -1,5 +1,10 @@
 import { useState, useRef } from 'react';
 import ImageViewer from '@/components/ImageViewer';
+import gallery1 from '@/assets/gallery-1.jpg';
+import gallery2 from '@/assets/gallery-2.jpg';
+import gallery3 from '@/assets/gallery-3.jpg';
+import gallery4 from '@/assets/gallery-4.jpg';
+import gallery5 from '@/assets/gallery-5.jpg';
 
 interface GalleryProps {
   onBack?: () => void;
@@ -19,35 +24,33 @@ interface ItemData {
 }
 
 // Placeholder items — swap `main` and `variations` URLs when real photos arrive.
-const PLACEHOLDER = '/placeholder.svg';
-
 const ITEMS: ItemData[] = [
   {
     id: 1,
     title: 'T',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery1,
+    variations: [gallery1, gallery2, gallery3, gallery4],
     description: '',
   },
   {
     id: 2,
     title: 'HOODIE',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery2,
+    variations: [gallery2, gallery3, gallery4, gallery5],
     description: '',
   },
   {
     id: 3,
     title: 'SHERPA JACKET',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery3,
+    variations: [gallery3, gallery4, gallery5, gallery1],
     description: '',
   },
   {
     id: 4,
     title: 'FUTURE DENIM',
-    main: PLACEHOLDER,
-    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    main: gallery4,
+    variations: [gallery4, gallery5, gallery1, gallery2],
     description: '',
   },
 ];
@@ -130,15 +133,13 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       {/* Collection Items — vertical stack */}
       <div className="flex flex-col items-center pt-24 pb-16 gap-24">
         {ITEMS.map((item) => (
-          <div key={item.id} className="flex flex-col items-center">
-            <img
-              src={item.main}
-              alt={item.title}
-              className="max-w-[80vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
-              onClick={() => handleSelectItem(item)}
-            />
-            <div className="mt-3 text-sm md:text-base tracking-widest uppercase">{item.title}</div>
-          </div>
+          <img
+            key={item.id}
+            src={item.main}
+            alt={item.title}
+            className="max-w-[80vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
+            onClick={() => handleSelectItem(item)}
+          />
         ))}
       </div>
     </div>
