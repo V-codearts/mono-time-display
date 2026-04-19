@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import ImageViewer from '@/components/ImageViewer';
 
 interface GalleryProps {
   onBack?: () => void;
@@ -9,13 +10,69 @@ interface GalleryProps {
   setMenuOpen: (open: boolean) => void;
 }
 
+interface ItemData {
+  id: number;
+  title: string;
+  main: string;
+  variations: string[];
+  description: string;
+}
+
+// Placeholder items — swap `main` and `variations` URLs when real photos arrive.
+const PLACEHOLDER = '/placeholder.svg';
+
+const ITEMS: ItemData[] = [
+  {
+    id: 1,
+    title: 'T',
+    main: PLACEHOLDER,
+    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    description: '',
+  },
+  {
+    id: 2,
+    title: 'HOODIE',
+    main: PLACEHOLDER,
+    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    description: '',
+  },
+  {
+    id: 3,
+    title: 'SHERPA JACKET',
+    main: PLACEHOLDER,
+    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    description: '',
+  },
+  {
+    id: 4,
+    title: 'FUTURE DENIM',
+    main: PLACEHOLDER,
+    variations: [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER],
+    description: '',
+  },
+];
+
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [time, setTime] = useState(new Date());
+  const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
+  const scrollPosRef = useRef(0);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Restore scroll when returning from inspector
+  useEffect(() => {
+    if (!selectedItem) {
+      window.scrollTo(0, scrollPosRef.current);
+    }
+  }, [selectedItem]);
+
+  const handleSelectItem = (item: ItemData) => {
+    scrollPosRef.current = window.scrollY;
+    setSelectedItem(item);
+  };
 
   const month = String(time.getMonth() + 1).padStart(2, '0');
   const day = String(time.getDate()).padStart(2, '0');
@@ -23,27 +80,38 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
   const date = `${month} ${day} ${year}`;
   const timeStr = time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+  if (selectedItem) {
+    return (
+      <ImageViewer
+        image={selectedItem}
+        onBack={() => setSelectedItem(null)}
+        isDarkMode={isDarkMode}
+        onToggleTheme={onToggleTheme}
+      />
+    );
+  }
+
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
       {/* Nav Menu Toggle */}
       <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50">
-        <div 
+        <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           <span className={`transition-opacity duration-200 ${menuOpen ? 'opacity-0' : 'opacity-100'}`}>+</span>
           <span className={`absolute left-0 top-0 transition-opacity duration-200 ${menuOpen ? 'opacity-100' : 'opacity-0'}`}>−</span>
         </div>
-        
+
         <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
-          <span 
+          <span
             className="text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out whitespace-nowrap"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '0ms' : '100ms',
             }}
           >COLLECTION</span>
-          <span 
+          <span
             className="text-muted-foreground cursor-pointer hover:text-foreground transition-transform duration-300 ease-in-out whitespace-nowrap"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
@@ -53,7 +121,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
           >
             ABOUT
           </span>
-          <span 
+          <span
             className="text-muted-foreground cursor-default transition-transform duration-300 ease-in-out whitespace-nowrap"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
@@ -66,14 +134,27 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
       </div>
 
       {/* Theme Toggle Dot */}
-      <div 
+      <div
         className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
         onClick={onToggleTheme}
       />
 
-      {/* Time Display */}
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center tracking-widest uppercase">
+      {/* Collection Items — vertical stack */}
+      <div className="flex flex-col items-center pt-24 pb-16 gap-24">
+        {ITEMS.map((item) => (
+          <div key={item.id} className="flex flex-col items-center">
+            <img
+              src={item.main}
+              alt={item.title}
+              className="max-w-[80vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
+              onClick={() => handleSelectItem(item)}
+            />
+            <div className="mt-3 text-sm md:text-base tracking-widest uppercase">{item.title}</div>
+          </div>
+        ))}
+
+        {/* Time Display at bottom of collection */}
+        <div className="text-center tracking-widest uppercase mt-8">
           <div className="text-sm md:text-base">{date}</div>
           <div className="text-sm md:text-base mt-1">{timeStr}</div>
         </div>
