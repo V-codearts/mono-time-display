@@ -123,14 +123,14 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
 
         <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
           <span
-            className="text-foreground cursor-default font-normal transition-all duration-300 ease-in-out whitespace-nowrap"
+            className="text-foreground cursor-default font-normal transition-all duration-300 ease-in-out whitespace-nowrap w-fit"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '0ms' : '100ms',
             }}
           >COLLECTION</span>
           <span
-            className="text-muted-foreground cursor-pointer hover:text-foreground hover:font-bold transition-all duration-300 ease-in-out whitespace-nowrap"
+            className="text-muted-foreground cursor-pointer hover:text-foreground transition-all duration-300 ease-in-out whitespace-nowrap w-fit"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '50ms' : '50ms',
@@ -140,7 +140,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
             ABOUT
           </span>
           <span
-            className="text-muted-foreground cursor-default transition-all duration-300 ease-in-out whitespace-nowrap"
+            className="text-muted-foreground cursor-default transition-all duration-300 ease-in-out whitespace-nowrap w-fit"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '100ms' : '0ms',
