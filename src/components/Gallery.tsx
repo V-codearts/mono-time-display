@@ -123,14 +123,14 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
 
         <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
           <span
-            className="text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out whitespace-nowrap"
+            className="text-foreground cursor-default font-normal transition-all duration-300 ease-in-out whitespace-nowrap"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '0ms' : '100ms',
             }}
           >COLLECTION</span>
           <span
-            className="text-muted-foreground cursor-pointer hover:text-foreground transition-transform duration-300 ease-in-out whitespace-nowrap"
+            className="text-muted-foreground cursor-pointer hover:text-foreground hover:font-bold transition-all duration-300 ease-in-out whitespace-nowrap"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '50ms' : '50ms',
@@ -140,7 +140,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
             ABOUT
           </span>
           <span
-            className="text-muted-foreground cursor-default transition-transform duration-300 ease-in-out whitespace-nowrap"
+            className="text-muted-foreground cursor-default transition-all duration-300 ease-in-out whitespace-nowrap"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDelay: menuOpen ? '100ms' : '0ms',
@@ -170,7 +170,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
                 loading="eager"
                 decoding="async"
                 fetchPriority={isFirst ? 'high' : 'auto'}
-                className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 transition-transform duration-300 ease-out hover:scale-105 ${
                   isFirst ? `transition-opacity duration-300 ease-out ${firstReady ? 'opacity-100' : 'opacity-0'}` : ''
                 }`}
                 onClick={() => handleSelectItem(item)}
