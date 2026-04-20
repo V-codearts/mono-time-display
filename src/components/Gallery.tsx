@@ -50,7 +50,17 @@ const ITEMS: ItemData[] = [
 
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
+  const [loadedIds, setLoadedIds] = useState<Set<number>>(new Set());
   const scrollPosRef = useRef(0);
+
+  const handleImageLoad = (id: number) => {
+    setLoadedIds((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
 
   const handleSelectItem = (item: ItemData) => {
     scrollPosRef.current = window.scrollY;
