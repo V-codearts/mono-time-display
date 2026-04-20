@@ -50,7 +50,17 @@ const ITEMS: ItemData[] = [
 
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
+  const [loadedIds, setLoadedIds] = useState<Set<number>>(new Set());
   const scrollPosRef = useRef(0);
+
+  const handleImageLoad = (id: number) => {
+    setLoadedIds((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  };
 
   const handleSelectItem = (item: ItemData) => {
     scrollPosRef.current = window.scrollY;
@@ -125,7 +135,7 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
 
       {/* Collection Items — one per viewport */}
       <div className="flex flex-col items-center">
-        {ITEMS.map((item) => (
+        {ITEMS.map((item, idx) => (
           <div
             key={item.id}
             className="h-screen w-full flex items-center justify-center"
@@ -133,7 +143,12 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
             <img
               src={item.main}
               alt={item.title}
-              className="max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20"
+              loading={idx === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              onLoad={() => handleImageLoad(item.id)}
+              className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 transition-opacity duration-300 ease-out ${
+                loadedIds.has(item.id) ? 'opacity-100' : 'opacity-0'
+              }`}
               onClick={() => handleSelectItem(item)}
             />
           </div>
