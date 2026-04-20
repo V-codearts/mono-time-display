@@ -130,11 +130,11 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
             }}
           >COLLECTION</span>
           <span
-            className="text-muted-foreground cursor-pointer hover:text-foreground transition-[color,transform] duration-200 ease-in-out whitespace-nowrap w-fit"
+            className="text-muted-foreground cursor-pointer hover:text-foreground transition-[transform,color] duration-300 ease-in-out whitespace-nowrap w-fit"
             style={{
               transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
-              transitionDuration: '200ms, 300ms',
-              transitionDelay: menuOpen ? '0ms, 50ms' : '0ms, 50ms',
+              transitionDuration: '300ms, 200ms',
+              transitionDelay: menuOpen ? '50ms, 0ms' : '50ms, 0ms',
             }}
             onClick={() => onNavigate?.('about')}
           >
