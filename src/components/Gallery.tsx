@@ -141,24 +141,27 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
 
       {/* Collection Items — one per viewport */}
       <div className="flex flex-col items-center">
-        {ITEMS.map((item, idx) => (
-          <div
-            key={item.id}
-            className="h-screen w-full flex items-center justify-center"
-          >
-            <img
-              src={item.main}
-              alt={item.title}
-              loading={idx === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-              onLoad={() => handleImageLoad(item.id)}
-              className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 transition-opacity duration-300 ease-out ${
-                loadedIds.has(item.id) ? 'opacity-100' : 'opacity-0'
-              }`}
-              onClick={() => handleSelectItem(item)}
-            />
-          </div>
-        ))}
+        {ITEMS.map((item, idx) => {
+          const isFirst = idx === 0;
+          const visible = isFirst ? firstReady : true;
+          return (
+            <div
+              key={item.id}
+              className="h-screen w-full flex items-center justify-center"
+            >
+              <img
+                src={item.main}
+                alt={item.title}
+                loading={isFirst ? 'eager' : 'lazy'}
+                decoding="async"
+                className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                  isFirst ? `transition-opacity duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}` : ''
+                }`}
+                onClick={() => handleSelectItem(item)}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
