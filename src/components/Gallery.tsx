@@ -23,6 +23,22 @@ interface ItemData {
   description: string;
 }
 
+const preloadImage = (src: string) => {
+  const img = new Image();
+  img.src = src;
+
+  if (img.complete) {
+    return typeof img.decode === 'function'
+      ? img.decode().then(() => undefined).catch(() => undefined)
+      : Promise.resolve();
+  }
+
+  return new Promise<void>((resolve) => {
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+  });
+};
+
 // Placeholder items — swap `main` and `variations` URLs when real photos arrive.
 const ITEMS: ItemData[] = [
   {
@@ -48,24 +64,27 @@ const ITEMS: ItemData[] = [
   },
 ];
 
+const COLLECTION_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.main)));
+const firstImageReadyPromise = preloadImage(ITEMS[0].main);
+void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
+
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [firstReady, setFirstReady] = useState(false);
   const scrollPosRef = useRef(0);
 
-  // Preload + decode the first image so it can fade in together with the rest of the UI.
   useEffect(() => {
     let cancelled = false;
-    const img = new Image();
-    img.src = ITEMS[0].main;
-    const ready = () => { if (!cancelled) setFirstReady(true); };
-    if (img.decode) {
-      img.decode().then(ready).catch(ready);
-    } else {
-      img.onload = ready;
-      img.onerror = ready;
-    }
-    return () => { cancelled = true; };
+
+    firstImageReadyPromise.finally(() => {
+      if (!cancelled) {
+        setFirstReady(true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSelectItem = (item: ItemData) => {
@@ -93,7 +112,6 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
-      {/* Nav Menu Toggle */}
       <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50">
         <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
@@ -133,17 +151,14 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
         </div>
       </div>
 
-      {/* Theme Toggle Dot */}
       <div
         className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
         onClick={onToggleTheme}
       />
 
-      {/* Collection Items — one per viewport */}
       <div className="flex flex-col items-center">
         {ITEMS.map((item, idx) => {
           const isFirst = idx === 0;
-          const visible = isFirst ? firstReady : true;
           return (
             <div
               key={item.id}
@@ -152,10 +167,11 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
               <img
                 src={item.main}
                 alt={item.title}
-                loading={isFirst ? 'eager' : 'lazy'}
+                loading="eager"
                 decoding="async"
+                fetchPriority={isFirst ? 'high' : 'auto'}
                 className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
-                  isFirst ? `transition-opacity duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}` : ''
+                  isFirst ? `transition-opacity duration-300 ease-out ${firstReady ? 'opacity-100' : 'opacity-0'}` : ''
                 }`}
                 onClick={() => handleSelectItem(item)}
               />
