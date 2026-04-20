@@ -50,17 +50,23 @@ const ITEMS: ItemData[] = [
 
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
-  const [loadedIds, setLoadedIds] = useState<Set<number>>(new Set());
+  const [firstReady, setFirstReady] = useState(false);
   const scrollPosRef = useRef(0);
 
-  const handleImageLoad = (id: number) => {
-    setLoadedIds((prev) => {
-      if (prev.has(id)) return prev;
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-  };
+  // Preload + decode the first image so it can fade in together with the rest of the UI.
+  useEffect(() => {
+    let cancelled = false;
+    const img = new Image();
+    img.src = ITEMS[0].main;
+    const ready = () => { if (!cancelled) setFirstReady(true); };
+    if (img.decode) {
+      img.decode().then(ready).catch(ready);
+    } else {
+      img.onload = ready;
+      img.onerror = ready;
+    }
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSelectItem = (item: ItemData) => {
     scrollPosRef.current = window.scrollY;
