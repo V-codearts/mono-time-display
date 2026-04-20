@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ImageViewer from '@/components/ImageViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
@@ -50,17 +50,23 @@ const ITEMS: ItemData[] = [
 
 const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
-  const [loadedIds, setLoadedIds] = useState<Set<number>>(new Set());
+  const [firstReady, setFirstReady] = useState(false);
   const scrollPosRef = useRef(0);
 
-  const handleImageLoad = (id: number) => {
-    setLoadedIds((prev) => {
-      if (prev.has(id)) return prev;
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-  };
+  // Preload + decode the first image so it can fade in together with the rest of the UI.
+  useEffect(() => {
+    let cancelled = false;
+    const img = new Image();
+    img.src = ITEMS[0].main;
+    const ready = () => { if (!cancelled) setFirstReady(true); };
+    if (img.decode) {
+      img.decode().then(ready).catch(ready);
+    } else {
+      img.onload = ready;
+      img.onerror = ready;
+    }
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSelectItem = (item: ItemData) => {
     scrollPosRef.current = window.scrollY;
@@ -135,24 +141,27 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
 
       {/* Collection Items — one per viewport */}
       <div className="flex flex-col items-center">
-        {ITEMS.map((item, idx) => (
-          <div
-            key={item.id}
-            className="h-screen w-full flex items-center justify-center"
-          >
-            <img
-              src={item.main}
-              alt={item.title}
-              loading={idx === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-              onLoad={() => handleImageLoad(item.id)}
-              className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 transition-opacity duration-300 ease-out ${
-                loadedIds.has(item.id) ? 'opacity-100' : 'opacity-0'
-              }`}
-              onClick={() => handleSelectItem(item)}
-            />
-          </div>
-        ))}
+        {ITEMS.map((item, idx) => {
+          const isFirst = idx === 0;
+          const visible = isFirst ? firstReady : true;
+          return (
+            <div
+              key={item.id}
+              className="h-screen w-full flex items-center justify-center"
+            >
+              <img
+                src={item.main}
+                alt={item.title}
+                loading={isFirst ? 'eager' : 'lazy'}
+                decoding="async"
+                className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                  isFirst ? `transition-opacity duration-300 ease-out ${visible ? 'opacity-100' : 'opacity-0'}` : ''
+                }`}
+                onClick={() => handleSelectItem(item)}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
