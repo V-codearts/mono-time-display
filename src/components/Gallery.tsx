@@ -27,8 +27,10 @@ const preloadImage = (src: string) => {
   const img = new Image();
   img.src = src;
 
-  if ('decode' in img) {
-    return img.decode().catch(() => undefined);
+  if (img.complete) {
+    return typeof img.decode === 'function'
+      ? img.decode().then(() => undefined).catch(() => undefined)
+      : Promise.resolve();
   }
 
   return new Promise<void>((resolve) => {
