@@ -62,6 +62,7 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
             <div>{image.title}</div>
             {image.description && <div className="mt-2">{image.description}</div>}
           </div>
+          </div>
         </div>
       </div>
     </div>
