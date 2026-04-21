@@ -11,11 +11,9 @@ interface ImageData {
 interface ImageViewerProps {
   image: ImageData;
   onBack: () => void;
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
 }
 
-const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerProps) => {
+const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
 
@@ -36,12 +34,6 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
       >
         &lt;
       </div>
-
-      {/* Theme Toggle Dot */}
-      <div 
-        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
-        onClick={onToggleTheme}
-      />
 
       {/* Image Viewer */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
