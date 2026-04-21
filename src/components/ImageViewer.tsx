@@ -11,11 +11,9 @@ interface ImageData {
 interface ImageViewerProps {
   image: ImageData;
   onBack: () => void;
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
 }
 
-const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerProps) => {
+const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
 
@@ -36,12 +34,6 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
       >
         &lt;
       </div>
-
-      {/* Theme Toggle Dot */}
-      <div 
-        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
-        onClick={onToggleTheme}
-      />
 
       {/* Image Viewer */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
@@ -66,10 +58,10 @@ const ImageViewer = ({ image, onBack, isDarkMode, onToggleTheme }: ImageViewerPr
           <div
             className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
           >
-            <div className="max-w-2xl text-center leading-relaxed uppercase">
-              <div>{image.title}</div>
-              {image.description && <div>{image.description}</div>}
-            </div>
+          <div className="max-w-2xl text-center leading-relaxed uppercase whitespace-pre-line">
+            <div>{image.title}</div>
+            {image.description && <div className="mt-2">{image.description}</div>}
+          </div>
           </div>
         </div>
       </div>

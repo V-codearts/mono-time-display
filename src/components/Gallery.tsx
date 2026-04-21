@@ -6,15 +6,6 @@ import gallery3 from '@/assets/gallery-3.jpg';
 import gallery4 from '@/assets/gallery-4.jpg';
 import gallery5 from '@/assets/gallery-5.jpg';
 
-interface GalleryProps {
-  onBack?: () => void;
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
-  onNavigate?: (page: string) => void;
-  menuOpen: boolean;
-  setMenuOpen: (open: boolean) => void;
-}
-
 interface ItemData {
   id: number;
   title: string;
@@ -39,28 +30,27 @@ const preloadImage = (src: string) => {
   });
 };
 
-// Placeholder items — swap `main` and `variations` URLs when real photos arrive.
 const ITEMS: ItemData[] = [
   {
     id: 1,
-    title: 'T',
+    title: '⊥',
     main: gallery1,
     variations: [gallery1, gallery2, gallery3, gallery4],
-    description: '',
+    description: 'SEAMLESS\nBANANA PEEL TANNIN DYED\n"WET GRAVEL"',
   },
   {
     id: 2,
-    title: 'HOODIE',
+    title: 'ZIP HOODIE',
     main: gallery2,
     variations: [gallery2, gallery3, gallery4, gallery5],
-    description: '',
+    description: 'SEAMLESS',
   },
   {
     id: 4,
-    title: 'FUTURE DENIM',
+    title: 'DENIM PANT',
     main: gallery4,
     variations: [gallery4, gallery5, gallery1, gallery2],
-    description: '',
+    description: 'FULL SEAMLESS WRAP AROUND CONSTRUCTION\n\nELASTIC WAISTBAND\nYES, BACK ZIP',
   },
 ];
 
@@ -68,7 +58,7 @@ const COLLECTION_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.mai
 const firstImageReadyPromise = preloadImage(ITEMS[0].main);
 void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
 
-const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen }: GalleryProps) => {
+const Gallery = () => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [firstReady, setFirstReady] = useState(false);
   const scrollPosRef = useRef(0);
@@ -100,63 +90,11 @@ const Gallery = ({ isDarkMode, onToggleTheme, onNavigate, menuOpen, setMenuOpen 
   };
 
   if (selectedItem) {
-    return (
-      <ImageViewer
-        image={selectedItem}
-        onBack={handleBack}
-        isDarkMode={isDarkMode}
-        onToggleTheme={onToggleTheme}
-      />
-    );
+    return <ImageViewer image={selectedItem} onBack={handleBack} />;
   }
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen">
-      <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50">
-        <div
-          className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <span className={`transition-opacity duration-200 ${menuOpen ? 'opacity-0' : 'opacity-100'}`}>+</span>
-          <span className={`absolute left-0 top-0 transition-opacity duration-200 ${menuOpen ? 'opacity-100' : 'opacity-0'}`}>−</span>
-        </div>
-
-        <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
-          <span
-            className="text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out whitespace-nowrap w-fit"
-            style={{
-              transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
-              transitionDelay: menuOpen ? '0ms' : '100ms',
-            }}
-          >COLLECTION</span>
-          <span
-            className="text-muted-foreground cursor-pointer hover:text-foreground transition-[transform,color] duration-300 ease-in-out whitespace-nowrap w-fit"
-            style={{
-              transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
-              transitionDuration: '300ms, 200ms',
-              transitionDelay: menuOpen ? '50ms, 0ms' : '50ms, 0ms',
-            }}
-            onClick={() => onNavigate?.('about')}
-          >
-            ABOUT
-          </span>
-          <span
-            className="text-muted-foreground cursor-default transition-transform duration-300 ease-in-out whitespace-nowrap w-fit"
-            style={{
-              transform: menuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
-              transitionDelay: menuOpen ? '100ms' : '0ms',
-            }}
-          >
-            OTHER
-          </span>
-        </div>
-      </div>
-
-      <div
-        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
-        onClick={onToggleTheme}
-      />
-
       <div className="flex flex-col items-center">
         {ITEMS.map((item, idx) => {
           const isFirst = idx === 0;

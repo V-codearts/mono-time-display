@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from '@/components/Gallery';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
+import Hud from '@/components/Hud';
 
 type Page = 'gallery' | 'about' | 'other';
 
@@ -17,6 +18,7 @@ const Index = () => {
   const [displayedPage, setDisplayedPage] = useState<Page>('gallery');
   const [pageOpacity, setPageOpacity] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hudVisible, setHudVisible] = useState(false);
   const switchTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -32,6 +34,7 @@ const Index = () => {
 
   const handleIntroComplete = useCallback(() => {
     setShowIntro(false);
+    setHudVisible(true);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setGalleryFadingIn(false);
@@ -53,7 +56,7 @@ const Index = () => {
   }, []);
 
   const handleNavigate = (page: string) => {
-    if (page === 'about' || page === 'other') goToPage(page);
+    if (page === 'gallery' || page === 'about' || page === 'other') goToPage(page);
   };
 
   if (showIntro) {
@@ -65,38 +68,35 @@ const Index = () => {
     transition: `opacity ${FADE_MS}ms ease-out`,
   };
 
-  if (displayedPage === 'about' || displayedPage === 'other') {
-    return (
-      <div style={fadeStyle}>
-        <About
+  return (
+    <>
+      {hudVisible && (
+        <Hud
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
-          onBack={() => goToPage('gallery')}
           onNavigate={handleNavigate}
           currentPage={displayedPage}
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
         />
-      </div>
-    );
-  }
+      )}
 
-  return (
-    <div
-      style={
-        galleryFadingIn
-          ? { opacity: 0, transition: 'none' }
-          : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
-      }
-    >
-      <Gallery
-        isDarkMode={isDarkMode}
-        onToggleTheme={toggleTheme}
-        onNavigate={handleNavigate}
-        menuOpen={menuOpen}
-        setMenuOpen={setMenuOpen}
-      />
-    </div>
+      {displayedPage === 'about' || displayedPage === 'other' ? (
+        <div style={fadeStyle}>
+          <About currentPage={displayedPage} />
+        </div>
+      ) : (
+        <div
+          style={
+            galleryFadingIn
+              ? { opacity: 0, transition: 'none' }
+              : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
+          }
+        >
+          <Gallery />
+        </div>
+      )}
+    </>
   );
 };
 
