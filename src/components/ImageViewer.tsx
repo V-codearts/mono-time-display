@@ -58,10 +58,9 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
           <div
             className={`overflow-hidden transition-all duration-300 ease-in-out ${showDescription ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
           >
-            <div className="max-w-2xl text-center leading-relaxed uppercase">
-              <div>{image.title}</div>
-              {image.description && <div>{image.description}</div>}
-            </div>
+          <div className="max-w-2xl text-center leading-relaxed uppercase whitespace-pre-line">
+            <div>{image.title}</div>
+            {image.description && <div className="mt-2">{image.description}</div>}
           </div>
         </div>
       </div>
