@@ -62,7 +62,7 @@ interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
 }
 
-const FADE_MS = 134;
+const FADE_MS = 74;
 
 const Gallery = ({ onInspectChange }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
