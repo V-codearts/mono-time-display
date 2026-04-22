@@ -21,6 +21,7 @@ const Index = () => {
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
   const switchTimer = useRef<number | null>(null);
+  const galleryBackRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -60,6 +61,14 @@ const Index = () => {
     if (page === 'gallery' || page === 'about' || page === 'other') goToPage(page);
   };
 
+  const handleBackHandlerReady = useCallback((handler: (() => void) | null) => {
+    galleryBackRef.current = handler;
+  }, []);
+
+  const handleHudBack = useCallback(() => {
+    galleryBackRef.current?.();
+  }, []);
+
   if (showIntro) {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
   }
@@ -71,7 +80,7 @@ const Index = () => {
 
   return (
     <>
-      {hudVisible && !inspecting && (
+      {hudVisible && (
         <Hud
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
@@ -79,6 +88,8 @@ const Index = () => {
           currentPage={displayedPage}
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
+          inspecting={inspecting}
+          onBack={handleHudBack}
         />
       )}
 
@@ -94,7 +105,7 @@ const Index = () => {
               : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
           }
         >
-          <Gallery onInspectChange={setInspecting} />
+          <Gallery onInspectChange={setInspecting} onBackHandlerReady={handleBackHandlerReady} />
         </div>
       )}
     </>

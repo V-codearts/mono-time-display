@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import ImageViewer from '@/components/ImageViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
