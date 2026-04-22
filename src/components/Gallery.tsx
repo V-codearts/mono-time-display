@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import ImageViewer from '@/components/ImageViewer';
+import ImageViewer, { ImageViewerHandle } from '@/components/ImageViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
 import gallery3 from '@/assets/gallery-3.jpg';
@@ -64,60 +64,139 @@ interface GalleryProps {
 }
 
 const FADE_MS = 74;
+const FLIP_MS = 300;
+const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
-  const [displayedItem, setDisplayedItem] = useState<ItemData | null>(null);
-  const [opacity, setOpacity] = useState(1);
   const [firstReady, setFirstReady] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  const [othersFaded, setOthersFaded] = useState(false);
   const scrollPosRef = useRef(0);
-  const switchTimer = useRef<number | null>(null);
+  const galleryImgRefs = useRef<Map<number, HTMLImageElement>>(new Map());
+  const viewerRef = useRef<ImageViewerHandle>(null);
+  const fromRectRef = useRef<DOMRect | null>(null);
+  const currentAnimRef = useRef<Animation | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-
     firstImageReadyPromise.finally(() => {
-      if (!cancelled) {
-        setFirstReady(true);
-      }
+      if (!cancelled) setFirstReady(true);
     });
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (switchTimer.current) window.clearTimeout(switchTimer.current);
-    };
+  const flipAnimate = useCallback((el: HTMLElement, fromRect: DOMRect, toRect: DOMRect) => {
+    const dx = fromRect.left - toRect.left;
+    const dy = fromRect.top - toRect.top;
+    const sx = fromRect.width / toRect.width;
+    const sy = fromRect.height / toRect.height;
+
+    if (currentAnimRef.current) {
+      currentAnimRef.current.cancel();
+    }
+
+    const anim = el.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, transformOrigin: 'top left' },
+        { transform: 'translate(0, 0) scale(1, 1)', transformOrigin: 'top left' },
+      ],
+      { duration: FLIP_MS, easing: FLIP_EASE, fill: 'both' }
+    );
+    currentAnimRef.current = anim;
+    return anim;
   }, []);
 
   const handleSelectItem = (item: ItemData) => {
-    scrollPosRef.current = window.scrollY;
-    setOpacity(0);
-    onInspectChange?.(true);
-    if (switchTimer.current) window.clearTimeout(switchTimer.current);
-    switchTimer.current = window.setTimeout(() => {
-      setDisplayedItem(item);
+    if (animating) return;
+    const galleryImg = galleryImgRefs.current.get(item.id);
+    if (!galleryImg) {
       setSelectedItem(item);
-      requestAnimationFrame(() => setOpacity(1));
+      onInspectChange?.(true);
+      return;
+    }
+
+    scrollPosRef.current = window.scrollY;
+    setAnimating(true);
+    setOthersFaded(true);
+    onInspectChange?.(true);
+
+    // After non-clicked items fade out, capture the clicked image rect
+    // (it stayed put) and swap to the viewer to perform the FLIP.
+    window.setTimeout(() => {
+      const stillThere = galleryImgRefs.current.get(item.id);
+      fromRectRef.current = (stillThere ?? galleryImg).getBoundingClientRect();
+      setSelectedItem(item);
     }, FADE_MS);
   };
 
+  // After viewer mounts, run the FLIP from gallery rect to viewer rect
+  useEffect(() => {
+    if (!selectedItem || !animating || !fromRectRef.current) return;
+    const viewerImg = viewerRef.current?.getImageEl();
+    if (!viewerImg) return;
+
+    let cancelled = false;
+    const run = () => {
+      const toRect = viewerImg.getBoundingClientRect();
+      if (toRect.width === 0 || toRect.height === 0) {
+        // image not laid out yet, retry next frame
+        requestAnimationFrame(run);
+        return;
+      }
+      const anim = flipAnimate(viewerImg, fromRectRef.current!, toRect);
+      anim.finished.then(() => {
+        if (cancelled) return;
+        setAnimating(false);
+        currentAnimRef.current = null;
+      }).catch(() => {});
+    };
+    requestAnimationFrame(run);
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedItem]);
+
   const handleBack = useCallback(() => {
-    setOpacity(0);
-    onInspectChange?.(false);
-    if (switchTimer.current) window.clearTimeout(switchTimer.current);
-    switchTimer.current = window.setTimeout(() => {
-      setDisplayedItem(null);
+    if (!selectedItem) return;
+    const viewerImg = viewerRef.current?.getImageEl();
+    if (!viewerImg) {
       setSelectedItem(null);
+      setOthersFaded(false);
+      onInspectChange?.(false);
+      return;
+    }
+
+    const fromRect = viewerImg.getBoundingClientRect();
+    const targetId = selectedItem.id;
+
+    // Unmount viewer, render gallery (still with others faded), then animate
+    setAnimating(true);
+    onInspectChange?.(false);
+    setSelectedItem(null);
+
+    requestAnimationFrame(() => {
+      // Restore scroll first so target rect is correct
+      window.scrollTo(0, scrollPosRef.current);
       requestAnimationFrame(() => {
-        window.scrollTo(0, scrollPosRef.current);
-        setOpacity(1);
+        const targetImg = galleryImgRefs.current.get(targetId);
+        if (!targetImg) {
+          setOthersFaded(false);
+          setAnimating(false);
+          return;
+        }
+        const toRect = targetImg.getBoundingClientRect();
+        // Hide the real gallery img during animation, show a clone-like animated element by animating the gallery img itself
+        const anim = flipAnimate(targetImg, fromRect, toRect);
+        // Fade others back in during the same window
+        setOthersFaded(false);
+        anim.finished.then(() => {
+          setAnimating(false);
+          currentAnimRef.current = null;
+        }).catch(() => {});
       });
-    }, FADE_MS);
-  }, [onInspectChange]);
+    });
+  }, [selectedItem, flipAnimate, onInspectChange]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -127,45 +206,55 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     }
   }, [selectedItem, handleBack, onBackHandlerReady]);
 
-  const fadeStyle = {
-    opacity,
-    transition: `opacity ${FADE_MS}ms ease-out`,
-  };
-
-  if (selectedItem && displayedItem) {
-    return (
-      <div style={fadeStyle}>
-        <ImageViewer image={displayedItem} onBack={handleBack} />
-      </div>
-    );
-  }
-
+  // Render: when an item is selected, we show the viewer.
+  // When animating-back, viewer is unmounted but gallery shows with others still faded.
   return (
-    <div style={fadeStyle} className="bg-background text-foreground font-mono min-h-screen">
-      <div className="flex flex-col items-center">
-        {ITEMS.map((item, idx) => {
-          const isFirst = idx === 0;
-          return (
-            <div
-              key={item.id}
-              className="h-screen w-full flex items-center justify-center"
-            >
-              <img
-                src={item.main}
-                alt={item.title}
-                loading="eager"
-                decoding="async"
-                fetchPriority={isFirst ? 'high' : 'auto'}
-                className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 transition-transform duration-300 ease-out hover:scale-105 ${
-                  isFirst ? `transition-opacity duration-300 ease-out ${firstReady ? 'opacity-100' : 'opacity-0'}` : ''
-                }`}
-                onClick={() => handleSelectItem(item)}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <>
+      {selectedItem ? (
+        <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
+      ) : (
+        <div className="bg-background text-foreground font-mono min-h-screen">
+          <div className="flex flex-col items-center">
+            {ITEMS.map((item, idx) => {
+              const isFirst = idx === 0;
+              const isFading = othersFaded; // applies during back-animation
+              return (
+                <div
+                  key={item.id}
+                  className="h-screen w-full flex items-center justify-center"
+                >
+                  <img
+                    ref={(el) => {
+                      if (el) galleryImgRefs.current.set(item.id, el);
+                      else galleryImgRefs.current.delete(item.id);
+                    }}
+                    src={item.main}
+                    alt={item.title}
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority={isFirst ? 'high' : 'auto'}
+                    className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                      animating ? '' : 'transition-transform duration-300 ease-out hover:scale-105'
+                    } ${
+                      isFirst && !firstReady ? 'opacity-0' : ''
+                    }`}
+                    style={{
+                      opacity: isFading ? 0 : undefined,
+                      transition: isFading
+                        ? `opacity ${FADE_MS}ms ease-out`
+                        : animating
+                          ? `opacity ${FADE_MS}ms ease-out`
+                          : undefined,
+                    }}
+                    onClick={() => handleSelectItem(item)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
