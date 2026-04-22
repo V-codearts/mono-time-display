@@ -6,7 +6,7 @@ import Hud from '@/components/Hud';
 
 type Page = 'gallery' | 'about' | 'other';
 
-const FADE_MS = 200;
+const FADE_MS = 134;
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -70,7 +70,7 @@ const Index = () => {
 
   return (
     <>
-      {hudVisible && (
+      {hudVisible && !inspecting && (
         <Hud
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
