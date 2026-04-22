@@ -62,10 +62,15 @@ interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
 }
 
+const FADE_MS = 134;
+
 const Gallery = ({ onInspectChange }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
+  const [displayedItem, setDisplayedItem] = useState<ItemData | null>(null);
+  const [opacity, setOpacity] = useState(1);
   const [firstReady, setFirstReady] = useState(false);
   const scrollPosRef = useRef(0);
+  const switchTimer = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,26 +86,53 @@ const Gallery = ({ onInspectChange }: GalleryProps) => {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (switchTimer.current) window.clearTimeout(switchTimer.current);
+    };
+  }, []);
+
   const handleSelectItem = (item: ItemData) => {
     scrollPosRef.current = window.scrollY;
-    setSelectedItem(item);
+    setOpacity(0);
     onInspectChange?.(true);
+    if (switchTimer.current) window.clearTimeout(switchTimer.current);
+    switchTimer.current = window.setTimeout(() => {
+      setDisplayedItem(item);
+      setSelectedItem(item);
+      requestAnimationFrame(() => setOpacity(1));
+    }, FADE_MS);
   };
 
   const handleBack = () => {
-    setSelectedItem(null);
+    setOpacity(0);
     onInspectChange?.(false);
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollPosRef.current);
-    });
+    if (switchTimer.current) window.clearTimeout(switchTimer.current);
+    switchTimer.current = window.setTimeout(() => {
+      setDisplayedItem(null);
+      setSelectedItem(null);
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPosRef.current);
+        setOpacity(1);
+      });
+    }, FADE_MS);
   };
 
-  if (selectedItem) {
-    return <ImageViewer image={selectedItem} onBack={handleBack} />;
+  const fadeStyle = {
+    opacity,
+    transition: `opacity ${FADE_MS}ms ease-out`,
+  };
+
+  if (selectedItem && displayedItem) {
+    return (
+      <div style={fadeStyle}>
+        <ImageViewer image={displayedItem} onBack={handleBack} />
+      </div>
+    );
   }
 
   return (
-    <div className="bg-background text-foreground font-mono min-h-screen">
+    <div style={fadeStyle} className="bg-background text-foreground font-mono min-h-screen">
       <div className="flex flex-col items-center">
         {ITEMS.map((item, idx) => {
           const isFirst = idx === 0;
