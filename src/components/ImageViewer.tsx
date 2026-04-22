@@ -27,14 +27,6 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen flex flex-col">
-      {/* Back Button */}
-      <div 
-        className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] text-xl font-normal cursor-pointer hover:font-bold transition-all duration-200 z-50"
-        onClick={onBack}
-      >
-        &lt;
-      </div>
-
       {/* Image Viewer */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         {/* Main Image */}
