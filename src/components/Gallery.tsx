@@ -60,11 +60,12 @@ void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
 
 interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
+  onBackHandlerReady?: (handler: (() => void) | null) => void;
 }
 
 const FADE_MS = 74;
 
-const Gallery = ({ onInspectChange }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [displayedItem, setDisplayedItem] = useState<ItemData | null>(null);
   const [opacity, setOpacity] = useState(1);
@@ -104,7 +105,7 @@ const Gallery = ({ onInspectChange }: GalleryProps) => {
     }, FADE_MS);
   };
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setOpacity(0);
     onInspectChange?.(false);
     if (switchTimer.current) window.clearTimeout(switchTimer.current);
@@ -116,7 +117,15 @@ const Gallery = ({ onInspectChange }: GalleryProps) => {
         setOpacity(1);
       });
     }, FADE_MS);
-  };
+  }, [onInspectChange]);
+
+  useEffect(() => {
+    if (selectedItem) {
+      onBackHandlerReady?.(handleBack);
+    } else {
+      onBackHandlerReady?.(null);
+    }
+  }, [selectedItem, handleBack, onBackHandlerReady]);
 
   const fadeStyle = {
     opacity,
