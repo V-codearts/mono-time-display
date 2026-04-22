@@ -19,6 +19,7 @@ const Index = () => {
   const [pageOpacity, setPageOpacity] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hudVisible, setHudVisible] = useState(false);
+  const [inspecting, setInspecting] = useState(false);
   const switchTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -93,7 +94,7 @@ const Index = () => {
               : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
           }
         >
-          <Gallery />
+          <Gallery onInspectChange={setInspecting} />
         </div>
       )}
     </>

@@ -58,7 +58,11 @@ const COLLECTION_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.mai
 const firstImageReadyPromise = preloadImage(ITEMS[0].main);
 void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
 
-const Gallery = () => {
+interface GalleryProps {
+  onInspectChange?: (inspecting: boolean) => void;
+}
+
+const Gallery = ({ onInspectChange }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [firstReady, setFirstReady] = useState(false);
   const scrollPosRef = useRef(0);
@@ -80,10 +84,12 @@ const Gallery = () => {
   const handleSelectItem = (item: ItemData) => {
     scrollPosRef.current = window.scrollY;
     setSelectedItem(item);
+    onInspectChange?.(true);
   };
 
   const handleBack = () => {
     setSelectedItem(null);
+    onInspectChange?.(false);
     requestAnimationFrame(() => {
       window.scrollTo(0, scrollPosRef.current);
     });
