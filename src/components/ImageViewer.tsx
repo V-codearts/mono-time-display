@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 
 interface ImageData {
   id: number;
@@ -13,9 +13,20 @@ interface ImageViewerProps {
   onBack: () => void;
 }
 
-const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
+export interface ImageViewerHandle {
+  getImageEl: () => HTMLImageElement | null;
+  getCurrentSrc: () => string;
+}
+
+const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [showDescription, setShowDescription] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    getImageEl: () => imgRef.current,
+    getCurrentSrc: () => image.variations[currentVariation],
+  }), [image, currentVariation]);
 
   const nextVariation = () => {
     setCurrentVariation((prev) => (prev + 1) % image.variations.length);
@@ -31,6 +42,7 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         {/* Main Image */}
         <img 
+          ref={imgRef}
           src={image.variations[currentVariation]}
           alt={`Variation ${currentVariation + 1}`}
           className="max-w-[90vw] max-h-[70vh] object-contain cursor-pointer border border-foreground/20"
@@ -59,6 +71,8 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
       </div>
     </div>
   );
-};
+});
+
+ImageViewer.displayName = 'ImageViewer';
 
 export default ImageViewer;
