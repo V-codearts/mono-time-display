@@ -60,7 +60,7 @@ const ImageViewer = ({ image, onBack }: ImageViewerProps) => {
           >
           <div className="max-w-2xl text-center leading-relaxed uppercase whitespace-pre-line">
             <div>{image.title}</div>
-            {image.description && <div className="mt-2">{image.description}</div>}
+            {image.description && <div style={{ marginTop: 'calc(0.5rem - 10px)' }}>{image.description}</div>}
           </div>
           </div>
         </div>

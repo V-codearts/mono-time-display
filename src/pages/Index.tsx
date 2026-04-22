@@ -6,7 +6,7 @@ import Hud from '@/components/Hud';
 
 type Page = 'gallery' | 'about' | 'other';
 
-const FADE_MS = 200;
+const FADE_MS = 134;
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -19,6 +19,7 @@ const Index = () => {
   const [pageOpacity, setPageOpacity] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hudVisible, setHudVisible] = useState(false);
+  const [inspecting, setInspecting] = useState(false);
   const switchTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -70,7 +71,7 @@ const Index = () => {
 
   return (
     <>
-      {hudVisible && (
+      {hudVisible && !inspecting && (
         <Hud
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
@@ -93,7 +94,7 @@ const Index = () => {
               : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
           }
         >
-          <Gallery />
+          <Gallery onInspectChange={setInspecting} />
         </div>
       )}
     </>
