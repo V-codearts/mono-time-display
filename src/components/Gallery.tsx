@@ -117,11 +117,17 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     }
 
     scrollPosRef.current = window.scrollY;
-    fromRectRef.current = galleryImg.getBoundingClientRect();
     setAnimating(true);
     setOthersFaded(true);
     onInspectChange?.(true);
-    setSelectedItem(item);
+
+    // After non-clicked items fade out, capture the clicked image rect
+    // (it stayed put) and swap to the viewer to perform the FLIP.
+    window.setTimeout(() => {
+      const stillThere = galleryImgRefs.current.get(item.id);
+      fromRectRef.current = (stillThere ?? galleryImg).getBoundingClientRect();
+      setSelectedItem(item);
+    }, FADE_MS);
   };
 
   // After viewer mounts, run the FLIP from gallery rect to viewer rect
