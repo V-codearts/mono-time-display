@@ -50,7 +50,7 @@ const ITEMS: ItemData[] = [
     title: 'DENIM PANT',
     main: gallery4,
     variations: [gallery4, gallery5, gallery1, gallery2],
-    description: 'FULL SEAMLESS WRAP AROUND CONSTRUCTION\n\nELASTIC WAISTBAND\nYES, BACK ZIP',
+    description: 'FULL SEAMLESS WRAP AROUND CONSTRUCTION\nELASTIC WAISTBAND\nYES, BACK ZIP',
   },
 ];
 
