@@ -171,22 +171,35 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   }, [selectedItem, clearImageAnimation, flipAnimate, animating]);
 
   const handleBack = useCallback(() => {
-    if (!selectedItem) return;
-    const viewerImg = viewerRef.current?.getImageEl();
-    if (!viewerImg) {
-      setSelectedItem(null);
-      setOthersFaded(false);
+    if (!selectedItem || animating) return;
+
+    const runBackTransition = () => {
+      const viewerImg = viewerRef.current?.getImageEl();
+      if (!viewerImg) {
+        setSelectedItem(null);
+        setOthersFaded(false);
+        onInspectChange?.(false);
+        return;
+      }
+
+      backFromRectRef.current = viewerImg.getBoundingClientRect();
+      setAnimating(true);
       onInspectChange?.(false);
+      setSelectedItem(null);
+    };
+
+    const currentVariation = viewerRef.current?.getCurrentVariation() ?? 0;
+    if (currentVariation === 0) {
+      runBackTransition();
       return;
     }
 
-    const fromRect = viewerImg.getBoundingClientRect();
-
-    backFromRectRef.current = fromRect;
-    setAnimating(true);
-    onInspectChange?.(false);
-    setSelectedItem(null);
-  }, [selectedItem, flipAnimate, onInspectChange]);
+    void viewerRef.current
+      ?.swipeToVariation(0, 'backward')
+      .then(() => {
+        runBackTransition();
+      });
+  }, [animating, onInspectChange, selectedItem]);
 
   useLayoutEffect(() => {
     if (selectedItem || !animating || selectedId === null || !backFromRectRef.current) return;
