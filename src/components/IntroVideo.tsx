@@ -13,11 +13,17 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasStarted = useRef(false);
+  const hasCompleted = useRef(false);
+
+  const completeIntro = useCallback(() => {
+    if (hasCompleted.current) return;
+    hasCompleted.current = true;
+    onComplete();
+  }, [onComplete]);
 
   const startSequence = useCallback(() => {
     if (hasStarted.current) return;
     hasStarted.current = true;
-    console.log('[IntroVideo] startSequence fired, video readyState:', videoRef.current?.readyState);
 
     // Small delay then fade in
     setTimeout(() => {
@@ -34,33 +40,44 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
     const video = videoRef.current;
     if (!video) return;
 
-    console.log('[IntroVideo] mounted, readyState:', video.readyState, 'src:', video.src);
+    const onReady = () => {
+      startSequence();
+    };
 
-    const onError = () => console.error('[IntroVideo] video error:', video.error);
-    video.addEventListener('error', onError);
+    const onError = () => {
+      startSequence();
+    };
 
     // If video is already ready (cached), start immediately
     if (video.readyState >= 3) {
       startSequence();
-      return;
     }
 
-    const onCanPlay = () => {
-      console.log('[IntroVideo] canplay fired');
+    video.addEventListener('loadeddata', onReady);
+    video.addEventListener('canplay', onReady);
+    video.addEventListener('playing', onReady);
+    video.addEventListener('error', onError);
+
+    void video.play().catch(() => {
       startSequence();
-    };
-    video.addEventListener('canplay', onCanPlay);
+    });
 
     // Fallback: if video never loads after 3s, start anyway
     const fallback = setTimeout(() => {
-      console.log('[IntroVideo] fallback triggered, readyState:', video.readyState);
       startSequence();
     }, 3000);
 
+    const completionFallback = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 3500);
+
     return () => {
-      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('loadeddata', onReady);
+      video.removeEventListener('canplay', onReady);
+      video.removeEventListener('playing', onReady);
       video.removeEventListener('error', onError);
       clearTimeout(fallback);
+      clearTimeout(completionFallback);
     };
   }, [startSequence]);
 
@@ -73,11 +90,11 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   useEffect(() => {
     if (isFadingOut) {
       const fadeTimer = setTimeout(() => {
-        onComplete();
+        completeIntro();
       }, 165);
       return () => clearTimeout(fadeTimer);
     }
-  }, [isFadingOut, onComplete]);
+  }, [isFadingOut, completeIntro]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
