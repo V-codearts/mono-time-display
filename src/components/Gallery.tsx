@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import ImageViewer, { ImageViewerHandle } from '@/components/ImageViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
@@ -63,12 +63,13 @@ interface GalleryProps {
   onBackHandlerReady?: (handler: (() => void) | null) => void;
 }
 
-const FADE_MS = 74;
+const FADE_MS = 100;
 const FLIP_MS = 300;
 const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [firstReady, setFirstReady] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [othersFaded, setOthersFaded] = useState(false);
@@ -76,6 +77,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   const galleryImgRefs = useRef<Map<number, HTMLImageElement>>(new Map());
   const viewerRef = useRef<ImageViewerHandle>(null);
   const fromRectRef = useRef<DOMRect | null>(null);
+  const backFromRectRef = useRef<DOMRect | null>(null);
   const currentAnimRef = useRef<Animation | null>(null);
 
   useEffect(() => {
@@ -111,12 +113,14 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     if (animating) return;
     const galleryImg = galleryImgRefs.current.get(item.id);
     if (!galleryImg) {
+      setSelectedId(item.id);
       setSelectedItem(item);
       onInspectChange?.(true);
       return;
     }
 
     scrollPosRef.current = window.scrollY;
+    setSelectedId(item.id);
     setAnimating(true);
     setOthersFaded(true);
     onInspectChange?.(true);
@@ -131,7 +135,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   };
 
   // After viewer mounts, run the FLIP from gallery rect to viewer rect
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!selectedItem || !animating || !fromRectRef.current) return;
     const viewerImg = viewerRef.current?.getImageEl();
     if (!viewerImg) return;
@@ -140,7 +144,6 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     const run = () => {
       const toRect = viewerImg.getBoundingClientRect();
       if (toRect.width === 0 || toRect.height === 0) {
-        // image not laid out yet, retry next frame
         requestAnimationFrame(run);
         return;
       }
@@ -151,7 +154,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
         currentAnimRef.current = null;
       }).catch(() => {});
     };
-    requestAnimationFrame(run);
+    run();
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,35 +171,36 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     }
 
     const fromRect = viewerImg.getBoundingClientRect();
-    const targetId = selectedItem.id;
 
-    // Unmount viewer, render gallery (still with others faded), then animate
+    backFromRectRef.current = fromRect;
     setAnimating(true);
     onInspectChange?.(false);
     setSelectedItem(null);
-
-    requestAnimationFrame(() => {
-      // Restore scroll first so target rect is correct
-      window.scrollTo(0, scrollPosRef.current);
-      requestAnimationFrame(() => {
-        const targetImg = galleryImgRefs.current.get(targetId);
-        if (!targetImg) {
-          setOthersFaded(false);
-          setAnimating(false);
-          return;
-        }
-        const toRect = targetImg.getBoundingClientRect();
-        // Hide the real gallery img during animation, show a clone-like animated element by animating the gallery img itself
-        const anim = flipAnimate(targetImg, fromRect, toRect);
-        // Fade others back in during the same window
-        setOthersFaded(false);
-        anim.finished.then(() => {
-          setAnimating(false);
-          currentAnimRef.current = null;
-        }).catch(() => {});
-      });
-    });
   }, [selectedItem, flipAnimate, onInspectChange]);
+
+  useLayoutEffect(() => {
+    if (selectedItem || !animating || selectedId === null || !backFromRectRef.current) return;
+
+    window.scrollTo(0, scrollPosRef.current);
+    const targetImg = galleryImgRefs.current.get(selectedId);
+
+    if (!targetImg) {
+      setOthersFaded(false);
+      setAnimating(false);
+      setSelectedId(null);
+      backFromRectRef.current = null;
+      return;
+    }
+
+    const anim = flipAnimate(targetImg, backFromRectRef.current, targetImg.getBoundingClientRect());
+    setOthersFaded(false);
+    anim.finished.then(() => {
+      setAnimating(false);
+      setSelectedId(null);
+      currentAnimRef.current = null;
+      backFromRectRef.current = null;
+    }).catch(() => {});
+  }, [selectedItem, animating, selectedId, flipAnimate]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -217,7 +221,8 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
           <div className="flex flex-col items-center">
             {ITEMS.map((item, idx) => {
               const isFirst = idx === 0;
-              const isFading = othersFaded; // applies during back-animation
+              const isSelected = selectedId === item.id;
+              const isFading = othersFaded && !isSelected;
               return (
                 <div
                   key={item.id}

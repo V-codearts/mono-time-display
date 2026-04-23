@@ -9,7 +9,7 @@ interface HudProps {
   onBack?: () => void;
 }
 
-const MORPH_MS = 74;
+const MORPH_MS = 180;
 
 const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack }: HudProps) => {
   const effectiveMenuOpen = menuOpen && !inspecting;
