@@ -63,7 +63,7 @@ interface GalleryProps {
   onBackHandlerReady?: (handler: (() => void) | null) => void;
 }
 
-const FADE_MS = 100;
+const FADE_MS = 133;
 const FLIP_MS = 300;
 const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -79,6 +79,14 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   const fromRectRef = useRef<DOMRect | null>(null);
   const backFromRectRef = useRef<DOMRect | null>(null);
   const currentAnimRef = useRef<Animation | null>(null);
+
+  const clearImageAnimation = useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    el.getAnimations().forEach((animation) => animation.cancel());
+    el.style.transform = '';
+    el.style.transformOrigin = '';
+    el.style.opacity = '';
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -147,9 +155,11 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
         requestAnimationFrame(run);
         return;
       }
+      clearImageAnimation(viewerImg);
       const anim = flipAnimate(viewerImg, fromRectRef.current!, toRect);
       anim.finished.then(() => {
         if (cancelled) return;
+        clearImageAnimation(viewerImg);
         setAnimating(false);
         currentAnimRef.current = null;
       }).catch(() => {});
@@ -158,7 +168,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedItem]);
+  }, [selectedItem, clearImageAnimation, flipAnimate, animating]);
 
   const handleBack = useCallback(() => {
     if (!selectedItem) return;
@@ -192,15 +202,17 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
       return;
     }
 
+    clearImageAnimation(targetImg);
     const anim = flipAnimate(targetImg, backFromRectRef.current, targetImg.getBoundingClientRect());
     setOthersFaded(false);
     anim.finished.then(() => {
+      clearImageAnimation(targetImg);
       setAnimating(false);
       setSelectedId(null);
       currentAnimRef.current = null;
       backFromRectRef.current = null;
     }).catch(() => {});
-  }, [selectedItem, animating, selectedId, flipAnimate]);
+  }, [selectedItem, animating, selectedId, clearImageAnimation, flipAnimate]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -238,8 +250,8 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
                     loading="eager"
                     decoding="async"
                     fetchPriority={isFirst ? 'high' : 'auto'}
-                    className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
-                      animating ? '' : 'transition-transform duration-300 ease-out hover:scale-105'
+                     className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                       !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
                       isFirst && !firstReady ? 'opacity-0' : ''
                     }`}
