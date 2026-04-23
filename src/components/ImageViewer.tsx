@@ -100,12 +100,12 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen flex items-center justify-center p-8">
-      <div className="relative flex items-center justify-center w-full max-w-[80vw] h-full max-h-[80vh] overflow-hidden">
+      <div className="relative h-[80vh] w-[80vw] overflow-hidden">
         <img
           ref={imgRef}
           src={image.variations[currentVariation]}
           alt={`Variation ${currentVariation + 1}`}
-          className="absolute inset-0 m-auto max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20"
+          className="absolute inset-0 m-auto max-w-full max-h-full object-contain cursor-pointer border border-foreground/20"
           style={{ transform: 'translate3d(0, 0, 0)' }}
           onClick={nextVariation}
         />
@@ -114,7 +114,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
             ref={incomingImgRef}
             src={image.variations[incomingVariation]}
             alt={`Variation ${incomingVariation + 1}`}
-            className="absolute inset-0 m-auto max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20"
+            className="absolute inset-0 m-auto max-w-full max-h-full object-contain cursor-pointer border border-foreground/20"
             onClick={nextVariation}
           />
         )}
