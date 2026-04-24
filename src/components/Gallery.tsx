@@ -188,8 +188,10 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedItem, clearImageAnimation, flipAnimate, animating]);
 
-  const handleBack = useCallback(() => {
+  const handleBack = useCallback(async () => {
     if (!selectedItem) return;
+    await viewerRef.current?.prepareForReturnToThumbnail();
+
     const viewerImg = viewerRef.current?.getImageEl();
     if (!viewerImg) {
       setSelectedItem(null);
