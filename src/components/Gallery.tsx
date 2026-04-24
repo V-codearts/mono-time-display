@@ -89,6 +89,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   const fromRectRef = useRef<DOMRect | null>(null);
   const backFromRectRef = useRef<DOMRect | null>(null);
   const currentAnimRef = useRef<Animation | null>(null);
+  const selectTimeoutRef = useRef<number | null>(null);
 
   const clearImageAnimation = useCallback((el: HTMLElement | null) => {
     if (!el) return;
@@ -111,6 +112,18 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
     return () => {
       cancelled = true;
       window.clearTimeout(fallback);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (selectTimeoutRef.current) {
+        window.clearTimeout(selectTimeoutRef.current);
+      }
+      if (currentAnimRef.current) {
+        currentAnimRef.current.cancel();
+        currentAnimRef.current = null;
+      }
     };
   }, []);
 
@@ -153,10 +166,15 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
 
     // After non-clicked items fade out, capture the clicked image rect
     // (it stayed put) and swap to the viewer to perform the FLIP.
-    window.setTimeout(() => {
+    if (selectTimeoutRef.current) {
+      window.clearTimeout(selectTimeoutRef.current);
+    }
+
+    selectTimeoutRef.current = window.setTimeout(() => {
       const stillThere = galleryImgRefs.current.get(item.id);
       fromRectRef.current = (stillThere ?? galleryImg).getBoundingClientRect();
       setSelectedItem(item);
+      selectTimeoutRef.current = null;
     }, FADE_MS);
   };
 
@@ -213,8 +231,9 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
 
     window.scrollTo(0, scrollPosRef.current);
     const targetImg = galleryImgRefs.current.get(selectedId);
+    const fromRect = backFromRectRef.current;
 
-    if (!targetImg) {
+    if (!targetImg || !fromRect) {
       setOthersFaded(false);
       setAnimating(false);
       setSelectedId(null);
@@ -222,17 +241,60 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
       return;
     }
 
-    clearImageAnimation(targetImg);
-    const anim = flipAnimate(targetImg, backFromRectRef.current, targetImg.getBoundingClientRect());
-    setOthersFaded(false);
-    anim.finished.then(() => {
+    let cancelled = false;
+    const run = () => {
+      const targetRect = targetImg.getBoundingClientRect();
+      if (cancelled) return;
+
+      if (targetRect.width === 0 || targetRect.height === 0) {
+        requestAnimationFrame(run);
+        return;
+      }
+
       clearImageAnimation(targetImg);
-      setAnimating(false);
-      setSelectedId(null);
-      currentAnimRef.current = null;
-      backFromRectRef.current = null;
-    }).catch(() => {});
+      const anim = flipAnimate(targetImg, fromRect, targetRect);
+      setOthersFaded(false);
+      anim.finished.then(() => {
+        if (cancelled) return;
+        clearImageAnimation(targetImg);
+        setAnimating(false);
+        setSelectedId(null);
+        currentAnimRef.current = null;
+        backFromRectRef.current = null;
+      }).catch(() => {});
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, [selectedItem, animating, selectedId, clearImageAnimation, flipAnimate]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (selectTimeoutRef.current) {
+        window.clearTimeout(selectTimeoutRef.current);
+        selectTimeoutRef.current = null;
+      }
+
+      if (currentAnimRef.current) {
+        currentAnimRef.current.cancel();
+        currentAnimRef.current = null;
+      }
+
+      fromRectRef.current = null;
+      backFromRectRef.current = null;
+      setOthersFaded(false);
+      setAnimating(false);
+
+      if (!selectedItem) {
+        setSelectedId(null);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [selectedItem]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -249,8 +311,8 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
       {selectedItem ? (
         <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
       ) : (
-        <div className="bg-background text-foreground font-mono min-h-screen">
-          <div className="flex flex-col items-center">
+        <div className="bg-background text-foreground font-mono min-h-screen overflow-hidden md:overflow-visible">
+          <div className="flex h-[100svh] flex-col items-center justify-between px-4 pt-20 pb-4 md:h-auto md:justify-start md:px-0 md:pt-0 md:pb-0">
             {ITEMS.map((item, idx) => {
               const isFirst = idx === 0;
               const isSelected = selectedId === item.id;
@@ -258,7 +320,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
               return (
                 <div
                   key={item.id}
-                  className="h-screen w-full flex items-center justify-center"
+                  className="flex min-h-0 w-full flex-1 items-center justify-center md:h-screen md:flex-none"
                 >
                   <img
                     ref={(el) => {
@@ -270,7 +332,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
                     loading="eager"
                     decoding="async"
                     fetchPriority={isFirst ? 'high' : 'auto'}
-                     className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                     className={`max-w-[72vw] max-h-[24svh] object-contain cursor-pointer border border-foreground/20 md:max-w-[80vw] md:max-h-[80vh] ${
                        !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
                       isFirst && !firstReady ? 'opacity-0' : ''
