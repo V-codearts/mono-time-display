@@ -29,10 +29,18 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const incomingImgRef = useRef<HTMLImageElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
 
+  const getVisibleImageEl = () => incomingImgRef.current ?? imgRef.current;
+  const resetImagePosition = (el: HTMLImageElement | null) => {
+    if (!el) return;
+    el.style.transition = 'none';
+    el.style.transform = 'translate3d(0, 0, 0)';
+    el.style.opacity = '1';
+  };
+
   useImperativeHandle(ref, () => ({
-    getImageEl: () => imgRef.current,
-    getCurrentSrc: () => image.variations[currentVariation],
-  }), [image, currentVariation]);
+    getImageEl: () => getVisibleImageEl(),
+    getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
+  }), [image, currentVariation, incomingVariation]);
 
   useLayoutEffect(() => {
     if (incomingVariation === null || !imgRef.current || !incomingImgRef.current) return;
@@ -62,6 +70,8 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     });
 
     swipeTimeoutRef.current = window.setTimeout(() => {
+      resetImagePosition(currentImg);
+      resetImagePosition(nextImg);
       setCurrentVariation(incomingVariation);
       setIncomingVariation(null);
       swipeTimeoutRef.current = null;
