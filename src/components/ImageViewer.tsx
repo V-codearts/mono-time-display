@@ -40,20 +40,25 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     const currentImg = imgRef.current;
     const nextImg = incomingImgRef.current;
 
+    // Measure actual rendered position so each image fully clears the viewport.
+    const currentRect = currentImg.getBoundingClientRect();
+    const nextRect = nextImg.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const outgoingExitX = vw - currentRect.left; // move right until fully off-screen
+    const incomingStartX = -(nextRect.left + nextRect.width); // start fully off-screen left
+
     currentImg.style.transition = 'none';
     nextImg.style.transition = 'none';
     currentImg.style.transform = 'translate3d(0, 0, 0)';
     currentImg.style.opacity = '1';
-    nextImg.style.transform = 'translate3d(-7%, 0, 0)';
-    nextImg.style.opacity = '0';
+    nextImg.style.transform = `translate3d(${incomingStartX}px, 0, 0)`;
+    nextImg.style.opacity = '1';
 
     const frame = requestAnimationFrame(() => {
-      currentImg.style.transition = `transform ${SWIPE_MS}ms ${SWIPE_EASE}, opacity ${SWIPE_MS}ms ease-out`;
-      nextImg.style.transition = `transform ${SWIPE_MS}ms ${SWIPE_EASE}, opacity ${SWIPE_MS}ms ease-out`;
-      currentImg.style.transform = 'translate3d(7%, 0, 0)';
-      currentImg.style.opacity = '0';
+      currentImg.style.transition = `transform ${SWIPE_MS}ms ${SWIPE_EASE}`;
+      nextImg.style.transition = `transform ${SWIPE_MS}ms ${SWIPE_EASE}`;
+      currentImg.style.transform = `translate3d(${outgoingExitX}px, 0, 0)`;
       nextImg.style.transform = 'translate3d(0, 0, 0)';
-      nextImg.style.opacity = '1';
     });
 
     swipeTimeoutRef.current = window.setTimeout(() => {
