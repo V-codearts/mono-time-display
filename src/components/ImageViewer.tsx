@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 
 interface ImageData {
   id: number;
@@ -16,6 +16,7 @@ interface ImageViewerProps {
 export interface ImageViewerHandle {
   getImageEl: () => HTMLImageElement | null;
   getCurrentSrc: () => string;
+  prepareForReturnToThumbnail: () => Promise<void>;
 }
 
 const SWIPE_MS = 350;
@@ -28,6 +29,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
+  const currentVariationRef = useRef(0);
+  const incomingVariationRef = useRef<number | null>(null);
+  const swipeIdleResolversRef = useRef<Array<() => void>>([]);
+  const swipeCompletionResolversRef = useRef<Array<() => void>>([]);
 
   const getVisibleImageEl = () => incomingImgRef.current ?? imgRef.current;
   const resetImagePosition = (el: HTMLImageElement | null) => {
@@ -37,9 +42,43 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     el.style.opacity = '1';
   };
 
+  useEffect(() => {
+    currentVariationRef.current = currentVariation;
+  }, [currentVariation]);
+
+  useEffect(() => {
+    incomingVariationRef.current = incomingVariation;
+
+    if (incomingVariation === null && swipeIdleResolversRef.current.length > 0) {
+      const resolvers = swipeIdleResolversRef.current.splice(0);
+      resolvers.forEach((resolve) => resolve());
+    }
+  }, [incomingVariation]);
+
+  const waitForSwipeIdle = () => new Promise<void>((resolve) => {
+    if (incomingVariationRef.current === null) {
+      resolve();
+      return;
+    }
+
+    swipeIdleResolversRef.current.push(resolve);
+  });
+
+  const waitForSwipeCompletion = () => new Promise<void>((resolve) => {
+    swipeCompletionResolversRef.current.push(resolve);
+  });
+
   useImperativeHandle(ref, () => ({
     getImageEl: () => getVisibleImageEl(),
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
+    prepareForReturnToThumbnail: async () => {
+      await waitForSwipeIdle();
+
+      if (currentVariationRef.current === 0) return;
+
+      setIncomingVariation(0);
+      await waitForSwipeCompletion();
+    },
   }), [image, currentVariation, incomingVariation]);
 
   useLayoutEffect(() => {
@@ -74,6 +113,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       resetImagePosition(nextImg);
       setCurrentVariation(incomingVariation);
       setIncomingVariation(null);
+      if (swipeCompletionResolversRef.current.length > 0) {
+        const resolvers = swipeCompletionResolversRef.current.splice(0);
+        resolvers.forEach((resolve) => resolve());
+      }
       swipeTimeoutRef.current = null;
     }, SWIPE_MS);
 
