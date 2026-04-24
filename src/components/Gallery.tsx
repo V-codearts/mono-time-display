@@ -14,21 +14,31 @@ interface ItemData {
   description: string;
 }
 
-const preloadImage = (src: string) => {
+const preloadImage = (src: string) => new Promise<void>((resolve) => {
   const img = new Image();
+
+  const finish = () => {
+    img.onload = null;
+    img.onerror = null;
+
+    if (typeof img.decode === 'function') {
+      img.decode().then(() => undefined).catch(() => undefined).finally(resolve);
+      return;
+    }
+
+    resolve();
+  };
+
+  img.onload = finish;
+  img.onerror = () => {
+    img.onload = null;
+    img.onerror = null;
+    resolve();
+  };
   img.src = src;
 
-  if (img.complete) {
-    return typeof img.decode === 'function'
-      ? img.decode().then(() => undefined).catch(() => undefined)
-      : Promise.resolve();
-  }
-
-  return new Promise<void>((resolve) => {
-    img.onload = () => resolve();
-    img.onerror = () => resolve();
-  });
-};
+  if (img.complete) finish();
+});
 
 const ITEMS: ItemData[] = [
   {
@@ -90,10 +100,18 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
 
   useEffect(() => {
     let cancelled = false;
+    const fallback = window.setTimeout(() => {
+      if (!cancelled) setFirstReady(true);
+    }, 1500);
+
     firstImageReadyPromise.finally(() => {
       if (!cancelled) setFirstReady(true);
     });
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(fallback);
+    };
   }, []);
 
   const flipAnimate = useCallback((el: HTMLElement, fromRect: DOMRect, toRect: DOMRect) => {
