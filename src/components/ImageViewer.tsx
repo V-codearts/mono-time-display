@@ -18,8 +18,9 @@ export interface ImageViewerHandle {
   getCurrentSrc: () => string;
 }
 
-const SWIPE_MS = 180;
-const SWIPE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const SWIPE_MS = 350;
+// Fast at the edges, slow through the center (anti-ease — accelerates, decelerates mid, accelerates again).
+const SWIPE_EASE = 'cubic-bezier(0.5, 0, 0.5, 1)';
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
