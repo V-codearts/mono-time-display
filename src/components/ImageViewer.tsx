@@ -155,6 +155,12 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           />
         )}
       </div>
+      {/* Preload all variations off-screen so swipes never wait on the network */}
+      <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] top-0 w-px h-px overflow-hidden opacity-0">
+        {image.variations.map((src, i) => (
+          <img key={i} src={src} alt="" decoding="async" loading="eager" />
+        ))}
+      </div>
     </div>
   );
 });
