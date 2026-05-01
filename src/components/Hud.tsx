@@ -121,7 +121,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           </span>
         </div>
 
-        <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
+        <div ref={menuRef} className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
           <span
             className={itemClass('gallery', true)}
             style={{
