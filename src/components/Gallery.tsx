@@ -311,8 +311,8 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
       {selectedItem ? (
         <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
       ) : (
-        <div className="bg-background text-foreground font-mono min-h-screen overflow-hidden md:overflow-visible">
-          <div className="flex h-[100svh] flex-col items-center justify-between px-4 pt-20 pb-4 md:h-auto md:justify-start md:px-0 md:pt-0 md:pb-0">
+        <div className="bg-background text-foreground font-mono min-h-screen">
+          <div className="flex flex-col items-center justify-start">
             {ITEMS.map((item, idx) => {
               const isFirst = idx === 0;
               const isSelected = selectedId === item.id;
@@ -320,7 +320,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
               return (
                 <div
                   key={item.id}
-                  className="flex min-h-0 w-full flex-1 items-center justify-center md:h-screen md:flex-none"
+                  className="flex h-screen w-full items-center justify-center"
                 >
                   <img
                     ref={(el) => {
@@ -332,8 +332,8 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
                     loading="eager"
                     decoding="async"
                     fetchPriority={isFirst ? 'high' : 'auto'}
-                     className={`max-w-[72vw] max-h-[24svh] object-contain cursor-pointer border border-foreground/20 md:max-w-[80vw] md:max-h-[80vh] ${
-                       !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
+                    className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                      !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
                       isFirst && !firstReady ? 'opacity-0' : ''
                     }`}
