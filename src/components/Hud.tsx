@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+
 interface HudProps {
   isDarkMode: boolean;
   onToggleTheme: () => void;
@@ -10,9 +12,56 @@ interface HudProps {
 }
 
 const MORPH_MS = 180;
+const COLLISION_PAD = 8;
 
 const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack }: HudProps) => {
-  const effectiveMenuOpen = menuOpen && !inspecting;
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [hiddenByImage, setHiddenByImage] = useState(false);
+  const effectiveMenuOpen = menuOpen && !inspecting && !hiddenByImage;
+
+  useEffect(() => {
+    if (!menuOpen || inspecting) {
+      setHiddenByImage(false);
+      return;
+    }
+
+    let raf = 0;
+    const check = () => {
+      raf = 0;
+      const menuEl = menuRef.current;
+      if (!menuEl) return;
+      const m = menuEl.getBoundingClientRect();
+      const imgs = document.querySelectorAll<HTMLImageElement>('main img, [data-gallery-img], .gallery-img, img');
+      let collide = false;
+      imgs.forEach((img) => {
+        if (collide) return;
+        if (menuEl.contains(img)) return;
+        const r = img.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) return;
+        const overlap =
+          r.left < m.right + COLLISION_PAD &&
+          r.right > m.left - COLLISION_PAD &&
+          r.top < m.bottom + COLLISION_PAD &&
+          r.bottom > m.top - COLLISION_PAD;
+        if (overlap) collide = true;
+      });
+      setHiddenByImage(collide);
+    };
+
+    const schedule = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(check);
+    };
+
+    check();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, [menuOpen, inspecting]);
 
   const itemClass = (page: 'gallery' | 'about' | 'other', interactive: boolean) => {
     const isCurrent = currentPage === page;
