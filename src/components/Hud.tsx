@@ -26,8 +26,8 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
     }
 
     let raf = 0;
+    let stopped = false;
     const check = () => {
-      raf = 0;
       const menuEl = menuRef.current;
       if (!menuEl) return;
       const m = menuEl.getBoundingClientRect();
@@ -48,18 +48,16 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
       setHiddenByImage(collide);
     };
 
-    const schedule = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(check);
+    const loop = () => {
+      if (stopped) return;
+      check();
+      raf = requestAnimationFrame(loop);
     };
+    raf = requestAnimationFrame(loop);
 
-    check();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
     return () => {
+      stopped = true;
       if (raf) cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
     };
   }, [menuOpen, inspecting]);
 
