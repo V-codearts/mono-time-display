@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
-
 interface HudProps {
   isDarkMode: boolean;
   onToggleTheme: () => void;
@@ -12,54 +10,9 @@ interface HudProps {
 }
 
 const MORPH_MS = 180;
-const COLLISION_PAD = 8;
 
 const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack }: HudProps) => {
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [hiddenByImage, setHiddenByImage] = useState(false);
-  const effectiveMenuOpen = menuOpen && !inspecting && !hiddenByImage;
-
-  useEffect(() => {
-    if (!menuOpen || inspecting) {
-      setHiddenByImage(false);
-      return;
-    }
-
-    let raf = 0;
-    let stopped = false;
-    const check = () => {
-      const menuEl = menuRef.current;
-      if (!menuEl) return;
-      const m = menuEl.getBoundingClientRect();
-      const imgs = document.querySelectorAll<HTMLImageElement>('main img, [data-gallery-img], .gallery-img, img');
-      let collide = false;
-      imgs.forEach((img) => {
-        if (collide) return;
-        if (menuEl.contains(img)) return;
-        const r = img.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) return;
-        const overlap =
-          r.left < m.right + COLLISION_PAD &&
-          r.right > m.left - COLLISION_PAD &&
-          r.top < m.bottom + COLLISION_PAD &&
-          r.bottom > m.top - COLLISION_PAD;
-        if (overlap) collide = true;
-      });
-      setHiddenByImage(collide);
-    };
-
-    const loop = () => {
-      if (stopped) return;
-      check();
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-
-    return () => {
-      stopped = true;
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [menuOpen, inspecting]);
+  const effectiveMenuOpen = menuOpen && !inspecting;
 
   const itemClass = (page: 'gallery' | 'about' | 'other', interactive: boolean) => {
     const isCurrent = currentPage === page;
@@ -119,7 +72,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           </span>
         </div>
 
-        <div ref={menuRef} className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
+        <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-1 overflow-visible">
           <span
             className={itemClass('gallery', true)}
             style={{
