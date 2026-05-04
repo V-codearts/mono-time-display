@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import ImageViewer, { ImageViewerHandle } from '@/components/ImageViewer';
-import ModelViewer from '@/components/ModelViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
 import gallery3 from '@/assets/gallery-3.jpg';
@@ -13,8 +12,6 @@ interface ItemData {
   main: string;
   variations: string[];
   description: string;
-  /** Optional .glb model. When set, inspect view renders a 3D viewer. */
-  model?: string;
 }
 
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
@@ -312,21 +309,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
   return (
     <>
       {selectedItem ? (
-        selectedItem.model ? (
-          <ModelViewer
-            ref={viewerRef}
-            image={{
-              id: selectedItem.id,
-              title: selectedItem.title,
-              description: selectedItem.description,
-              model: selectedItem.model,
-              thumbnail: selectedItem.main,
-            }}
-            onBack={handleBack}
-          />
-        ) : (
-          <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
-        )
+        <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
       ) : (
         <div className="bg-background text-foreground font-mono min-h-screen">
           <div className="flex flex-col items-center justify-start">
