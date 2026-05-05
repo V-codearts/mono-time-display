@@ -41,13 +41,13 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           aria-hidden
           className="absolute pointer-events-none -z-10 transition-opacity duration-200"
           style={{
-            top: '-40px',
-            left: '-40px',
-            width: '220px',
-            height: '160px',
+            top: '-50px',
+            left: '-60px',
+            width: '280px',
+            height: '210px',
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
-            filter: 'blur(18px)',
+            filter: 'blur(22px)',
             opacity: inspecting ? 0 : 1,
           }}
         />
