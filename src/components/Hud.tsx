@@ -39,16 +39,18 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
         {/* Blurred aura: masks images that pass beneath the nav. Invisible over empty bg. */}
         <div
           aria-hidden
-          className="absolute pointer-events-none -z-10 transition-opacity duration-200"
+          className="absolute pointer-events-none -z-10"
           style={{
-            top: '-40px',
-            left: '-40px',
-            width: '220px',
-            height: '160px',
+            top: '5px',
+            left: '-85px',
+            width: '240px',
+            height: '180px',
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
             filter: 'blur(18px)',
             opacity: inspecting ? 0 : 1,
+            transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
+            transition: 'background-color 0.5s ease, opacity 200ms ease, transform 300ms ease-in-out',
           }}
         />
         <div
