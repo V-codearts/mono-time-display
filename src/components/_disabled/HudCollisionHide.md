@@ -1,5 +1,9 @@
 # Nav Menu Image-Collision Hide (disabled)
 
+> Superseded by the blurred aura approach (currently active in `Hud.tsx`).
+> Restore this only if collision-hide is preferred over masking.
+
+
 Feature: hides the nav menu items (COLLECTION / ABOUT / OTHER) whenever a
 gallery image's bounding box overlaps the menu's bounding box. The toggle
 glyph stays as "−" (does not flip back to "+") because this is an exception.
