@@ -105,7 +105,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'other' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '50ms, 0ms' : '50ms, 0ms',
+              transitionDelay: effectiveMenuOpen ? '100ms, 0ms' : '100ms, 0ms',
             }}
             onClick={() => !inspecting && currentPage !== 'other' && onNavigate('other')}
           >
@@ -116,7 +116,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'about' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '100ms, 0ms' : '0ms, 0ms',
+              transitionDelay: effectiveMenuOpen ? '200ms, 0ms' : '0ms, 0ms',
             }}
             onClick={() => !inspecting && currentPage !== 'about' && onNavigate('about')}
           >
