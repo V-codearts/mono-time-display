@@ -48,7 +48,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
             filter: 'blur(18px)',
-            opacity: effectiveMenuOpen ? 1 : 0,
+            opacity: 0,
             transition: 'background-color 0.5s ease, opacity 300ms ease-in-out',
           }}
         />
