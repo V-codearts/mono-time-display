@@ -41,7 +41,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           aria-hidden
           className="absolute pointer-events-none -z-10"
           style={{
-            top: '5px',
+            top: '-25px',
             left: '-85px',
             width: '240px',
             height: '180px',
@@ -116,7 +116,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'about' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '100ms, 0ms' : '100ms, 0ms',
+              transitionDelay: effectiveMenuOpen ? '100ms, 0ms' : '0ms, 0ms',
             }}
             onClick={() => !inspecting && currentPage !== 'about' && onNavigate('about')}
           >
