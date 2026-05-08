@@ -48,8 +48,9 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
             filter: 'blur(18px)',
-            opacity: effectiveMenuOpen ? 1 : 0,
-            transition: 'background-color 0.5s ease, opacity 300ms ease-in-out',
+            transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
+            transition: 'background-color 0.5s ease, transform 300ms ease-in-out',
+            transitionDelay: effectiveMenuOpen ? '0ms' : '300ms',
           }}
         />
         <div
@@ -94,7 +95,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'gallery' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '0ms' : '200ms',
+              transitionDelay: effectiveMenuOpen ? '100ms' : '200ms',
             }}
             onClick={() => !inspecting && currentPage !== 'gallery' && onNavigate('gallery')}
           >
@@ -105,7 +106,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'other' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '100ms, 0ms' : '100ms, 0ms',
+              transitionDelay: effectiveMenuOpen ? '200ms, 0ms' : '100ms, 0ms',
             }}
             onClick={() => !inspecting && currentPage !== 'other' && onNavigate('other')}
           >
@@ -116,7 +117,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'about' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '200ms, 0ms' : '0ms, 0ms',
+              transitionDelay: effectiveMenuOpen ? '300ms, 0ms' : '0ms, 0ms',
             }}
             onClick={() => !inspecting && currentPage !== 'about' && onNavigate('about')}
           >
