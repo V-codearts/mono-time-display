@@ -95,7 +95,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             style={{
               transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
               transitionDuration: currentPage === 'gallery' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '0ms' : '200ms',
+              transitionDelay: effectiveMenuOpen ? '100ms' : '200ms',
             }}
             onClick={() => !inspecting && currentPage !== 'gallery' && onNavigate('gallery')}
           >
