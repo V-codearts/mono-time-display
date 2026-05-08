@@ -20,7 +20,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
       return 'text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out whitespace-nowrap w-fit';
     }
     if (interactive) {
-      return 'text-muted-foreground cursor-pointer hover:text-foreground transition-[transform,color] ease-in-out whitespace-nowrap w-fit';
+      return 'text-muted-foreground cursor-pointer hover:text-foreground hover:font-bold transition-[transform,color,font-weight] ease-in-out whitespace-nowrap w-fit';
     }
     return 'text-muted-foreground cursor-default transition-transform duration-300 ease-in-out whitespace-nowrap w-fit';
   };
