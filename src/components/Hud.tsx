@@ -20,7 +20,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
       return 'text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out whitespace-nowrap w-fit';
     }
     if (interactive) {
-      return 'text-muted-foreground cursor-pointer hover:text-foreground transition-[transform,color] ease-in-out whitespace-nowrap w-fit';
+      return 'text-muted-foreground cursor-pointer hover:text-foreground hover:font-bold transition-[transform,color,font-weight] ease-in-out whitespace-nowrap w-fit';
     }
     return 'text-muted-foreground cursor-default transition-transform duration-300 ease-in-out whitespace-nowrap w-fit';
   };
@@ -48,7 +48,10 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
             filter: 'blur(18px)',
-            transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
+            transformOrigin: '146px 141px',
+            transform: effectiveMenuOpen
+              ? 'translateX(0) scale(1)'
+              : 'translateX(calc(-100% - 24px)) scale(0)',
             transition: 'background-color 0.5s ease, transform 300ms ease-in-out',
             transitionDelay: effectiveMenuOpen ? '0ms' : '300ms',
           }}
