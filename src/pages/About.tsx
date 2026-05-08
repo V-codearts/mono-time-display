@@ -10,7 +10,13 @@ const About = ({ currentPage }: AboutProps) => {
       </div>
     ),
     other: (
-      <div className="w-full flex items-center justify-center h-screen" />
+      <div className="w-full flex items-center justify-center h-screen">
+        <div className="flex flex-col gap-0.5 items-center text-foreground tracking-wider uppercase">
+          <p>MEDIA</p>
+          <p>PERSONAL</p>
+          <p>CONTACTS</p>
+        </div>
+      </div>
     ),
   };
 
