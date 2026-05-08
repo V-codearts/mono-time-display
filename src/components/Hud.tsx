@@ -43,8 +43,8 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           style={{
             top: '-141px',
             left: '-146px',
-            width: '302px',
-            height: '320px',
+            width: '292px',
+            height: '310px',
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
             filter: 'blur(18px)',
