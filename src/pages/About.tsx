@@ -11,10 +11,10 @@ const About = ({ currentPage }: AboutProps) => {
     ),
     other: (
       <div className="w-full flex items-center justify-center h-screen">
-        <div className="flex flex-col gap-0.5 items-center text-foreground tracking-wider uppercase">
-          <p className="cursor-pointer hover:font-bold transition-all w-fit">MEDIA</p>
-          <p className="cursor-pointer hover:font-bold transition-all w-fit">PERSONAL</p>
-          <p className="cursor-pointer hover:font-bold transition-all w-fit">CONTACTS</p>
+        <div className="flex flex-col gap-0.5 items-center tracking-wider uppercase">
+          <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">MEDIA</p>
+          <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">PERSONAL</p>
+          <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">CONTACTS</p>
         </div>
       </div>
     ),
