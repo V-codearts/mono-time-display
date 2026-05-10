@@ -45,7 +45,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           viewBox="0 0 1024 1024"
           preserveAspectRatio="none"
           style={{
-            top: '-31px',
+            top: '-14px',
             left: '-35px',
             width: '170px',
             height: '157px',
