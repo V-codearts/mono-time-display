@@ -38,25 +38,6 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
   return (
     <>
       <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate">
-        {/* Blurred circular aura: masks images that pass beneath the nav. */}
-        <div
-          aria-hidden
-          className="absolute pointer-events-none -z-10 rounded-full"
-          style={{
-            top: '-72px',
-            left: '-82px',
-            width: '264px',
-            height: '264px',
-            background: 'hsl(var(--background))',
-            filter: 'blur(28px)',
-            transformOrigin: '112px 117px',
-            transform: effectiveMenuOpen
-              ? 'translateX(0) scale(1)'
-              : 'translateX(calc(-100% - 24px)) scale(0)',
-            transition: 'transform 300ms ease-in-out',
-            transitionDelay: effectiveMenuOpen ? '0ms' : '300ms',
-          }}
-        />
         <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={handleGlyphClick}
