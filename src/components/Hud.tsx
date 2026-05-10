@@ -1,3 +1,5 @@
+import { AURA_POINTS } from './auraShape';
+
 interface HudProps {
   isDarkMode: boolean;
   onToggleTheme: () => void;
@@ -37,25 +39,37 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
     <>
       <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate">
         {/* Blurred aura: masks images that pass beneath the nav. Invisible over empty bg. */}
-        <div
+        <svg
           aria-hidden
           className="absolute pointer-events-none -z-10"
+          viewBox="0 0 1024 1024"
+          preserveAspectRatio="none"
           style={{
-            top: '-59px',
-            left: '-63px',
-            width: '206px',
-            height: '206px',
-            background: 'hsl(var(--background))',
-            borderRadius: '9999px',
-            filter: 'blur(18px)',
-            transformOrigin: '103px 103px',
+            top: '-45px',
+            left: '-50px',
+            width: '200px',
+            height: '185px',
+            overflow: 'visible',
+            transformOrigin: '50px 45px',
             transform: effectiveMenuOpen
               ? 'translateX(0) scale(1)'
               : 'translateX(calc(-100% - 24px)) scale(0)',
-            transition: 'background-color 0.5s ease, transform 300ms ease-in-out',
+            transition: 'transform 300ms ease-in-out',
             transitionDelay: effectiveMenuOpen ? '0ms' : '300ms',
           }}
-        />
+        >
+          <defs>
+            <filter id="auraBlur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="14" />
+            </filter>
+          </defs>
+          <polygon
+            points={AURA_POINTS}
+            fill="hsl(var(--background))"
+            stroke="none"
+            filter="url(#auraBlur)"
+          />
+        </svg>
         <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={handleGlyphClick}
