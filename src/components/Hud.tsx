@@ -69,6 +69,11 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             stroke="none"
             filter="url(#auraBlur)"
           />
+          <polygon
+            points={AURA_POINTS}
+            fill="hsl(var(--background))"
+            stroke="none"
+          />
         </svg>
         <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
