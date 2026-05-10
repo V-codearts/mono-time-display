@@ -60,7 +60,7 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
         >
           <defs>
             <filter id="auraBlur" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="19" />
+              <feGaussianBlur stdDeviation="59" />
             </filter>
           </defs>
           <polygon
