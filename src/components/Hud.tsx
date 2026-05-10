@@ -60,11 +60,8 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
         >
           <defs>
             <filter id="auraBlur" x="-50%" y="-50%" width="200%" height="200%">
-              <feMorphology operator="dilate" radius="80" />
-              <feGaussianBlur stdDeviation="100" />
-              <feComponentTransfer>
-                <feFuncA type="linear" slope="2" intercept="0" />
-              </feComponentTransfer>
+              <feMorphology operator="dilate" radius="120" />
+              <feGaussianBlur stdDeviation="80" />
             </filter>
           </defs>
           <polygon
