@@ -45,10 +45,10 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           viewBox="0 0 1024 1024"
           preserveAspectRatio="none"
           style={{
-            top: '5px',
-            left: '-9px',
-            width: '122px',
-            height: '113px',
+            top: '2px',
+            left: '-12px',
+            width: '128px',
+            height: '119px',
             overflow: 'visible',
             transformOrigin: '50px 45px',
             transform: effectiveMenuOpen
