@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/mono-time-display/",   // ❤️ IMPORTANT
+  base: mode === "production" ? "/mono-time-display/" : "/",
   server: {
     host: "::",
     port: 8080,
