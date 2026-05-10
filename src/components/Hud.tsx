@@ -1,4 +1,4 @@
-import { AURA_POINTS } from './auraShape';
+
 
 interface HudProps {
   isDarkMode: boolean;
@@ -38,60 +38,25 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
   return (
     <>
       <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate">
-        {/* Blurred aura: masks images that pass beneath the nav. Invisible over empty bg. */}
-        <svg
+        {/* Blurred circular aura: masks images that pass beneath the nav. */}
+        <div
           aria-hidden
-          className="absolute pointer-events-none -z-10"
-          viewBox="0 0 1024 1024"
-          preserveAspectRatio="none"
+          className="absolute pointer-events-none -z-10 rounded-full"
           style={{
-            top: '2px',
-            left: '-12px',
-            width: '128px',
-            height: '119px',
-            overflow: 'visible',
-            transformOrigin: '50px 45px',
+            top: '-30px',
+            left: '-40px',
+            width: '180px',
+            height: '180px',
+            background: 'hsl(var(--background))',
+            filter: 'blur(28px)',
+            transformOrigin: '70px 75px',
             transform: effectiveMenuOpen
               ? 'translateX(0) scale(1)'
               : 'translateX(calc(-100% - 24px)) scale(0)',
             transition: 'transform 300ms ease-in-out',
             transitionDelay: effectiveMenuOpen ? '0ms' : '300ms',
           }}
-        >
-          {/*
-            HALO TUNABLES (viewBox units; ~8 units = 1 screen px at 128px width)
-            HALO_DILATE  : how far the halo extends outward before fading
-            HALO_BLUR    : softness of the fade
-            Target: ~55px outer fade on screen => ~440 viewBox units
-          */}
-          <defs>
-            <filter id="auraHalo" x="-50%" y="-50%" width="200%" height="200%">
-              <feMorphology operator="dilate" radius="220" />
-              <feGaussianBlur stdDeviation="90" />
-            </filter>
-            {/* Mask: white = visible halo. Black hole = original crisp shape area,
-                so the blurred halo only shows OUTSIDE the original silhouette. */}
-            <mask id="auraOuterOnly" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
-              <rect x="-512" y="-512" width="2048" height="2048" fill="white" />
-              <polygon points={AURA_POINTS} fill="black" />
-            </mask>
-          </defs>
-          {/* Soft halo, clipped to outside the original shape */}
-          <g mask="url(#auraOuterOnly)">
-            <polygon
-              points={AURA_POINTS}
-              fill="hsl(var(--background))"
-              stroke="none"
-              filter="url(#auraHalo)"
-            />
-          </g>
-          {/* Crisp original shape on top */}
-          <polygon
-            points={AURA_POINTS}
-            fill="hsl(var(--background))"
-            stroke="none"
-          />
-        </svg>
+        />
         <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={handleGlyphClick}
