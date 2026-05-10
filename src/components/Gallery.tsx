@@ -331,7 +331,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
                     alt={item.title}
                     loading="eager"
                     decoding="async"
-                    className={`max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                    className={`max-w-[calc(80vw-16px)] max-h-[calc(80vh-16px)] md:max-w-[calc(80vw+28px)] md:max-h-[calc(80vh+28px)] lg:max-w-[80vw] lg:max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
                       !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
                       isFirst && !firstReady ? 'opacity-0' : ''
