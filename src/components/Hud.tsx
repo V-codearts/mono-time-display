@@ -41,14 +41,14 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           aria-hidden
           className="absolute pointer-events-none -z-10"
           style={{
-            top: '-141px',
-            left: '-146px',
-            width: '292px',
-            height: '310px',
+            top: '-19px',
+            left: '-23px',
+            width: '126px',
+            height: '126px',
             background: 'hsl(var(--background))',
             borderRadius: '9999px',
             filter: 'blur(18px)',
-            transformOrigin: '146px 141px',
+            transformOrigin: '63px 63px',
             transform: effectiveMenuOpen
               ? 'translateX(0) scale(1)'
               : 'translateX(calc(-100% - 24px)) scale(0)',
