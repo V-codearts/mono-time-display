@@ -1,41 +1,49 @@
-# Replace circular aura with custom blob SVG shape
-
 ## Goal
-Swap the current `<div>` circular aura in `Hud.tsx` for an SVG using the polygon shape exported from Blender (`Plane.svg`), keeping the same fade/scale animation behavior.
+Keep the original aura polygon fully crisp at its drawn edges, and extend a 55px soft blur **outward** from those edges (not inward).
 
-## Steps
+## Approach: dilate-then-blur filter
 
-**1. Add the shape as a project asset**
-- Copy `user-uploads://Plane.svg` to `src/assets/aura-shape.svg` (so it's bundled).
-- Actually, since we need to apply a blur filter and theme-aware fill, we won't `<img>` it — we'll inline the polygon points in JSX. Store the points in a constant inside `Hud.tsx` (or a sibling file `src/components/auraShape.ts`) to keep `Hud.tsx` readable.
+Currently we blur the shape directly, which eats into the silhouette (erodes inward ~3×stdDeviation). We'll instead pre-grow the shape with `feMorphology operator="dilate"` and then blur that grown version. Layered behind the crisp polygon, the result is:
 
-**2. Replace the aura div in `Hud.tsx`**
-- Remove the existing blurred circular `<div>`.
-- Insert an `<svg>` in the same spot with:
-  - `viewBox="0 0 1024 1024"`, `preserveAspectRatio="none"` so it stretches to wrap nav text proportions.
-  - A `<filter>` with `<feGaussianBlur stdDeviation="14">` (tunable) for the soft edge.
-  - The `<polygon points="...">` from the upload, with `fill="hsl(var(--background))"`, `stroke="none"`, and `filter="url(#auraBlur)"`.
-- Wrap the SVG in absolute positioning with the same `pointer-events: none`, `-z-10`, and the same `transform` / `transition` / `transitionDelay` logic as today (so it slides + scales in/out tied to `effectiveMenuOpen`).
+- Crisp polygon = exactly the original shape, sharp edges.
+- Blurred halo = extends ~55px beyond those edges, fading to 0.
 
-**3. Size and position to wrap the nav with ~15px gap**
-- Measure nav text bounding box at current font size (plus glyph): ~110px wide × ~95px tall at the small viewport. Add 15px gap → target ~140px × 125px painted area.
-- Account for blur bleed (~28px each side) → SVG box ~200px × 185px.
-- Set top/left negative offsets so the blob's visual center sits over the nav text center. Concretely: `top: -45px; left: -50px; width: 200px; height: 185px;`.
-- Keep `transformOrigin` near the glyph (top-left area) so the open/close scale animation feels anchored to `+`/`−`, matching current behavior.
-- Values are tunables — easy to adjust after seeing it live.
+```text
+   ┌─ crisp polygon (top layer) ──┐
+   │   original AURA_POINTS       │
+   └──────────────────────────────┘
+          ▲ sits on top of ▼
+   ╔═ blurred halo (bottom layer) ═╗
+   ║  dilate(r) → gaussianBlur(σ)  ║
+   ╚═══════════════════════════════╝
+```
 
-**4. Keep theme reactivity**
-- `fill="hsl(var(--background))"` ensures it auto-updates with the dark/light toggle.
+## Steps (in `src/components/Hud.tsx`)
+
+1. Replace the single `auraBlur` filter with one that does:
+   - `<feMorphology operator="dilate" radius="R">` to grow the silhouette so the blur's outer reach lands ~55px past the original edge.
+   - `<feGaussianBlur stdDeviation="σ">` to soften it.
+2. Keep both polygons:
+   - Bottom polygon: `filter="url(#auraBlur)"` (the halo).
+   - Top polygon: no filter (the crisp shape, identical points).
+3. Filter region stays generous (`x="-50%" y="-50%" width="200%" height="200%"`) so the halo isn't clipped.
+
+## Picking the numbers
+
+The SVG is rendered at ~128px wide from a 1024 viewBox → scale factor ≈ 0.125 (screen px per viewBox unit). To get a 55px-wide outward soft band on screen we work in viewBox units (~440 units total reach beyond the edge).
+
+Starting values to try, tunable on first render:
+- `feMorphology radius="120"` (grows silhouette outward — its outer edge then coincides roughly with where the blur should be at half-intensity)
+- `feGaussianBlur stdDeviation="80"` (soft falloff; blur reaches ~3σ ≈ 240 viewBox units ≈ 30px on screen past the dilated edge, total outward reach ≈ 55px)
+
+These two knobs trade off: dilate controls how far the haze pushes out before it starts fading; blur controls how soft that fade is. We'll adjust after seeing it live.
 
 ## Technical notes
-- Inlining the polygon (vs `<img src>`) is required because:
-  - We need the fill to read a CSS variable (theme-aware).
-  - We need to apply an SVG `<filter>` for blur (CSS `filter: blur()` on an `<img>` would also work but blurs the whole rendered raster; SVG filter on the shape itself is cleaner and crisper).
-- `preserveAspectRatio="none"` lets us reshape the blob to better wrap the text column without redrawing the path.
-- No changes to `Gallery.tsx`, `Index.tsx`, or styling tokens.
-- Update `.lovable/plan.md` with one line noting the aura shape switched from CSS circle to SVG polygon.
+
+- `preserveAspectRatio="none"` is kept, so dilate/blur radii are isotropic in viewBox units but will look slightly squished/stretched on screen — acceptable for a soft halo.
+- No changes to nav text, animation, theme tokens, or any other file.
+- Only `Hud.tsx` is touched.
 
 ## Tunables after first render
-- `stdDeviation` (blur softness)
-- SVG width/height/top/left (gap from text)
-- `transformOrigin` (where it scales from)
+- `feMorphology radius` (how far the haze reaches before fading)
+- `feGaussianBlur stdDeviation` (softness of the fade)
