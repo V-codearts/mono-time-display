@@ -59,8 +59,8 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           }}
         >
           <defs>
-            <filter id="auraBlur" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="29" />
+            <filter id="auraBlur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="190" />
             </filter>
           </defs>
           <polygon
