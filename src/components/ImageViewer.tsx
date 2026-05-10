@@ -136,12 +136,12 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen flex items-center justify-center p-8">
-      <div className="relative flex items-center justify-center w-full max-w-[80vw] h-full max-h-[80vh]">
+      <div className="relative flex items-center justify-center w-full max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] h-full max-h-[80vh]">
         <img
           ref={imgRef}
           src={image.variations[currentVariation]}
           alt={`Variation ${currentVariation + 1}`}
-          className="max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20"
+          className="max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
           style={{ transition: incomingVariation === null ? 'none' : undefined }}
           onClick={nextVariation}
         />
@@ -150,7 +150,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
             ref={incomingImgRef}
             src={image.variations[incomingVariation]}
             alt={`Variation ${incomingVariation + 1}`}
-            className="absolute inset-0 m-auto max-w-[80vw] max-h-[80vh] object-contain cursor-pointer border border-foreground/20"
+            className="absolute inset-0 m-auto max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
             onClick={nextVariation}
           />
         )}
