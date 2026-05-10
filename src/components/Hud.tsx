@@ -58,18 +58,34 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
             transitionDelay: effectiveMenuOpen ? '0ms' : '300ms',
           }}
         >
+          {/*
+            HALO TUNABLES (viewBox units; ~8 units = 1 screen px at 128px width)
+            HALO_DILATE  : how far the halo extends outward before fading
+            HALO_BLUR    : softness of the fade
+            Target: ~55px outer fade on screen => ~440 viewBox units
+          */}
           <defs>
-            <filter id="auraBlur" x="-50%" y="-50%" width="200%" height="200%">
-              <feMorphology operator="dilate" radius="120" />
-              <feGaussianBlur stdDeviation="80" />
+            <filter id="auraHalo" x="-50%" y="-50%" width="200%" height="200%">
+              <feMorphology operator="dilate" radius="220" />
+              <feGaussianBlur stdDeviation="90" />
             </filter>
+            {/* Mask: white = visible halo. Black hole = original crisp shape area,
+                so the blurred halo only shows OUTSIDE the original silhouette. */}
+            <mask id="auraOuterOnly" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+              <rect x="-512" y="-512" width="2048" height="2048" fill="white" />
+              <polygon points={AURA_POINTS} fill="black" />
+            </mask>
           </defs>
-          <polygon
-            points={AURA_POINTS}
-            fill="hsl(var(--background))"
-            stroke="none"
-            filter="url(#auraBlur)"
-          />
+          {/* Soft halo, clipped to outside the original shape */}
+          <g mask="url(#auraOuterOnly)">
+            <polygon
+              points={AURA_POINTS}
+              fill="hsl(var(--background))"
+              stroke="none"
+              filter="url(#auraHalo)"
+            />
+          </g>
+          {/* Crisp original shape on top */}
           <polygon
             points={AURA_POINTS}
             fill="hsl(var(--background))"
