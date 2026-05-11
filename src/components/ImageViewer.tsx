@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 interface ImageData {
   id: number;
@@ -24,33 +24,37 @@ const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 
 const LOREM = 'LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA.';
 
-// Layout constants (px)
-const BOTTOM_MARGIN = 35;       // text bottom -> screen bottom
-const MINUS_GAP = 25;           // image bottom -> minus center
-const MINUS_TO_TEXT = 25;       // minus center -> text top
-const MOBILE_TOP_MIN = 73;      // image top minimum on mobile/tablet
-const LAYOUT_TRANSITION_MS = 320;
+const TEXT_BOTTOM_MARGIN = 35;
+const IMAGE_TO_TOGGLE_CENTER = 25;
+const TOGGLE_CENTER_TO_TEXT = 25;
+const MOBILE_EXPANDED_MIN_TOP = 73;
+const LAYOUT_TRANSITION_MS = 260;
 const LAYOUT_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+const getImageBounds = (vw: number, vh: number) => {
+  const maxWidth = vw >= 1024 ? vw * 0.8 : vw - (vw >= 768 ? 120 : 96);
+  return {
+    maxWidth: Math.max(1, maxWidth),
+    maxHeight: vh * 0.8,
+  };
+};
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const [imgMaxH, setImgMaxH] = useState<number | null>(null);
-  const [imgTranslateY, setImgTranslateY] = useState(0);
-  const [btnCenterY, setBtnCenterY] = useState<number | null>(null);
-  const [textTopY, setTextTopY] = useState<number | null>(null);
+  const [viewport, setViewport] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
+  const [textHeight, setTextHeight] = useState(0);
 
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
   const currentVariationRef = useRef(0);
   const incomingVariationRef = useRef<number | null>(null);
   const swipeIdleResolversRef = useRef<Array<() => void>>([]);
   const swipeCompletionResolversRef = useRef<Array<() => void>>([]);
-  const naturalRectRef = useRef<{ top: number; bottom: number; height: number } | null>(null);
 
   const getVisibleImageEl = () => incomingImgRef.current ?? imgRef.current;
   const resetImagePosition = (el: HTMLImageElement | null) => {
@@ -140,98 +144,91 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     setIncomingVariation((currentVariation + 1) % image.variations.length);
   };
 
-  const recompute = useCallback(() => {
+  const handleMeasureImage = () => {
     const img = imgRef.current;
-    if (!img) return;
-    const winH = window.innerHeight;
-    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (!img?.naturalWidth || !img?.naturalHeight) return;
+    setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+  };
 
-    if (!expanded) {
-      // Natural state — capture rect.
-      const r = img.getBoundingClientRect();
-      // Account for any leftover translateY (shouldn't be any when collapsed, but be safe).
-      naturalRectRef.current = { top: r.top, bottom: r.bottom, height: r.height };
-      setImgMaxH(null);
-      setImgTranslateY(0);
-      setBtnCenterY((r.bottom + winH) / 2);
-      setTextTopY(null);
-      return;
-    }
+  const handleImgLoad = () => {
+    handleMeasureImage();
+  };
 
-    const nat = naturalRectRef.current;
+  useLayoutEffect(() => {
+    handleMeasureImage();
+  }, [currentVariation, image.id]);
+
+  useLayoutEffect(() => {
     const textEl = textRef.current;
-    if (!nat || !textEl) return;
-    const textH = textEl.offsetHeight;
+    if (!textEl) return;
+    const measureText = () => setTextHeight(textEl.offsetHeight);
+    measureText();
+    const observer = new ResizeObserver(measureText);
+    observer.observe(textEl);
+    return () => observer.disconnect();
+  }, [viewport.width]);
 
-    const maxImgBottom = winH - BOTTOM_MARGIN - textH - MINUS_GAP - MINUS_TO_TEXT;
+  useEffect(() => {
+    const onResize = () => setViewport({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
-    let newImgBottom = nat.bottom;
-    let translateY = 0;
-    let maxH: number | null = null;
+  const layout = useMemo(() => {
+    const { width: vw, height: vh } = viewport;
+    const bounds = getImageBounds(vw, vh);
+    const naturalW = imageSize?.width ?? bounds.maxWidth;
+    const naturalH = imageSize?.height ?? bounds.maxHeight;
+    const ratio = naturalW / naturalH;
+    const scale = Math.min(1, bounds.maxWidth / naturalW, bounds.maxHeight / naturalH);
+    const baseWidth = naturalW * scale;
+    const baseHeight = naturalH * scale;
+    const baseTop = (vh - baseHeight) / 2;
+    const baseBottom = baseTop + baseHeight;
+    const expandedBottomLimit = vh - TEXT_BOTTOM_MARGIN - textHeight - IMAGE_TO_TOGGLE_CENTER - TOGGLE_CENTER_TO_TEXT;
+    let imageTop = baseTop;
+    let imageHeight = baseHeight;
 
-    if (nat.bottom <= maxImgBottom) {
-      // Fits naturally.
-    } else if (isDesktop) {
-      // Shrink; top stays.
-      const newHeight = Math.max(50, maxImgBottom - nat.top);
-      maxH = newHeight;
-      newImgBottom = nat.top + newHeight;
-    } else {
-      const shiftNeeded = nat.bottom - maxImgBottom;
-      const maxShift = Math.max(0, nat.top - MOBILE_TOP_MIN);
-      if (shiftNeeded <= maxShift) {
-        translateY = -shiftNeeded;
-        newImgBottom = maxImgBottom;
+    if (expanded && baseBottom > expandedBottomLimit) {
+      if (vw >= 1024) {
+        imageHeight = Math.max(40, expandedBottomLimit - baseTop);
       } else {
-        translateY = -maxShift;
-        const newHeight = Math.max(50, maxImgBottom - MOBILE_TOP_MIN);
-        maxH = newHeight;
-        newImgBottom = MOBILE_TOP_MIN + newHeight;
+        const shiftNeeded = baseBottom - expandedBottomLimit;
+        const availableShift = Math.max(0, baseTop - MOBILE_EXPANDED_MIN_TOP);
+        const shift = Math.min(shiftNeeded, availableShift);
+        imageTop = baseTop - shift;
+        imageHeight = Math.min(baseHeight, Math.max(40, expandedBottomLimit - imageTop));
       }
     }
 
-    setImgMaxH(maxH);
-    setImgTranslateY(translateY);
-    setBtnCenterY(newImgBottom + MINUS_GAP);
-    setTextTopY(newImgBottom + MINUS_GAP + MINUS_TO_TEXT);
-  }, [expanded]);
+    const imageWidth = imageHeight * ratio;
+    const imageBottom = imageTop + imageHeight;
+    const toggleCenterY = expanded ? imageBottom + IMAGE_TO_TOGGLE_CENTER : (baseBottom + vh) / 2;
+    const textTop = toggleCenterY + TOGGLE_CENTER_TO_TEXT;
+    const textWidth = Math.min(Math.max(1, vw - (vw >= 768 ? 120 : 96)), 720);
 
-  useLayoutEffect(() => {
-    recompute();
-  }, [recompute, currentVariation, image.id]);
-
-  useEffect(() => {
-    const onResize = () => recompute();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [recompute]);
-
-  // Re-capture natural rect once the image has loaded.
-  const handleImgLoad = () => {
-    if (!expanded) recompute();
-  };
+    return { imageTop, imageWidth, imageHeight, toggleCenterY, textTop, textWidth };
+  }, [expanded, imageSize, textHeight, viewport]);
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen relative overflow-hidden">
       <div
-        ref={wrapperRef}
-        className="absolute left-1/2 top-1/2 flex items-center justify-center"
+        className="absolute left-1/2 flex items-center justify-center"
         style={{
-          transform: `translate(-50%, calc(-50% + ${imgTranslateY}px))`,
-          transition: `transform ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
+          top: `${layout.imageTop}px`,
+          width: `${layout.imageWidth}px`,
+          height: `${layout.imageHeight}px`,
+          transform: 'translateX(-50%)',
+          transition: `top ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}, width ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}, height ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
         }}
       >
-        <div className="relative">
+        <div className="relative w-full h-full">
           <img
             ref={imgRef}
             src={image.variations[currentVariation]}
             alt={`Variation ${currentVariation + 1}`}
             onLoad={handleImgLoad}
-            className="max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
-            style={{
-              maxHeight: imgMaxH !== null ? `${imgMaxH}px` : '80vh',
-              transition: `max-height ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
-            }}
+            className="w-full h-full object-contain cursor-pointer border border-foreground/20"
             onClick={nextVariation}
           />
           {incomingVariation !== null && (
@@ -239,8 +236,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
               ref={incomingImgRef}
               src={image.variations[incomingVariation]}
               alt={`Variation ${incomingVariation + 1}`}
-              className="absolute inset-0 m-auto max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
-              style={{ maxHeight: imgMaxH !== null ? `${imgMaxH}px` : '80vh' }}
+              className="absolute inset-0 w-full h-full object-contain cursor-pointer border border-foreground/20"
               onClick={nextVariation}
             />
           )}
@@ -254,10 +250,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         onClick={() => setExpanded((v) => !v)}
         className="absolute left-1/2 z-20 text-xl leading-none select-none text-foreground cursor-pointer"
         style={{
-          top: btnCenterY !== null ? `${btnCenterY}px` : '50%',
+          top: `${layout.toggleCenterY}px`,
           transform: 'translate(-50%, -50%)',
           transition: `top ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
-          opacity: btnCenterY !== null ? 1 : 0,
         }}
       >
         {expanded ? '−' : '+'}
@@ -267,11 +262,11 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       <div
         ref={textRef}
         aria-hidden={!expanded}
-        className="absolute left-1/2 z-10 text-xs leading-relaxed text-center pointer-events-none"
+        className="absolute left-1/2 z-10 text-base leading-normal text-center pointer-events-none"
         style={{
-          top: textTopY !== null ? `${textTopY}px` : '100%',
+          top: `${layout.textTop}px`,
           transform: 'translateX(-50%)',
-          maxWidth: 'min(80vw, 640px)',
+          width: `${layout.textWidth}px`,
           opacity: expanded ? 1 : 0,
           transition: `opacity ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}, top ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
         }}
