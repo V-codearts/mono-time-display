@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 interface ImageData {
   id: number;
@@ -24,33 +24,37 @@ const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 
 const LOREM = 'LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA.';
 
-// Layout constants (px)
-const BOTTOM_MARGIN = 35;       // text bottom -> screen bottom
-const MINUS_GAP = 25;           // image bottom -> minus center
-const MINUS_TO_TEXT = 25;       // minus center -> text top
-const MOBILE_TOP_MIN = 73;      // image top minimum on mobile/tablet
-const LAYOUT_TRANSITION_MS = 320;
+const TEXT_BOTTOM_MARGIN = 35;
+const IMAGE_TO_TOGGLE_CENTER = 25;
+const TOGGLE_CENTER_TO_TEXT = 25;
+const MOBILE_EXPANDED_MIN_TOP = 73;
+const LAYOUT_TRANSITION_MS = 260;
 const LAYOUT_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+const getImageBounds = (vw: number, vh: number) => {
+  const maxWidth = vw >= 1024 ? vw * 0.8 : vw - (vw >= 768 ? 120 : 96);
+  return {
+    maxWidth: Math.max(1, maxWidth),
+    maxHeight: vh * 0.8,
+  };
+};
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const [imgMaxH, setImgMaxH] = useState<number | null>(null);
-  const [imgTranslateY, setImgTranslateY] = useState(0);
-  const [btnCenterY, setBtnCenterY] = useState<number | null>(null);
-  const [textTopY, setTextTopY] = useState<number | null>(null);
+  const [viewport, setViewport] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
+  const [textHeight, setTextHeight] = useState(0);
 
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
   const currentVariationRef = useRef(0);
   const incomingVariationRef = useRef<number | null>(null);
   const swipeIdleResolversRef = useRef<Array<() => void>>([]);
   const swipeCompletionResolversRef = useRef<Array<() => void>>([]);
-  const naturalRectRef = useRef<{ top: number; bottom: number; height: number } | null>(null);
 
   const getVisibleImageEl = () => incomingImgRef.current ?? imgRef.current;
   const resetImagePosition = (el: HTMLImageElement | null) => {
