@@ -213,24 +213,22 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen relative overflow-hidden">
       <div
-        ref={wrapperRef}
-        className="absolute left-1/2 top-1/2 flex items-center justify-center"
+        className="absolute left-1/2 flex items-center justify-center"
         style={{
-          transform: `translate(-50%, calc(-50% + ${imgTranslateY}px))`,
-          transition: `transform ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
+          top: `${layout.imageTop}px`,
+          width: `${layout.imageWidth}px`,
+          height: `${layout.imageHeight}px`,
+          transform: 'translateX(-50%)',
+          transition: `top ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}, width ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}, height ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
         }}
       >
-        <div className="relative">
+        <div className="relative w-full h-full">
           <img
             ref={imgRef}
             src={image.variations[currentVariation]}
             alt={`Variation ${currentVariation + 1}`}
             onLoad={handleImgLoad}
-            className="max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
-            style={{
-              maxHeight: imgMaxH !== null ? `${imgMaxH}px` : '80vh',
-              transition: `max-height ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
-            }}
+            className="w-full h-full object-contain cursor-pointer border border-foreground/20"
             onClick={nextVariation}
           />
           {incomingVariation !== null && (
@@ -238,8 +236,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
               ref={incomingImgRef}
               src={image.variations[incomingVariation]}
               alt={`Variation ${incomingVariation + 1}`}
-              className="absolute inset-0 m-auto max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
-              style={{ maxHeight: imgMaxH !== null ? `${imgMaxH}px` : '80vh' }}
+              className="absolute inset-0 w-full h-full object-contain cursor-pointer border border-foreground/20"
               onClick={nextVariation}
             />
           )}
@@ -253,10 +250,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         onClick={() => setExpanded((v) => !v)}
         className="absolute left-1/2 z-20 text-xl leading-none select-none text-foreground cursor-pointer"
         style={{
-          top: btnCenterY !== null ? `${btnCenterY}px` : '50%',
+          top: `${layout.toggleCenterY}px`,
           transform: 'translate(-50%, -50%)',
           transition: `top ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
-          opacity: btnCenterY !== null ? 1 : 0,
         }}
       >
         {expanded ? '−' : '+'}
@@ -266,11 +262,11 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       <div
         ref={textRef}
         aria-hidden={!expanded}
-        className="absolute left-1/2 z-10 text-xs leading-relaxed text-center pointer-events-none"
+        className="absolute left-1/2 z-10 text-base leading-normal text-center pointer-events-none"
         style={{
-          top: textTopY !== null ? `${textTopY}px` : '100%',
+          top: `${layout.textTop}px`,
           transform: 'translateX(-50%)',
-          maxWidth: 'min(80vw, 640px)',
+          width: `${layout.textWidth}px`,
           opacity: expanded ? 1 : 0,
           transition: `opacity ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}, top ${LAYOUT_TRANSITION_MS}ms ${LAYOUT_EASE}`,
         }}
