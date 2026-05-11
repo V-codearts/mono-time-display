@@ -144,76 +144,71 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     setIncomingVariation((currentVariation + 1) % image.variations.length);
   };
 
-  const recompute = useCallback(() => {
+  const handleMeasureImage = () => {
     const img = imgRef.current;
-    if (!img) return;
-    const winH = window.innerHeight;
-    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (!img?.naturalWidth || !img?.naturalHeight) return;
+    setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+  };
 
-    if (!expanded) {
-      // Natural state — capture rect.
-      const r = img.getBoundingClientRect();
-      // Account for any leftover translateY (shouldn't be any when collapsed, but be safe).
-      naturalRectRef.current = { top: r.top, bottom: r.bottom, height: r.height };
-      setImgMaxH(null);
-      setImgTranslateY(0);
-      setBtnCenterY((r.bottom + winH) / 2);
-      setTextTopY(null);
-      return;
-    }
+  const handleImgLoad = () => {
+    handleMeasureImage();
+  };
 
-    const nat = naturalRectRef.current;
+  useLayoutEffect(() => {
+    handleMeasureImage();
+  }, [currentVariation, image.id]);
+
+  useLayoutEffect(() => {
     const textEl = textRef.current;
-    if (!nat || !textEl) return;
-    const textH = textEl.offsetHeight;
+    if (!textEl) return;
+    const measureText = () => setTextHeight(textEl.offsetHeight);
+    measureText();
+    const observer = new ResizeObserver(measureText);
+    observer.observe(textEl);
+    return () => observer.disconnect();
+  }, [viewport.width]);
 
-    const maxImgBottom = winH - BOTTOM_MARGIN - textH - MINUS_GAP - MINUS_TO_TEXT;
+  useEffect(() => {
+    const onResize = () => setViewport({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
-    let newImgBottom = nat.bottom;
-    let translateY = 0;
-    let maxH: number | null = null;
+  const layout = useMemo(() => {
+    const { width: vw, height: vh } = viewport;
+    const bounds = getImageBounds(vw, vh);
+    const naturalW = imageSize?.width ?? bounds.maxWidth;
+    const naturalH = imageSize?.height ?? bounds.maxHeight;
+    const ratio = naturalW / naturalH;
+    const scale = Math.min(1, bounds.maxWidth / naturalW, bounds.maxHeight / naturalH);
+    const baseWidth = naturalW * scale;
+    const baseHeight = naturalH * scale;
+    const baseTop = (vh - baseHeight) / 2;
+    const baseBottom = baseTop + baseHeight;
+    const expandedBottomLimit = vh - TEXT_BOTTOM_MARGIN - textHeight - IMAGE_TO_TOGGLE_CENTER - TOGGLE_CENTER_TO_TEXT;
+    let imageTop = baseTop;
+    let imageHeight = baseHeight;
 
-    if (nat.bottom <= maxImgBottom) {
-      // Fits naturally.
-    } else if (isDesktop) {
-      // Shrink; top stays.
-      const newHeight = Math.max(50, maxImgBottom - nat.top);
-      maxH = newHeight;
-      newImgBottom = nat.top + newHeight;
-    } else {
-      const shiftNeeded = nat.bottom - maxImgBottom;
-      const maxShift = Math.max(0, nat.top - MOBILE_TOP_MIN);
-      if (shiftNeeded <= maxShift) {
-        translateY = -shiftNeeded;
-        newImgBottom = maxImgBottom;
+    if (expanded && baseBottom > expandedBottomLimit) {
+      if (vw >= 1024) {
+        imageHeight = Math.max(40, expandedBottomLimit - baseTop);
       } else {
-        translateY = -maxShift;
-        const newHeight = Math.max(50, maxImgBottom - MOBILE_TOP_MIN);
-        maxH = newHeight;
-        newImgBottom = MOBILE_TOP_MIN + newHeight;
+        const shiftNeeded = baseBottom - expandedBottomLimit;
+        const availableShift = Math.max(0, baseTop - MOBILE_EXPANDED_MIN_TOP);
+        const shift = Math.min(shiftNeeded, availableShift);
+        imageTop = baseTop - shift;
+        imageHeight = Math.min(baseHeight, Math.max(40, expandedBottomLimit - imageTop));
       }
     }
 
-    setImgMaxH(maxH);
-    setImgTranslateY(translateY);
-    setBtnCenterY(newImgBottom + MINUS_GAP);
-    setTextTopY(newImgBottom + MINUS_GAP + MINUS_TO_TEXT);
-  }, [expanded]);
+    const imageWidth = imageHeight * ratio;
+    const imageBottom = imageTop + imageHeight;
+    const toggleCenterY = expanded ? imageBottom + IMAGE_TO_TOGGLE_CENTER : (baseBottom + vh) / 2;
+    const textTop = toggleCenterY + TOGGLE_CENTER_TO_TEXT;
+    const textWidth = Math.min(Math.max(1, vw - (vw >= 768 ? 120 : 96)), 720);
 
-  useLayoutEffect(() => {
-    recompute();
-  }, [recompute, currentVariation, image.id]);
-
-  useEffect(() => {
-    const onResize = () => recompute();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [recompute]);
-
-  // Re-capture natural rect once the image has loaded.
-  const handleImgLoad = () => {
-    if (!expanded) recompute();
-  };
+    return { imageTop, imageWidth, imageHeight, toggleCenterY, textTop, textWidth };
+  }, [expanded, imageSize, textHeight, viewport]);
 
   return (
     <div className="bg-background text-foreground font-mono min-h-screen relative overflow-hidden">
