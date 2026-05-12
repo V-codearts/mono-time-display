@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* white for light mode */
+    --background: 0 0% 99.6%; /* #fefefe to match light intro video */
     --foreground: 0 0% 7%; /* #121212 for light mode */
     
     --card: 0 0% 100%;
@@ -38,7 +38,7 @@
   }
   
   .dark {
-    --background: 0 0% 7%; /* CHANGED from 7.5% → 7% (#121212) */
+    --background: 0 0% 7.45%; /* #131313 to match dark intro video */
     --foreground: 0 0% 100%;
     
     --card: 0 0% 7%;
