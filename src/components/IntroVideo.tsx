@@ -30,10 +30,10 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
       requestAnimationFrame(() => setIsFadedIn(true));
     }, 100);
 
-    // Fade out after intro plays (~1.72s video + 0.1s fade-in delay)
+    // Fade out after intro plays
     timerRef.current = setTimeout(() => {
       setIsFadingOut(true);
-    }, 1720);
+    }, 1500);
   }, []);
 
   useEffect(() => {
