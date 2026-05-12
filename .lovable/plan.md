@@ -1,43 +1,21 @@
-## Goal
+## Why dark mode shows a darker square during fade
 
-On mobile and tablet (vertical) viewports, make the horizontal gap between each collection image edge and the page edge mirror the gap between the HUD element's center and its nearest page edge. So if the HUD dot's center sits 24px from the right page edge, the image's right edge should also sit 24px from the dot's center — i.e. 48px from the page edge.
+The intro container fades opacity from 0 → 1 (and 1 → 0). Inside it, the `<video>` element has a browser-default **black** backdrop that shows through whenever a frame isn't fully painted (before first frame, during decode hiccups, on the very first compositor paint after fade-in starts). On dark mode the page is `#131313`, so a brief `#000000` square is visible. On light mode the page is near-white, so the dark video content already contrasts and the artifact is invisible.
 
-## HUD element positions (from `Hud.tsx`)
+## Fix (in `src/components/IntroVideo.tsx`)
 
-- Right dot: `w-3 h-3` (12px), `right-[18px]` mobile / `right-[24px]` tablet+.
-  - Center → page right edge: **24px mobile**, **30px tablet+**.
-- Left +/− glyph: `text-xl` (~12px wide), `left-[18px]` mobile / `left-[24px]` tablet+.
-  - Center → page left edge: **~24px mobile**, **~30px tablet+** (approx; glyph char width close to the dot's 12px).
+1. Give the `<video>` element an explicit background matching the site:
+   - `style={{ backgroundColor: 'hsl(var(--background))' }}` on the `<video>`.
+2. Give the fading wrapper the same `bg-background` so the box itself is invisible against the page during partial opacity (no darker rectangle even mid-transition).
+3. Defer the fade-in until the video actually has a paintable frame — start `setIsFadedIn(true)` only after the first `loadeddata`/`canplay` (already wired) **and** one `requestAnimationFrame` tick, so the first composited frame is the real video, not the black default.
+4. On fade-out, freeze the last painted frame by leaving the video element in place (already does) — no change needed beyond step 1, since the black backdrop is what was bleeding through.
 
-Both sides are effectively symmetric, so a single horizontal page-side inset can be applied to both image edges.
+## Notes
 
-## Required image insets (page edge → image edge)
+- No video re-encoding required; the videos are already #131313/#fefefe.
+- No change to timings (1500ms fade-out start, 165ms fade duration stay as-is).
+- Light mode is unaffected because the same fix is bg-tokenised.
 
-- Mobile: 2 × 24px = **48px** on each side → image max-width = `100vw - 96px`.
-- Tablet (`md`): 2 × 30px = **60px** on each side → image max-width = `100vw - 120px`.
-- Desktop (`lg`): leave the current `80vw` rule untouched (user only mentioned mobile + tablet).
+## Alternative (only if step 1 isn't enough)
 
-## Change
-
-In `src/components/Gallery.tsx`, replace the current image className:
-
-```
-max-w-[calc(80vw-16px)] max-h-[calc(80vh-16px)]
-md:max-w-[calc(80vw+28px)] md:max-h-[calc(80vh+28px)]
-lg:max-w-[80vw] lg:max-h-[80vh]
-```
-
-with:
-
-```
-max-w-[calc(100vw-96px)]  max-h-[80vh]
-md:max-w-[calc(100vw-120px)] md:max-h-[80vh]
-lg:max-w-[80vw] lg:max-h-[80vh]
-```
-
-Vertical max-height stays at `80vh` (the user didn't ask to change vertical sizing, and `object-contain` will letterbox if the image is portrait). No other files need to change.
-
-## Notes / assumptions
-
-- I'm treating the `+/−` glyph as roughly 12px wide (matching the dot) so left/right insets stay symmetric. If the glyph ends up visibly off-center vs. the dot, we can pin the left inset separately with a small offset.
-- This supersedes the earlier "shrink mobile −16px / grow tablet +28px" tweak, since that's now expressed by the new symmetric rule.
+Wrap the `<video>` in a div with `bg-background` and render the video with `mix-blend-mode: normal` — same idea, belt-and-braces.
