@@ -66,8 +66,12 @@ const Index = () => {
   }, []);
 
   const handleHudBack = useCallback(() => {
+    if (displayedPage === 'about') {
+      goToPage('other');
+      return;
+    }
     galleryBackRef.current?.();
-  }, []);
+  }, [displayedPage, goToPage]);
 
   if (showIntro) {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
@@ -88,14 +92,14 @@ const Index = () => {
           currentPage={displayedPage}
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
-          inspecting={inspecting}
+          inspecting={inspecting || displayedPage === 'about'}
           onBack={handleHudBack}
         />
       )}
 
       {displayedPage === 'about' || displayedPage === 'other' ? (
         <div style={fadeStyle}>
-          <About currentPage={displayedPage} />
+          <About currentPage={displayedPage} onNavigate={handleNavigate} />
         </div>
       ) : (
         <div
