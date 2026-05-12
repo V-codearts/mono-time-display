@@ -98,7 +98,13 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
-      <div className="relative w-[80vmin] h-[80vmin] flex items-center justify-center overflow-hidden">
+      <div
+        className="relative w-[80vmin] h-[80vmin] flex items-center justify-center overflow-hidden"
+        style={{
+          opacity: isFadingOut ? 0 : isFadedIn ? 1 : 0,
+          transition: isFadingOut ? 'opacity 0.165s ease-out' : 'opacity 0.325s ease-out',
+        }}
+      >
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
@@ -113,14 +119,6 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
         <div className="absolute bottom-0 left-0 right-0 h-[5px] bg-background" />
         <div className="absolute top-0 left-0 bottom-0 w-[5px] bg-background" />
         <div className="absolute top-0 right-0 bottom-0 w-[5px] bg-background" />
-        {/* Color-matched overlay that fades, instead of fading the video itself */}
-        <div
-          className="absolute inset-0 bg-background pointer-events-none"
-          style={{
-            opacity: isFadingOut ? 1 : isFadedIn ? 0 : 1,
-            transition: isFadingOut ? 'opacity 0.165s ease-out' : 'opacity 0.325s ease-out',
-          }}
-        />
       </div>
     </div>
   );
