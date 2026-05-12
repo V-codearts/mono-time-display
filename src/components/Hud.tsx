@@ -97,17 +97,6 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
           >
             MORE
           </span>
-          <span
-            className={itemClass('about', true)}
-            style={{
-              transform: 'translateX(calc(-100% - 24px))',
-              transitionDuration: '300ms, 200ms',
-              transitionDelay: '0ms, 0ms',
-              display: 'none',
-            }}
-          >
-            ABOUT
-          </span>
         </div>
       </div>
 
