@@ -13,7 +13,7 @@ const About = ({ currentPage }: AboutProps) => {
       <div className="w-full flex items-center justify-center h-screen">
         <div className="flex flex-col gap-0.5 items-center tracking-wider uppercase">
           <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">MEDIA</p>
-          <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">PERSONAL</p>
+          <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">ARCHIVE</p>
         </div>
       </div>
     ),
