@@ -66,8 +66,12 @@ const Index = () => {
   }, []);
 
   const handleHudBack = useCallback(() => {
+    if (displayedPage === 'about') {
+      goToPage('other');
+      return;
+    }
     galleryBackRef.current?.();
-  }, []);
+  }, [displayedPage, goToPage]);
 
   if (showIntro) {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
