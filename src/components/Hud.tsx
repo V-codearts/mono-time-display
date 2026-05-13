@@ -9,11 +9,14 @@ interface HudProps {
   setMenuOpen: (open: boolean) => void;
   inspecting?: boolean;
   onBack?: () => void;
+  entering?: boolean;
 }
 
 const MORPH_MS = 180;
+const ENTER_MS = 600;
+const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack }: HudProps) => {
+const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack, entering = false }: HudProps) => {
   const effectiveMenuOpen = menuOpen && !inspecting;
 
   const itemClass = (page: 'gallery' | 'about' | 'other', interactive: boolean) => {
@@ -37,7 +40,13 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
 
   return (
     <>
-      <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate">
+      <div
+        className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate"
+        style={{
+          transform: entering ? 'translateX(calc(-100% - 24px))' : 'translateX(0)',
+          transition: `transform ${ENTER_MS}ms ${ENTER_EASE}`,
+        }}
+      >
         <div
           className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
           onClick={handleGlyphClick}
@@ -102,6 +111,18 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
 
       <div
         className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        style={
+          entering
+            ? {
+                transform: 'translateX(calc(100% + 24px))',
+                transitionDuration: `${ENTER_MS}ms`,
+                transitionTimingFunction: ENTER_EASE,
+              }
+            : {
+                transitionDuration: `${ENTER_MS}ms, 200ms`,
+                transitionTimingFunction: `${ENTER_EASE}, ease`,
+              }
+        }
         onClick={onToggleTheme}
       />
     </>

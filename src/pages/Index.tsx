@@ -14,7 +14,7 @@ const Index = () => {
     return saved !== null ? saved === 'dark' : true;
   });
   const [showIntro, setShowIntro] = useState(true);
-  const [galleryFadingIn, setGalleryFadingIn] = useState(true);
+  const [introEntering, setIntroEntering] = useState(true);
   const [displayedPage, setDisplayedPage] = useState<Page>('gallery');
   const [pageOpacity, setPageOpacity] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,7 +39,7 @@ const Index = () => {
     setHudVisible(true);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        setGalleryFadingIn(false);
+        setIntroEntering(false);
       });
     });
   }, []);
@@ -94,6 +94,7 @@ const Index = () => {
           setMenuOpen={setMenuOpen}
           inspecting={inspecting || displayedPage === 'about'}
           onBack={handleHudBack}
+          entering={introEntering}
         />
       )}
 
@@ -102,14 +103,12 @@ const Index = () => {
           <About currentPage={displayedPage} onNavigate={handleNavigate} />
         </div>
       ) : (
-        <div
-          style={
-            galleryFadingIn
-              ? { opacity: 0, transition: 'none' }
-              : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
-          }
-        >
-          <Gallery onInspectChange={setInspecting} onBackHandlerReady={handleBackHandlerReady} />
+        <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
+          <Gallery
+            onInspectChange={setInspecting}
+            onBackHandlerReady={handleBackHandlerReady}
+            entering={introEntering}
+          />
         </div>
       )}
     </>
