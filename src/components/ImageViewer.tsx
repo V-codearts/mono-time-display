@@ -47,6 +47,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     currentVariationRef.current = currentVariation;
   }, [currentVariation]);
 
+  useLayoutEffect(() => {
+    const recompute = () => {
+      const el = getVisibleImageEl();
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.height === 0) return;
+      setPlusY((rect.bottom + window.innerHeight) / 2);
+    };
+    recompute();
+    const raf = requestAnimationFrame(recompute);
+    window.addEventListener('resize', recompute);
+    const img = getVisibleImageEl();
+    img?.addEventListener('load', recompute);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', recompute);
+      img?.removeEventListener('load', recompute);
+    };
+  }, [currentVariation, incomingVariation, image]);
+
   useEffect(() => {
     incomingVariationRef.current = incomingVariation;
 
