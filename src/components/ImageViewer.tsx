@@ -24,6 +24,17 @@ const SWIPE_MS = 270;
 const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 const PLUS_SLIDE_MS = 300;
 const PLUS_SLIDE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const ROW_GAP = 26;
+const BOTTOM_MARGIN = 26;
+const MOBILE_TOP_LIMIT = 81;
+const MINUS_OFFSET = 21;
+const INFO_ROWS = [
+  'INFO TEXT',
+  'MATERIAL 100%',
+  'EXAMPLE COLOR',
+  'DIMENSIONS 40 × 60',
+  'EDITION 01 / 12',
+];
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
@@ -69,10 +80,66 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         });
         return;
       }
+
+      // Measure natural rect with layout transform cleared (preserve swipe transform if any).
+      const isSwiping = incomingVariationRef.current !== null;
+      const prevTransform = el.style.transform;
+      const prevTransition = el.style.transition;
+      if (!isSwiping) {
+        el.style.transition = 'none';
+        el.style.transform = 'translate3d(0, 0, 0)';
+      }
       const rect = el.getBoundingClientRect();
-      if (rect.height === 0) return;
-      setPlusY((rect.bottom + window.innerHeight) / 2);
-      setMinusY(rect.bottom + 21);
+      if (rect.height === 0) {
+        if (!isSwiping) {
+          el.style.transform = prevTransform;
+          el.style.transition = prevTransition;
+        }
+        return;
+      }
+
+      const isMobile = window.innerWidth < 768;
+      const N = INFO_ROWS.length;
+      // Required image bottom so last row sits 26px above screen bottom.
+      const requiredBottom =
+        window.innerHeight - BOTTOM_MARGIN - (N - 1) * ROW_GAP - ROW_GAP - MINUS_OFFSET;
+
+      let shift = 0;
+      let scale = 1;
+      let finalTop = rect.top;
+      let finalBottom = rect.bottom;
+
+      if (expanded && rect.bottom > requiredBottom) {
+        const delta = rect.bottom - requiredBottom;
+        if (isMobile) {
+          const maxShift = Math.max(0, rect.top - MOBILE_TOP_LIMIT);
+          shift = Math.min(delta, maxShift);
+          finalTop = rect.top - shift;
+          finalBottom = rect.bottom - shift;
+          if (shift < delta) {
+            const targetH = requiredBottom - finalTop;
+            scale = Math.max(0.05, targetH / rect.height);
+            finalBottom = finalTop + rect.height * scale;
+          }
+        } else {
+          const targetH = requiredBottom - rect.top;
+          scale = Math.max(0.05, targetH / rect.height);
+          finalBottom = rect.top + rect.height * scale;
+        }
+      }
+
+      if (!isSwiping) {
+        el.style.transformOrigin = '50% 0%';
+        // Apply transform with transition on next frame.
+        requestAnimationFrame(() => {
+          if (cancelled) return;
+          el.style.transition = `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`;
+          el.style.transform = `translate3d(0, ${-shift}px, 0) scale(${scale})`;
+        });
+      }
+
+      setPlusY((finalBottom + window.innerHeight) / 2);
+      setMinusY(finalBottom + MINUS_OFFSET);
       // Defer visibility so the slide-in transition runs from the off-screen state.
       requestAnimationFrame(() => {
         if (!cancelled && !plusExitingRef.current) setPlusVisible(true);
@@ -89,7 +156,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       window.removeEventListener('resize', measure);
       img?.removeEventListener('load', measure);
     };
-  }, [currentVariation, incomingVariation, image]);
+  }, [currentVariation, incomingVariation, image, expanded]);
 
   useEffect(() => {
     incomingVariationRef.current = incomingVariation;
@@ -230,18 +297,33 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         ))}
       </div>
       {plusY !== null && minusY !== null && (
-        <span
-          className="fixed left-1/2 top-0 text-xl text-foreground select-none cursor-pointer hover:font-bold"
-          style={{
-            transform: plusVisible
-              ? `translate(-50%, -50%) translateY(${expanded ? minusY : plusY}px)`
-              : `translate(-50%, -50%) translateY(${window.innerHeight + 40}px)`,
-            transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
-          }}
-          onClick={() => setExpanded((e) => !e)}
-        >
-          {expanded ? '−' : '+'}
-        </span>
+        <>
+          <span
+            className="fixed left-1/2 top-0 text-xl text-foreground select-none cursor-pointer hover:font-bold"
+            style={{
+              transform: plusVisible
+                ? `translate(-50%, -50%) translateY(${expanded ? minusY : plusY}px)`
+                : `translate(-50%, -50%) translateY(${window.innerHeight + 40}px)`,
+              transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
+            }}
+            onClick={() => setExpanded((e) => !e)}
+          >
+            {expanded ? '−' : '+'}
+          </span>
+          {INFO_ROWS.map((row, i) => (
+            <span
+              key={i}
+              className="fixed left-1/2 top-0 text-xs uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
+              style={{
+                transform: `translate(-50%, -50%) translateY(${minusY + ROW_GAP * (i + 1)}px)`,
+                opacity: expanded && plusVisible ? 1 : 0,
+                transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, opacity 200ms ease-in-out`,
+              }}
+            >
+              {row}
+            </span>
+          ))}
+        </>
       )}
     </div>
   );
