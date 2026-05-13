@@ -88,7 +88,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const gap = window.innerHeight - rect.bottom;
-      const lowerOffset = window.innerWidth < 768 ? 24 : 57;
+      const lowerOffset = window.innerWidth < 768 ? 32 : 17;
       setPlusBottom((gap / 2) - lowerOffset);
     };
     update();
