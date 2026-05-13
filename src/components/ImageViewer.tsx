@@ -68,6 +68,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
+      setPlusVisible(true);
     };
 
     const raf = requestAnimationFrame(measure);
