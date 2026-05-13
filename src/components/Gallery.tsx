@@ -324,6 +324,14 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false }: Gall
                 <div
                   key={item.id}
                   className="flex h-screen w-full items-center justify-center"
+                  style={
+                    isFirst
+                      ? {
+                          transform: entering ? 'translateY(100vh)' : 'translateY(0)',
+                          transition: `transform ${ENTER_MS}ms ${ENTER_EASE}`,
+                        }
+                      : undefined
+                  }
                 >
                   <img
                     ref={(el) => {
