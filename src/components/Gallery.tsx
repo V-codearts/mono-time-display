@@ -71,13 +71,16 @@ void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
 interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
   onBackHandlerReady?: (handler: (() => void) | null) => void;
+  entering?: boolean;
 }
 
 const FADE_MS = 133;
 const FLIP_MS = 300;
 const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const ENTER_MS = 600;
+const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false }: GalleryProps) => {
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [firstReady, setFirstReady] = useState(false);
