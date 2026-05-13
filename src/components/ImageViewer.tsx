@@ -23,6 +23,10 @@ const SWIPE_MS = 270;
 // Near-linear with the faintest hint of easing.
 const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 
+const MORPH_MS = 180;
+const INFO_MS = 320;
+const INFO_LINES = ['INFO TEXT', 'EXAMPLE', '100% TEXT', 'LOREM IPSUM', 'BLAH BLAH'];
+
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
