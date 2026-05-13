@@ -28,6 +28,9 @@ const ROW_GAP = 26;
 const BOTTOM_MARGIN = 26;
 const MOBILE_TOP_LIMIT = 81;
 const MINUS_OFFSET = 21;
+const ROW_STAGGER_MS = 80;
+const ROW_SLIDE_MS = 400;
+const ROW_OFFSET_PX = 16;
 const INFO_ROWS = [
   'INFO TEXT',
   'MATERIAL 100%',
@@ -54,12 +57,13 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const incomingVariationRef = useRef<number | null>(null);
   const swipeIdleResolversRef = useRef<Array<() => void>>([]);
   const swipeCompletionResolversRef = useRef<Array<() => void>>([]);
+  const layoutTransformRef = useRef<string>('translate3d(0, 0, 0)');
 
   const getVisibleImageEl = () => incomingImgRef.current ?? imgRef.current;
   const resetImagePosition = (el: HTMLImageElement | null) => {
     if (!el) return;
     el.style.transition = 'none';
-    el.style.transform = 'translate3d(0, 0, 0)';
+    el.style.transform = layoutTransformRef.current;
     el.style.opacity = '1';
   };
 
@@ -73,6 +77,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     const measure = () => {
       const el = getVisibleImageEl();
       if (!el || cancelled || plusExitingRef.current) return;
+      const isSwiping = incomingVariationRef.current !== null;
+      // Don't restart layout transitions during a swipe.
+      if (isSwiping) return;
       const anims = el.getAnimations();
       if (anims.length > 0) {
         Promise.allSettled(anims.map((a) => a.finished)).then(() => {
@@ -81,39 +88,29 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         return;
       }
 
-      // Measure natural rect with layout transform cleared (preserve swipe transform if any).
-      const isSwiping = incomingVariationRef.current !== null;
+      // Measure natural rect with layout transform cleared.
       const prevTransform = el.style.transform;
       const prevTransition = el.style.transition;
-      if (!isSwiping) {
-        el.style.transition = 'none';
-        el.style.transform = 'translate3d(0, 0, 0)';
-      }
+      el.style.transition = 'none';
+      el.style.transform = 'translate3d(0, 0, 0)';
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) {
-        if (!isSwiping) {
-          el.style.transform = prevTransform;
-          el.style.transition = prevTransition;
-        }
+        el.style.transform = prevTransform;
+        el.style.transition = prevTransition;
         return;
       }
       // Restore previous transform (no transition) so the upcoming animation
       // starts from the current visual state instead of jumping to natural size.
-      if (!isSwiping) {
-        el.style.transform = prevTransform || 'translate3d(0, 0, 0)';
-        // Force reflow so the restored transform is committed before we set the next one.
-        void el.offsetWidth;
-      }
+      el.style.transform = prevTransform || 'translate3d(0, 0, 0)';
+      void el.offsetWidth;
 
       const isMobile = window.innerWidth < 768;
       const N = INFO_ROWS.length;
-      // Required image bottom so last row sits 26px above screen bottom.
       const requiredBottom =
         window.innerHeight - BOTTOM_MARGIN - (N - 1) * ROW_GAP - ROW_GAP - MINUS_OFFSET;
 
       let shift = 0;
       let scale = 1;
-      let finalTop = rect.top;
       let finalBottom = rect.bottom;
 
       if (expanded && rect.bottom > requiredBottom) {
@@ -121,7 +118,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         if (isMobile) {
           const maxShift = Math.max(0, rect.top - MOBILE_TOP_LIMIT);
           shift = Math.min(delta, maxShift);
-          finalTop = rect.top - shift;
+          const finalTop = rect.top - shift;
           finalBottom = rect.bottom - shift;
           if (shift < delta) {
             const targetH = requiredBottom - finalTop;
@@ -135,19 +132,17 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         }
       }
 
-      if (!isSwiping) {
-        el.style.transformOrigin = '50% 0%';
-        // Apply transform with transition on next frame.
-        requestAnimationFrame(() => {
-          if (cancelled) return;
-          el.style.transition = `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`;
-          el.style.transform = `translate3d(0, ${-shift}px, 0) scale(${scale})`;
-        });
-      }
+      const nextTransform = `translate3d(0, ${-shift}px, 0) scale(${scale})`;
+      layoutTransformRef.current = nextTransform;
+      el.style.transformOrigin = '50% 0%';
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        el.style.transition = `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`;
+        el.style.transform = nextTransform;
+      });
 
       setPlusY((finalBottom + window.innerHeight) / 2);
       setMinusY(finalBottom + MINUS_OFFSET);
-      // Defer visibility so the slide-in transition runs from the off-screen state.
       requestAnimationFrame(() => {
         if (!cancelled && !plusExitingRef.current) setPlusVisible(true);
       });
@@ -163,7 +158,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       window.removeEventListener('resize', measure);
       img?.removeEventListener('load', measure);
     };
-  }, [currentVariation, incomingVariation, image, expanded]);
+  }, [currentVariation, image, expanded]);
 
   useEffect(() => {
     incomingVariationRef.current = incomingVariation;
@@ -228,26 +223,31 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
 
     const currentImg = imgRef.current;
     const nextImg = incomingImgRef.current;
+    const layout = layoutTransformRef.current;
 
-    // Measure actual rendered position so each image fully clears the viewport.
+    // Apply layout transform to incoming image so it matches current scale/shift.
+    nextImg.style.transformOrigin = '50% 0%';
+    nextImg.style.transition = 'none';
+    nextImg.style.transform = layout;
+    void nextImg.offsetWidth;
+
     const currentRect = currentImg.getBoundingClientRect();
     const nextRect = nextImg.getBoundingClientRect();
     const vw = window.innerWidth;
-    const outgoingExitX = vw - currentRect.left; // move right until fully off-screen
-    const incomingStartX = -(nextRect.left + nextRect.width); // start fully off-screen left
+    const outgoingExitX = vw - currentRect.left;
+    const incomingStartX = -(nextRect.left + nextRect.width);
 
     currentImg.style.transition = 'none';
-    nextImg.style.transition = 'none';
-    currentImg.style.transform = 'translate3d(0, 0, 0)';
+    currentImg.style.transform = `translateX(0px) ${layout}`;
     currentImg.style.opacity = '1';
-    nextImg.style.transform = `translate3d(${incomingStartX}px, 0, 0)`;
+    nextImg.style.transform = `translateX(${incomingStartX}px) ${layout}`;
     nextImg.style.opacity = '1';
 
     const frame = requestAnimationFrame(() => {
       currentImg.style.transition = `transform ${SWIPE_MS}ms ${SWIPE_EASE}`;
       nextImg.style.transition = `transform ${SWIPE_MS}ms ${SWIPE_EASE}`;
-      currentImg.style.transform = `translate3d(${outgoingExitX}px, 0, 0)`;
-      nextImg.style.transform = 'translate3d(0, 0, 0)';
+      currentImg.style.transform = `translateX(${outgoingExitX}px) ${layout}`;
+      nextImg.style.transform = `translateX(0px) ${layout}`;
     });
 
     swipeTimeoutRef.current = window.setTimeout(() => {
@@ -315,16 +315,31 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
             }}
             onClick={() => setExpanded((e) => !e)}
           >
-            {expanded ? '−' : '+'}
+            <span
+              className="transition-opacity"
+              style={{ opacity: expanded ? 0 : 1, transitionDuration: '180ms' }}
+            >
+              +
+            </span>
+            <span
+              className="absolute left-0 top-0 transition-opacity"
+              style={{ opacity: expanded ? 1 : 0, transitionDuration: '180ms' }}
+            >
+              −
+            </span>
           </span>
           {INFO_ROWS.map((row, i) => (
             <span
               key={i}
               className="fixed left-1/2 top-0 uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
               style={{
-                transform: `translate(-50%, -50%) translateY(${minusY + ROW_GAP * (i + 1)}px)`,
+                transform: `translate(-50%, -50%) translateY(${
+                  minusY + ROW_GAP * (i + 1) + (expanded && plusVisible ? 0 : ROW_OFFSET_PX)
+                }px)`,
                 opacity: expanded && plusVisible ? 1 : 0,
-                transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, opacity 200ms ease-in-out`,
+                transition: `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, opacity ${ROW_SLIDE_MS}ms ease-out`,
+                transitionDelay:
+                  expanded && plusVisible ? `${PLUS_SLIDE_MS + i * ROW_STAGGER_MS}ms` : '0ms',
               }}
             >
               {row}
