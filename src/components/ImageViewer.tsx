@@ -31,6 +31,10 @@ const MINUS_OFFSET = 21;
 const ROW_STAGGER_MS = 80;
 const ROW_SLIDE_MS = 400;
 const ROW_OFFSET_PX = 16;
+// Overlap so we don't wait for the previous animation to fully finish.
+const EXPAND_OVERLAP_MS = 120;   // delay before rows start sliding in
+const COLLAPSE_OVERLAP_MS = 180; // delay before minus collapses back
+const FADE_OUT_MS = 220;
 const INFO_ROWS = [
   'INFO TEXT',
   'MATERIAL 100%',
@@ -47,6 +51,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [plusVisible, setPlusVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [rowsVisible, setRowsVisible] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
   const expandTimerRef = useRef<number | null>(null);
   const ROWS_EXIT_MS = (INFO_ROWS.length - 1) * ROW_STAGGER_MS + ROW_SLIDE_MS;
   const plusVisibleRef = useRef(false);
@@ -212,14 +217,21 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
-      const plusExit = waitForPlusExit();
+      let exit: Promise<void>;
+      if (expanded) {
+        // Just fade everything out — no slide choreography on return.
+        setFadingOut(true);
+        exit = new Promise<void>((resolve) => window.setTimeout(resolve, FADE_OUT_MS));
+      } else {
+        exit = waitForPlusExit();
+      }
       if (currentVariationRef.current !== 0) {
         setIncomingVariation(0);
         await waitForSwipeCompletion();
       }
-      await plusExit;
+      await exit;
     },
-  }), [image, currentVariation, incomingVariation]);
+  }), [image, currentVariation, incomingVariation, expanded]);
 
   useLayoutEffect(() => {
     if (incomingVariation === null || !imgRef.current || !incomingImgRef.current) return;
@@ -314,7 +326,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
               transform: plusVisible
                 ? `translate(-50%, -50%) translateY(${expanded ? minusY : plusY}px)`
                 : `translate(-50%, -50%) translateY(${window.innerHeight + 40}px)`,
-              transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
+              opacity: fadingOut ? 0 : 1,
+              transition: fadingOut
+                ? `opacity ${FADE_OUT_MS}ms ease-out`
+                : `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
             }}
             onClick={() => {
               if (expandTimerRef.current) {
@@ -322,19 +337,19 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
                 expandTimerRef.current = null;
               }
               if (expanded) {
-                // Collapsing: hide rows first, then collapse the minus.
+                // Collapsing: rows start sliding out; minus follows shortly after.
                 setRowsVisible(false);
                 expandTimerRef.current = window.setTimeout(() => {
                   setExpanded(false);
                   expandTimerRef.current = null;
-                }, ROWS_EXIT_MS);
+                }, COLLAPSE_OVERLAP_MS);
               } else {
-                // Expanding: slide minus up, then reveal rows once it has arrived.
+                // Expanding: minus starts sliding up; rows follow shortly after.
                 setExpanded(true);
                 expandTimerRef.current = window.setTimeout(() => {
                   setRowsVisible(true);
                   expandTimerRef.current = null;
-                }, PLUS_SLIDE_MS);
+                }, EXPAND_OVERLAP_MS);
               }
             }}
           >
@@ -360,11 +375,16 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
                 key={i}
                 className="fixed left-1/2 top-0 uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
                 style={{
-                  transform: `translate(-50%, -50%) translateY(${showing ? targetY : hiddenY}px)`,
-                  transition: `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`,
-                  transitionDelay: `${
-                    (showing ? i : INFO_ROWS.length - 1 - i) * ROW_STAGGER_MS
-                  }ms`,
+                  transform: `translate(-50%, -50%) translateY(${
+                    fadingOut ? targetY : showing ? targetY : hiddenY
+                  }px)`,
+                  opacity: fadingOut ? 0 : 1,
+                  transition: fadingOut
+                    ? `opacity ${FADE_OUT_MS}ms ease-out`
+                    : `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`,
+                  transitionDelay: fadingOut
+                    ? '0ms'
+                    : `${(showing ? i : INFO_ROWS.length - 1 - i) * ROW_STAGGER_MS}ms`,
                 }}
               >
                 {row}
