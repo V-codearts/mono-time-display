@@ -29,7 +29,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [plusY, setPlusY] = useState<number | null>(null);
+  const [minusY, setMinusY] = useState<number | null>(null);
   const [plusVisible, setPlusVisible] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const plusVisibleRef = useRef(false);
   const plusExitingRef = useRef(false);
   const plusExitResolversRef = useRef<Array<() => void>>([]);
