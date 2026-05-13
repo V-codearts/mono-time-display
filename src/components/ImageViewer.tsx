@@ -217,14 +217,21 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
-      const plusExit = waitForPlusExit();
+      let exit: Promise<void>;
+      if (expanded) {
+        // Just fade everything out — no slide choreography on return.
+        setFadingOut(true);
+        exit = new Promise<void>((resolve) => window.setTimeout(resolve, FADE_OUT_MS));
+      } else {
+        exit = waitForPlusExit();
+      }
       if (currentVariationRef.current !== 0) {
         setIncomingVariation(0);
         await waitForSwipeCompletion();
       }
-      await plusExit;
+      await exit;
     },
-  }), [image, currentVariation, incomingVariation]);
+  }), [image, currentVariation, incomingVariation, expanded]);
 
   useLayoutEffect(() => {
     if (incomingVariation === null || !imgRef.current || !incomingImgRef.current) return;
