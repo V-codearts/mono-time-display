@@ -46,6 +46,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [minusY, setMinusY] = useState<number | null>(null);
   const [plusVisible, setPlusVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [rowsVisible, setRowsVisible] = useState(false);
+  const expandTimerRef = useRef<number | null>(null);
+  const ROWS_EXIT_MS = (INFO_ROWS.length - 1) * ROW_STAGGER_MS + ROW_SLIDE_MS;
   const plusVisibleRef = useRef(false);
   const plusExitingRef = useRef(false);
   const plusExitResolversRef = useRef<Array<() => void>>([]);
@@ -313,7 +316,27 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
                 : `translate(-50%, -50%) translateY(${window.innerHeight + 40}px)`,
               transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
             }}
-            onClick={() => setExpanded((e) => !e)}
+            onClick={() => {
+              if (expandTimerRef.current) {
+                window.clearTimeout(expandTimerRef.current);
+                expandTimerRef.current = null;
+              }
+              if (expanded) {
+                // Collapsing: hide rows first, then collapse the minus.
+                setRowsVisible(false);
+                expandTimerRef.current = window.setTimeout(() => {
+                  setExpanded(false);
+                  expandTimerRef.current = null;
+                }, ROWS_EXIT_MS);
+              } else {
+                // Expanding: slide minus up, then reveal rows once it has arrived.
+                setExpanded(true);
+                expandTimerRef.current = window.setTimeout(() => {
+                  setRowsVisible(true);
+                  expandTimerRef.current = null;
+                }, PLUS_SLIDE_MS);
+              }
+            }}
           >
             <span
               className="transition-opacity"
@@ -328,23 +351,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
               −
             </span>
           </span>
-          {INFO_ROWS.map((row, i) => (
-            <span
-              key={i}
-              className="fixed left-1/2 top-0 uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
-              style={{
-                transform: `translate(-50%, -50%) translateY(${
-                  minusY + ROW_GAP * (i + 1) + (expanded && plusVisible ? 0 : ROW_OFFSET_PX)
-                }px)`,
-                opacity: expanded && plusVisible ? 1 : 0,
-                transition: `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, opacity ${ROW_SLIDE_MS}ms ease-out`,
-                transitionDelay:
-                  expanded && plusVisible ? `${PLUS_SLIDE_MS + i * ROW_STAGGER_MS}ms` : '0ms',
-              }}
-            >
-              {row}
-            </span>
-          ))}
+          {INFO_ROWS.map((row, i) => {
+            const showing = rowsVisible && plusVisible;
+            const targetY = minusY + ROW_GAP * (i + 1);
+            const hiddenY = window.innerHeight + 80;
+            return (
+              <span
+                key={i}
+                className="fixed left-1/2 top-0 uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
+                style={{
+                  transform: `translate(-50%, -50%) translateY(${showing ? targetY : hiddenY}px)`,
+                  transition: `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`,
+                  transitionDelay: `${
+                    (showing ? i : INFO_ROWS.length - 1 - i) * ROW_STAGGER_MS
+                  }ms`,
+                }}
+              >
+                {row}
+              </span>
+            );
+          })}
         </>
       )}
     </div>
