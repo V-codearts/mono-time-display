@@ -225,8 +225,14 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       {plusY !== null && (
         <span
           aria-hidden="true"
-          className="fixed left-1/2 text-xl text-foreground pointer-events-none select-none"
-          style={{ top: plusY, transform: 'translate(-50%, -50%)' }}
+          className="fixed left-1/2 text-xl text-foreground select-none cursor-default hover:font-bold"
+          style={{
+            top: plusY,
+            transform: plusVisible
+              ? 'translate(-50%, -50%)'
+              : `translate(-50%, calc(-50% + ${window.innerHeight - plusY + 40}px))`,
+            transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
+          }}
         >
           +
         </span>
