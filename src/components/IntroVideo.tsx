@@ -9,7 +9,6 @@ interface IntroVideoProps {
 
 const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [isFadedIn, setIsFadedIn] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasStarted = useRef(false);
@@ -25,15 +24,10 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
     if (hasStarted.current) return;
     hasStarted.current = true;
 
-    // Small delay then fade in
-    setTimeout(() => {
-      requestAnimationFrame(() => setIsFadedIn(true));
-    }, 100);
-
-    // Fade out after intro plays
+    // Video has built-in fade-in; trigger fade-out after it plays
     timerRef.current = setTimeout(() => {
       setIsFadingOut(true);
-    }, 1500);
+    }, 1720);
   }, []);
 
   useEffect(() => {
