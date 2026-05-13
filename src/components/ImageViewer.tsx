@@ -26,7 +26,6 @@ const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
-  const [plusBottom, setPlusBottom] = useState<number>(0);
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
@@ -81,31 +80,6 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       await waitForSwipeCompletion();
     },
   }), [image, currentVariation, incomingVariation]);
-
-  useLayoutEffect(() => {
-    const update = () => {
-      const el = imgRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const gap = window.innerHeight - rect.bottom;
-      const lowerOffset = window.innerWidth < 768 ? 32 : 17;
-      setPlusBottom((gap / 2) - lowerOffset);
-    };
-    update();
-    window.addEventListener('resize', update);
-    let ro: ResizeObserver | null = null;
-    if (imgRef.current && 'ResizeObserver' in window) {
-      ro = new ResizeObserver(update);
-      ro.observe(imgRef.current);
-    }
-    const onLoad = () => update();
-    imgRef.current?.addEventListener('load', onLoad);
-    return () => {
-      window.removeEventListener('resize', update);
-      ro?.disconnect();
-      imgRef.current?.removeEventListener('load', onLoad);
-    };
-  }, [image]);
 
   useLayoutEffect(() => {
     if (incomingVariation === null || !imgRef.current || !incomingImgRef.current) return;
@@ -186,13 +160,6 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         {image.variations.map((src, i) => (
           <img key={i} src={src} alt="" decoding="async" loading="eager" />
         ))}
-      </div>
-      <div
-        aria-hidden="true"
-        className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl pointer-events-none select-none text-foreground"
-        style={{ bottom: `${plusBottom}px` }}
-      >
-        +
       </div>
     </div>
   );
