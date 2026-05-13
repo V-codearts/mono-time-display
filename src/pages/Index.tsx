@@ -39,7 +39,7 @@ const Index = () => {
     setHudVisible(true);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        setGalleryFadingIn(false);
+        setIntroEntering(false);
       });
     });
   }, []);
