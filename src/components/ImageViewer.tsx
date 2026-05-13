@@ -29,6 +29,7 @@ const INFO_LINES = ['INFO TEXT', 'EXAMPLE', '100% TEXT', 'LOREM IPSUM', 'BLAH BL
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
