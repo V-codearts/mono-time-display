@@ -103,14 +103,12 @@ const Index = () => {
           <About currentPage={displayedPage} onNavigate={handleNavigate} />
         </div>
       ) : (
-        <div
-          style={
-            galleryFadingIn
-              ? { opacity: 0, transition: 'none' }
-              : { opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }
-          }
-        >
-          <Gallery onInspectChange={setInspecting} onBackHandlerReady={handleBackHandlerReady} />
+        <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
+          <Gallery
+            onInspectChange={setInspecting}
+            onBackHandlerReady={handleBackHandlerReady}
+            entering={introEntering}
+          />
         </div>
       )}
     </>
