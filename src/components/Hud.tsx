@@ -14,7 +14,8 @@ interface HudProps {
 
 const MORPH_MS = 180;
 const ENTER_MS = 600;
-const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+// Sharp-start curve so the wider left nav doesn't appear to lag behind the dot.
+const ENTER_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack, entering = false }: HudProps) => {
   const effectiveMenuOpen = menuOpen && !inspecting;

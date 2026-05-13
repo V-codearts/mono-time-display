@@ -259,10 +259,21 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false }: Gall
       setOthersFaded(false);
       anim.finished.then(() => {
         if (cancelled) return;
-        clearImageAnimation(targetImg);
+        // Commit the animation's end transform to inline so cancelling the
+        // WAAPI animation doesn't snap straight to a CSS :hover state without
+        // firing a transition. Then clear inline next frame so :hover scale
+        // animates smoothly if the cursor is still over the thumbnail.
+        try { anim.commitStyles(); } catch {}
+        anim.cancel();
+        currentAnimRef.current = null;
+        requestAnimationFrame(() => {
+          if (cancelled) return;
+          targetImg.style.transform = '';
+          targetImg.style.transformOrigin = '';
+          targetImg.style.opacity = '';
+        });
         setAnimating(false);
         setSelectedId(null);
-        currentAnimRef.current = null;
         backFromRectRef.current = null;
       }).catch(() => {});
     };
