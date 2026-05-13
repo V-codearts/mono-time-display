@@ -48,22 +48,33 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   }, [currentVariation]);
 
   useLayoutEffect(() => {
-    const recompute = () => {
+    let cancelled = false;
+
+    const measure = () => {
       const el = getVisibleImageEl();
-      if (!el) return;
+      if (!el || cancelled) return;
+      const anims = el.getAnimations();
+      if (anims.length > 0) {
+        // FLIP/swipe in progress — wait for it to finish so we get the settled rect.
+        Promise.allSettled(anims.map((a) => a.finished)).then(() => {
+          if (!cancelled) requestAnimationFrame(measure);
+        });
+        return;
+      }
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
     };
-    recompute();
-    const raf = requestAnimationFrame(recompute);
-    window.addEventListener('resize', recompute);
+
+    const raf = requestAnimationFrame(measure);
+    window.addEventListener('resize', measure);
     const img = getVisibleImageEl();
-    img?.addEventListener('load', recompute);
+    img?.addEventListener('load', measure);
     return () => {
+      cancelled = true;
       cancelAnimationFrame(raf);
-      window.removeEventListener('resize', recompute);
-      img?.removeEventListener('load', recompute);
+      window.removeEventListener('resize', measure);
+      img?.removeEventListener('load', measure);
     };
   }, [currentVariation, incomingVariation, image]);
 
