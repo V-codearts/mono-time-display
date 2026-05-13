@@ -1,43 +1,37 @@
-## Goal
+## Step 1: Add unclickable plus in ImageViewer
 
-On mobile and tablet (vertical) viewports, make the horizontal gap between each collection image edge and the page edge mirror the gap between the HUD element's center and its nearest page edge. So if the HUD dot's center sits 24px from the right page edge, the image's right edge should also sit 24px from the dot's center — i.e. 48px from the page edge.
+Add a single `+` glyph inside `src/components/ImageViewer.tsx`, positioned in the vertical center of the space between the bottom edge of the image and the bottom edge of the screen. Nothing else — no click handler, no hover, no logic.
 
-## HUD element positions (from `Hud.tsx`)
+### Approach
 
-- Right dot: `w-3 h-3` (12px), `right-[18px]` mobile / `right-[24px]` tablet+.
-  - Center → page right edge: **24px mobile**, **30px tablet+**.
-- Left +/− glyph: `text-xl` (~12px wide), `left-[18px]` mobile / `left-[24px]` tablet+.
-  - Center → page left edge: **~24px mobile**, **~30px tablet+** (approx; glyph char width close to the dot's 12px).
+The image is wrapped in a centered flex container with `max-h-[80vh]`. The space below the image (between image bottom and viewport bottom) varies with image aspect ratio, so we anchor relative to the image's container, not the viewport.
 
-Both sides are effectively symmetric, so a single horizontal page-side inset can be applied to both image edges.
+- Wrap the existing image container so we can place a sibling absolutely positioned below the image.
+- The plus sits in a `div` absolutely positioned with `top: 100%` of the image box, then translated down by half the remaining viewport space.
 
-## Required image insets (page edge → image edge)
+Simplest reliable implementation: place the `+` as a `position: fixed` element at the bottom of the screen, vertically centered in the gap below the image. Since the image container is centered and capped at `max-h-[80vh]`, the bottom gap is at least ~10vh. We compute it via CSS:
 
-- Mobile: 2 × 24px = **48px** on each side → image max-width = `100vw - 96px`.
-- Tablet (`md`): 2 × 30px = **60px** on each side → image max-width = `100vw - 120px`.
-- Desktop (`lg`): leave the current `80vw` rule untouched (user only mentioned mobile + tablet).
-
-## Change
-
-In `src/components/Gallery.tsx`, replace the current image className:
-
-```
-max-w-[calc(80vw-16px)] max-h-[calc(80vh-16px)]
-md:max-w-[calc(80vw+28px)] md:max-h-[calc(80vh+28px)]
-lg:max-w-[80vw] lg:max-h-[80vh]
+```tsx
+<div
+  aria-hidden="true"
+  className="fixed left-1/2 -translate-x-1/2 text-xl pointer-events-none select-none text-foreground"
+  style={{ bottom: 'calc((100vh - min(80vh, 100vh)) / 4)' }}
+>
+  +
+</div>
 ```
 
-with:
+Since the image's actual rendered height depends on its aspect ratio (it can be shorter than 80vh), a more robust approach is to measure the image's bounding rect after layout and position the `+` at the midpoint between `imgRect.bottom` and `window.innerHeight`. Use a `useLayoutEffect` + `ResizeObserver` + window resize listener to update a `bottomGapCenter` state.
 
-```
-max-w-[calc(100vw-96px)]  max-h-[80vh]
-md:max-w-[calc(100vw-120px)] md:max-h-[80vh]
-lg:max-w-[80vw] lg:max-h-[80vh]
-```
+### Behavior
 
-Vertical max-height stays at `80vh` (the user didn't ask to change vertical sizing, and `object-contain` will letterbox if the image is portrait). No other files need to change.
+- Visible only in item inspect view (already the scope of `ImageViewer`).
+- `pointer-events-none`, no `onClick`, no hover state — fully inert.
+- Uses existing `text-foreground` token, same `text-xl` size as the HUD glyph for visual consistency with the existing `+`.
+- Matches font (Roboto Mono, all caps inherited from parent).
 
-## Notes / assumptions
+### Files
 
-- I'm treating the `+/−` glyph as roughly 12px wide (matching the dot) so left/right insets stay symmetric. If the glyph ends up visibly off-center vs. the dot, we can pin the left inset separately with a small offset.
-- This supersedes the earlier "shrink mobile −16px / grow tablet +28px" tweak, since that's now expressed by the new symmetric rule.
+- `src/components/ImageViewer.tsx` — add the plus element + measurement effect.
+
+Nothing else changes. No HUD changes. No interaction. No additional features.
