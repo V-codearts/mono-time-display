@@ -22,11 +22,17 @@ export interface ImageViewerHandle {
 const SWIPE_MS = 270;
 // Near-linear with the faintest hint of easing.
 const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
+const PLUS_SLIDE_MS = 300;
+const PLUS_SLIDE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [plusY, setPlusY] = useState<number | null>(null);
+  const [plusVisible, setPlusVisible] = useState(false);
+  const plusVisibleRef = useRef(false);
+  const plusExitResolversRef = useRef<Array<() => void>>([]);
+  const plusExitTimerRef = useRef<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
@@ -64,6 +70,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
+      setPlusVisible(true);
     };
 
     const raf = requestAnimationFrame(measure);
@@ -100,16 +107,38 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     swipeCompletionResolversRef.current.push(resolve);
   });
 
+  const waitForPlusExit = () => new Promise<void>((resolve) => {
+    if (!plusVisibleRef.current) {
+      resolve();
+      return;
+    }
+    plusExitResolversRef.current.push(resolve);
+    setPlusVisible(false);
+  });
+
+  useEffect(() => {
+    plusVisibleRef.current = plusVisible;
+    if (!plusVisible && plusExitResolversRef.current.length > 0) {
+      if (plusExitTimerRef.current) window.clearTimeout(plusExitTimerRef.current);
+      plusExitTimerRef.current = window.setTimeout(() => {
+        const resolvers = plusExitResolversRef.current.splice(0);
+        resolvers.forEach((r) => r());
+        plusExitTimerRef.current = null;
+      }, PLUS_SLIDE_MS);
+    }
+  }, [plusVisible]);
+
   useImperativeHandle(ref, () => ({
     getImageEl: () => getVisibleImageEl(),
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
-
-      if (currentVariationRef.current === 0) return;
-
-      setIncomingVariation(0);
-      await waitForSwipeCompletion();
+      const plusExit = waitForPlusExit();
+      if (currentVariationRef.current !== 0) {
+        setIncomingVariation(0);
+        await waitForSwipeCompletion();
+      }
+      await plusExit;
     },
   }), [image, currentVariation, incomingVariation]);
 
@@ -196,8 +225,14 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       {plusY !== null && (
         <span
           aria-hidden="true"
-          className="fixed left-1/2 text-xl text-foreground pointer-events-none select-none"
-          style={{ top: plusY, transform: 'translate(-50%, -50%)' }}
+          className="fixed left-1/2 text-xl text-foreground select-none cursor-default hover:font-bold"
+          style={{
+            top: plusY,
+            transform: plusVisible
+              ? 'translate(-50%, -50%)'
+              : `translate(-50%, calc(-50% + ${window.innerHeight - plusY + 40}px))`,
+            transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
+          }}
         >
           +
         </span>
