@@ -186,6 +186,13 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           <img key={i} src={src} alt="" decoding="async" loading="eager" />
         ))}
       </div>
+      <div
+        aria-hidden="true"
+        className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl pointer-events-none select-none text-foreground"
+        style={{ bottom: `${plusBottom}px` }}
+      >
+        +
+      </div>
     </div>
   );
 });
