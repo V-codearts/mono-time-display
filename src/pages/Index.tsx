@@ -14,7 +14,7 @@ const Index = () => {
     return saved !== null ? saved === 'dark' : true;
   });
   const [showIntro, setShowIntro] = useState(true);
-  const [galleryFadingIn, setGalleryFadingIn] = useState(true);
+  const [introEntering, setIntroEntering] = useState(true);
   const [displayedPage, setDisplayedPage] = useState<Page>('gallery');
   const [pageOpacity, setPageOpacity] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
