@@ -110,7 +110,13 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
       </div>
 
       <div
-        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 z-50"
+        className="fixed top-[18px] md:top-[24px] right-[18px] md:right-[24px] w-3 h-3 bg-foreground rounded-full cursor-pointer hover:scale-110 z-50"
+        style={{
+          transform: entering ? 'translateX(calc(100% + 24px))' : 'translateX(0)',
+          transition: entering
+            ? `transform ${ENTER_MS}ms ${ENTER_EASE}`
+            : `transform ${ENTER_MS}ms ${ENTER_EASE}, transform 200ms`,
+        }}
         onClick={onToggleTheme}
       />
     </>
