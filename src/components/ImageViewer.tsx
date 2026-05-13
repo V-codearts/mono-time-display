@@ -88,7 +88,8 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       if (!el) return;
       const rect = el.getBoundingClientRect();
       const gap = window.innerHeight - rect.bottom;
-      setPlusBottom(Math.max(0, gap / 2));
+      const lowerOffset = window.innerWidth < 768 ? 37 : 77;
+      setPlusBottom((gap / 2) - lowerOffset);
     };
     update();
     window.addEventListener('resize', update);
