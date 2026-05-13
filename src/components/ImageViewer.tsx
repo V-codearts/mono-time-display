@@ -72,7 +72,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
-      setMinusY(rect.bottom + 15);
+      setMinusY(rect.bottom + 21);
       // Defer visibility so the slide-in transition runs from the off-screen state.
       requestAnimationFrame(() => {
         if (!cancelled && !plusExitingRef.current) setPlusVisible(true);
@@ -140,7 +140,6 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
-      setExpanded(false);
       const plusExit = waitForPlusExit();
       if (currentVariationRef.current !== 0) {
         setIncomingVariation(0);
