@@ -97,6 +97,13 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
         }
         return;
       }
+      // Restore previous transform (no transition) so the upcoming animation
+      // starts from the current visual state instead of jumping to natural size.
+      if (!isSwiping) {
+        el.style.transform = prevTransform || 'translate3d(0, 0, 0)';
+        // Force reflow so the restored transform is committed before we set the next one.
+        void el.offsetWidth;
+      }
 
       const isMobile = window.innerWidth < 768;
       const N = INFO_ROWS.length;
@@ -313,7 +320,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           {INFO_ROWS.map((row, i) => (
             <span
               key={i}
-              className="fixed left-1/2 top-0 text-xs uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
+              className="fixed left-1/2 top-0 uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
               style={{
                 transform: `translate(-50%, -50%) translateY(${minusY + ROW_GAP * (i + 1)}px)`,
                 opacity: expanded && plusVisible ? 1 : 0,
