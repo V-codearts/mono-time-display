@@ -105,16 +105,38 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     swipeCompletionResolversRef.current.push(resolve);
   });
 
+  const waitForPlusExit = () => new Promise<void>((resolve) => {
+    if (!plusVisibleRef.current) {
+      resolve();
+      return;
+    }
+    plusExitResolversRef.current.push(resolve);
+    setPlusVisible(false);
+  });
+
+  useEffect(() => {
+    plusVisibleRef.current = plusVisible;
+    if (!plusVisible && plusExitResolversRef.current.length > 0) {
+      if (plusExitTimerRef.current) window.clearTimeout(plusExitTimerRef.current);
+      plusExitTimerRef.current = window.setTimeout(() => {
+        const resolvers = plusExitResolversRef.current.splice(0);
+        resolvers.forEach((r) => r());
+        plusExitTimerRef.current = null;
+      }, PLUS_SLIDE_MS);
+    }
+  }, [plusVisible]);
+
   useImperativeHandle(ref, () => ({
     getImageEl: () => getVisibleImageEl(),
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
-
-      if (currentVariationRef.current === 0) return;
-
-      setIncomingVariation(0);
-      await waitForSwipeCompletion();
+      const plusExit = waitForPlusExit();
+      if (currentVariationRef.current !== 0) {
+        setIncomingVariation(0);
+        await waitForSwipeCompletion();
+      }
+      await plusExit;
     },
   }), [image, currentVariation, incomingVariation]);
 
