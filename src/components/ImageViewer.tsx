@@ -83,6 +83,30 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   }), [image, currentVariation, incomingVariation]);
 
   useLayoutEffect(() => {
+    const update = () => {
+      const el = imgRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const gap = window.innerHeight - rect.bottom;
+      setPlusBottom(Math.max(0, gap / 2));
+    };
+    update();
+    window.addEventListener('resize', update);
+    let ro: ResizeObserver | null = null;
+    if (imgRef.current && 'ResizeObserver' in window) {
+      ro = new ResizeObserver(update);
+      ro.observe(imgRef.current);
+    }
+    const onLoad = () => update();
+    imgRef.current?.addEventListener('load', onLoad);
+    return () => {
+      window.removeEventListener('resize', update);
+      ro?.disconnect();
+      imgRef.current?.removeEventListener('load', onLoad);
+    };
+  }, [image]);
+
+  useLayoutEffect(() => {
     if (incomingVariation === null || !imgRef.current || !incomingImgRef.current) return;
 
     const currentImg = imgRef.current;
