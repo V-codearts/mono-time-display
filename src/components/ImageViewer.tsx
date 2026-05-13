@@ -26,6 +26,7 @@ const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
+  const [plusY, setPlusY] = useState<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
@@ -45,6 +46,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   useEffect(() => {
     currentVariationRef.current = currentVariation;
   }, [currentVariation]);
+
+  useLayoutEffect(() => {
+    const recompute = () => {
+      const el = getVisibleImageEl();
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.height === 0) return;
+      setPlusY((rect.bottom + window.innerHeight) / 2);
+    };
+    recompute();
+    const raf = requestAnimationFrame(recompute);
+    window.addEventListener('resize', recompute);
+    const img = getVisibleImageEl();
+    img?.addEventListener('load', recompute);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', recompute);
+      img?.removeEventListener('load', recompute);
+    };
+  }, [currentVariation, incomingVariation, image]);
 
   useEffect(() => {
     incomingVariationRef.current = incomingVariation;
@@ -161,6 +182,15 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           <img key={i} src={src} alt="" decoding="async" loading="eager" />
         ))}
       </div>
+      {plusY !== null && (
+        <span
+          aria-hidden="true"
+          className="fixed left-1/2 text-xl text-foreground pointer-events-none select-none"
+          style={{ top: plusY, transform: 'translate(-50%, -50%)' }}
+        >
+          +
+        </span>
+      )}
     </div>
   );
 });
