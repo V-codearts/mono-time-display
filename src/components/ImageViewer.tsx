@@ -22,6 +22,8 @@ export interface ImageViewerHandle {
 const SWIPE_MS = 270;
 // Near-linear with the faintest hint of easing.
 const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
+const PLUS_SLIDE_MS = 300;
+const PLUS_SLIDE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
