@@ -182,6 +182,15 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           <img key={i} src={src} alt="" decoding="async" loading="eager" />
         ))}
       </div>
+      {plusY !== null && (
+        <span
+          aria-hidden="true"
+          className="fixed left-1/2 text-xl text-foreground pointer-events-none select-none"
+          style={{ top: plusY, transform: 'translate(-50%, -50%)' }}
+        >
+          +
+        </span>
+      )}
     </div>
   );
 });
