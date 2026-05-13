@@ -51,6 +51,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [plusVisible, setPlusVisible] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [rowsVisible, setRowsVisible] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
   const expandTimerRef = useRef<number | null>(null);
   const ROWS_EXIT_MS = (INFO_ROWS.length - 1) * ROW_STAGGER_MS + ROW_SLIDE_MS;
   const plusVisibleRef = useRef(false);
