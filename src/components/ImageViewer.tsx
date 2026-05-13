@@ -72,6 +72,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
+      setMinusY(rect.bottom + 15);
       // Defer visibility so the slide-in transition runs from the off-screen state.
       requestAnimationFrame(() => {
         if (!cancelled && !plusExitingRef.current) setPlusVisible(true);
