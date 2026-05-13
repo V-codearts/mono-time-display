@@ -31,6 +31,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [plusY, setPlusY] = useState<number | null>(null);
   const [plusVisible, setPlusVisible] = useState(false);
   const plusVisibleRef = useRef(false);
+  const plusExitingRef = useRef(false);
   const plusExitResolversRef = useRef<Array<() => void>>([]);
   const plusExitTimerRef = useRef<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
