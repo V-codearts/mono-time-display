@@ -9,11 +9,14 @@ interface HudProps {
   setMenuOpen: (open: boolean) => void;
   inspecting?: boolean;
   onBack?: () => void;
+  entering?: boolean;
 }
 
 const MORPH_MS = 180;
+const ENTER_MS = 600;
+const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack }: HudProps) => {
+const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack, entering = false }: HudProps) => {
   const effectiveMenuOpen = menuOpen && !inspecting;
 
   const itemClass = (page: 'gallery' | 'about' | 'other', interactive: boolean) => {
