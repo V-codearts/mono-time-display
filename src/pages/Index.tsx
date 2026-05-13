@@ -94,6 +94,7 @@ const Index = () => {
           setMenuOpen={setMenuOpen}
           inspecting={inspecting || displayedPage === 'about'}
           onBack={handleHudBack}
+          entering={introEntering}
         />
       )}
 
