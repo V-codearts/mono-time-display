@@ -326,7 +326,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
               transform: plusVisible
                 ? `translate(-50%, -50%) translateY(${expanded ? minusY : plusY}px)`
                 : `translate(-50%, -50%) translateY(${window.innerHeight + 40}px)`,
-              transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
+              opacity: fadingOut ? 0 : 1,
+              transition: fadingOut
+                ? `opacity ${FADE_OUT_MS}ms ease-out`
+                : `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
             }}
             onClick={() => {
               if (expandTimerRef.current) {
@@ -334,19 +337,19 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
                 expandTimerRef.current = null;
               }
               if (expanded) {
-                // Collapsing: hide rows first, then collapse the minus.
+                // Collapsing: rows start sliding out; minus follows shortly after.
                 setRowsVisible(false);
                 expandTimerRef.current = window.setTimeout(() => {
                   setExpanded(false);
                   expandTimerRef.current = null;
-                }, ROWS_EXIT_MS);
+                }, COLLAPSE_OVERLAP_MS);
               } else {
-                // Expanding: slide minus up, then reveal rows once it has arrived.
+                // Expanding: minus starts sliding up; rows follow shortly after.
                 setExpanded(true);
                 expandTimerRef.current = window.setTimeout(() => {
                   setRowsVisible(true);
                   expandTimerRef.current = null;
-                }, PLUS_SLIDE_MS);
+                }, EXPAND_OVERLAP_MS);
               }
             }}
           >
@@ -372,11 +375,16 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
                 key={i}
                 className="fixed left-1/2 top-0 uppercase tracking-wider text-foreground select-none pointer-events-none whitespace-nowrap"
                 style={{
-                  transform: `translate(-50%, -50%) translateY(${showing ? targetY : hiddenY}px)`,
-                  transition: `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`,
-                  transitionDelay: `${
-                    (showing ? i : INFO_ROWS.length - 1 - i) * ROW_STAGGER_MS
-                  }ms`,
+                  transform: `translate(-50%, -50%) translateY(${
+                    fadingOut ? targetY : showing ? targetY : hiddenY
+                  }px)`,
+                  opacity: fadingOut ? 0 : 1,
+                  transition: fadingOut
+                    ? `opacity ${FADE_OUT_MS}ms ease-out`
+                    : `transform ${ROW_SLIDE_MS}ms ${PLUS_SLIDE_EASE}`,
+                  transitionDelay: fadingOut
+                    ? '0ms'
+                    : `${(showing ? i : INFO_ROWS.length - 1 - i) * ROW_STAGGER_MS}ms`,
                 }}
               >
                 {row}
