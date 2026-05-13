@@ -26,6 +26,7 @@ const SWIPE_EASE = 'cubic-bezier(0.45, 0.5, 0.55, 0.5)';
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
+  const [plusBottom, setPlusBottom] = useState<number>(0);
   const imgRef = useRef<HTMLImageElement>(null);
   const incomingImgRef = useRef<HTMLImageElement>(null);
   const swipeTimeoutRef = useRef<number | null>(null);
