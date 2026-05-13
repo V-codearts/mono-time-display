@@ -31,6 +31,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [plusY, setPlusY] = useState<number | null>(null);
   const [plusVisible, setPlusVisible] = useState(false);
   const plusVisibleRef = useRef(false);
+  const plusExitingRef = useRef(false);
   const plusExitResolversRef = useRef<Array<() => void>>([]);
   const plusExitTimerRef = useRef<number | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -58,10 +59,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
 
     const measure = () => {
       const el = getVisibleImageEl();
-      if (!el || cancelled) return;
+      if (!el || cancelled || plusExitingRef.current) return;
       const anims = el.getAnimations();
       if (anims.length > 0) {
-        // FLIP/swipe in progress — wait for it to finish so we get the settled rect.
         Promise.allSettled(anims.map((a) => a.finished)).then(() => {
           if (!cancelled) requestAnimationFrame(measure);
         });
@@ -70,7 +70,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
-      setPlusVisible(true);
+      // Defer visibility so the slide-in transition runs from the off-screen state.
+      requestAnimationFrame(() => {
+        if (!cancelled && !plusExitingRef.current) setPlusVisible(true);
+      });
     };
 
     const raf = requestAnimationFrame(measure);
@@ -112,6 +115,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       resolve();
       return;
     }
+    plusExitingRef.current = true;
     plusExitResolversRef.current.push(resolve);
     setPlusVisible(false);
   });
