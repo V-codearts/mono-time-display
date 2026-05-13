@@ -95,8 +95,8 @@ const IntroVideo = ({ isDarkMode, onComplete }: IntroVideoProps) => {
       <div
         className="relative w-[80vmin] h-[80vmin] flex items-center justify-center overflow-hidden"
         style={{
-          opacity: isFadingOut ? 0 : isFadedIn ? 1 : 0,
-          transition: isFadingOut ? 'opacity 0.165s ease-out' : 'opacity 0.325s ease-out',
+          opacity: isFadingOut ? 0 : 1,
+          transition: 'opacity 0.165s ease-out',
         }}
       >
         <video
