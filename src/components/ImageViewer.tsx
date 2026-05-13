@@ -140,6 +140,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
+      setExpanded(false);
       const plusExit = waitForPlusExit();
       if (currentVariationRef.current !== 0) {
         setIncomingVariation(0);
