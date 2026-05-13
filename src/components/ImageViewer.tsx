@@ -31,6 +31,10 @@ const MINUS_OFFSET = 21;
 const ROW_STAGGER_MS = 80;
 const ROW_SLIDE_MS = 400;
 const ROW_OFFSET_PX = 16;
+// Overlap so we don't wait for the previous animation to fully finish.
+const EXPAND_OVERLAP_MS = 120;   // delay before rows start sliding in
+const COLLAPSE_OVERLAP_MS = 180; // delay before minus collapses back
+const FADE_OUT_MS = 220;
 const INFO_ROWS = [
   'INFO TEXT',
   'MATERIAL 100%',
