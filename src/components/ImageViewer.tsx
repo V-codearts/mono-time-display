@@ -140,8 +140,15 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   };
 
   return (
-    <div className="bg-background text-foreground font-mono min-h-screen flex items-center justify-center p-8">
-      <div className="relative flex items-center justify-center w-full max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] h-full max-h-[80vh]">
+    <div className="bg-background text-foreground font-mono min-h-screen flex items-center justify-center p-8 relative">
+      <div
+        className="relative flex items-center justify-center w-full max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] h-full max-h-[80vh]"
+        style={{
+          transform: infoOpen ? 'translateY(-18vh) scale(0.7)' : 'translateY(0) scale(1)',
+          transformOrigin: 'center center',
+          transition: `transform ${INFO_MS}ms ease-out`,
+        }}
+      >
         <img
           ref={imgRef}
           src={image.variations[currentVariation]}
@@ -160,6 +167,48 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           />
         )}
       </div>
+
+      {/* Info toggle (+/−) centered horizontally near the bottom */}
+      <div
+        className="fixed left-1/2 -translate-x-1/2 z-40 cursor-pointer text-xl select-none"
+        style={{
+          bottom: infoOpen ? 'auto' : '4vh',
+          top: infoOpen ? 'calc(50vh - 6px)' : 'auto',
+          transition: `top ${INFO_MS}ms ease-out, bottom ${INFO_MS}ms ease-out`,
+        }}
+        onClick={() => setInfoOpen((v) => !v)}
+      >
+        <span
+          className="block transition-opacity"
+          style={{ opacity: infoOpen ? 0 : 1, transitionDuration: `${MORPH_MS}ms` }}
+        >
+          +
+        </span>
+        <span
+          className="absolute left-0 top-0 transition-opacity"
+          style={{ opacity: infoOpen ? 1 : 0, transitionDuration: `${MORPH_MS}ms` }}
+        >
+          −
+        </span>
+      </div>
+
+      {/* Info text block */}
+      <div
+        className="fixed left-1/2 -translate-x-1/2 z-30 flex flex-col items-center tracking-wider uppercase text-foreground"
+        style={{
+          top: 'calc(50vh + 28px)',
+          opacity: infoOpen ? 1 : 0,
+          transform: `translate(-50%, ${infoOpen ? '0' : '8px'})`,
+          transition: `opacity ${INFO_MS}ms ease-out, transform ${INFO_MS}ms ease-out`,
+          pointerEvents: infoOpen ? 'auto' : 'none',
+        }}
+        aria-hidden={!infoOpen}
+      >
+        {INFO_LINES.map((line) => (
+          <p key={line} className="leading-relaxed">{line}</p>
+        ))}
+      </div>
+
       {/* Preload all variations off-screen so swipes never wait on the network */}
       <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] top-0 w-px h-px overflow-hidden opacity-0">
         {image.variations.map((src, i) => (
