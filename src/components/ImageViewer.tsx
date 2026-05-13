@@ -115,6 +115,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       resolve();
       return;
     }
+    plusExitingRef.current = true;
     plusExitResolversRef.current.push(resolve);
     setPlusVisible(false);
   });
