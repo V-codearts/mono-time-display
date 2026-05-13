@@ -29,7 +29,9 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [plusY, setPlusY] = useState<number | null>(null);
+  const [minusY, setMinusY] = useState<number | null>(null);
   const [plusVisible, setPlusVisible] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const plusVisibleRef = useRef(false);
   const plusExitingRef = useRef(false);
   const plusExitResolversRef = useRef<Array<() => void>>([]);
@@ -70,6 +72,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
       const rect = el.getBoundingClientRect();
       if (rect.height === 0) return;
       setPlusY((rect.bottom + window.innerHeight) / 2);
+      setMinusY(rect.bottom + 15);
       // Defer visibility so the slide-in transition runs from the off-screen state.
       requestAnimationFrame(() => {
         if (!cancelled && !plusExitingRef.current) setPlusVisible(true);
@@ -137,6 +140,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
     prepareForReturnToThumbnail: async () => {
       await waitForSwipeIdle();
+      setExpanded(false);
       const plusExit = waitForPlusExit();
       if (currentVariationRef.current !== 0) {
         setIncomingVariation(0);
@@ -226,19 +230,18 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           <img key={i} src={src} alt="" decoding="async" loading="eager" />
         ))}
       </div>
-      {plusY !== null && (
+      {plusY !== null && minusY !== null && (
         <span
-          aria-hidden="true"
-          className="fixed left-1/2 text-xl text-foreground select-none cursor-default hover:font-bold"
+          className="fixed left-1/2 top-0 text-xl text-foreground select-none cursor-pointer hover:font-bold"
           style={{
-            top: plusY,
             transform: plusVisible
-              ? 'translate(-50%, -50%)'
-              : `translate(-50%, calc(-50% + ${window.innerHeight - plusY + 40}px))`,
+              ? `translate(-50%, -50%) translateY(${expanded ? minusY : plusY}px)`
+              : `translate(-50%, -50%) translateY(${window.innerHeight + 40}px)`,
             transition: `transform ${PLUS_SLIDE_MS}ms ${PLUS_SLIDE_EASE}, font-weight 200ms ease-in-out`,
           }}
+          onClick={() => setExpanded((e) => !e)}
         >
-          +
+          {expanded ? '−' : '+'}
         </span>
       )}
     </div>
