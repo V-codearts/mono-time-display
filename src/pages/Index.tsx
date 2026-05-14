@@ -121,11 +121,7 @@ const Index = () => {
         </div>
       ) : (
         <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
-          <Gallery
-            onInspectChange={setInspecting}
-            onBackHandlerReady={handleBackHandlerReady}
-            entering={introEntering}
-          />
+          <Clock />
         </div>
       )}
     </>
