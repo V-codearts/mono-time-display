@@ -121,7 +121,7 @@ const Index = () => {
         </div>
       ) : (
         <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
-          <Clock />
+          <Clock entering={introEntering} />
         </div>
       )}
     </>
