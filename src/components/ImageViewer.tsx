@@ -35,7 +35,7 @@ const ROW_OFFSET_PX = 16;
 const EXPAND_OVERLAP_MS = 120;   // delay before rows start sliding in
 const COLLAPSE_OVERLAP_MS = 320; // delay before minus collapses back
 const FADE_OUT_MS = 220;
-const INFO_ROWS = [
+const DEFAULT_INFO_ROWS = [
   'INFO TEXT',
   'MATERIAL 100%',
   'EXAMPLE COLOR',
@@ -44,6 +44,9 @@ const INFO_ROWS = [
 ];
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
+  const INFO_ROWS = (image.description?.trim()
+    ? image.description.split('\n').map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_INFO_ROWS);
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [plusY, setPlusY] = useState<number | null>(null);

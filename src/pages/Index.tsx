@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from '@/components/Gallery';
+import Archive from '@/components/Archive';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
 import Hud from '@/components/Hud';
 
-type Page = 'gallery' | 'about' | 'other';
+type Page = 'gallery' | 'about' | 'other' | 'archive';
 
 const FADE_MS = 134;
 
@@ -58,7 +59,7 @@ const Index = () => {
   }, []);
 
   const handleNavigate = (page: string) => {
-    if (page === 'gallery' || page === 'about' || page === 'other') goToPage(page);
+    if (page === 'gallery' || page === 'about' || page === 'other' || page === 'archive') goToPage(page);
   };
 
   const handleBackHandlerReady = useCallback((handler: (() => void) | null) => {
@@ -67,6 +68,10 @@ const Index = () => {
 
   const handleHudBack = useCallback(() => {
     if (displayedPage === 'about') {
+      goToPage('other');
+      return;
+    }
+    if (displayedPage === 'archive' && !galleryBackRef.current) {
       goToPage('other');
       return;
     }
@@ -82,6 +87,9 @@ const Index = () => {
     transition: `opacity ${FADE_MS}ms ease-out`,
   };
 
+  const hudCurrentPage: 'gallery' | 'about' | 'other' =
+    displayedPage === 'archive' ? 'other' : displayedPage;
+
   return (
     <>
       {hudVisible && (
@@ -89,10 +97,10 @@ const Index = () => {
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
           onNavigate={handleNavigate}
-          currentPage={displayedPage}
+          currentPage={hudCurrentPage}
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
-          inspecting={inspecting || displayedPage === 'about'}
+          inspecting={inspecting || displayedPage === 'about' || displayedPage === 'archive'}
           onBack={handleHudBack}
           entering={introEntering}
         />
@@ -101,6 +109,13 @@ const Index = () => {
       {displayedPage === 'about' || displayedPage === 'other' ? (
         <div style={fadeStyle}>
           <About currentPage={displayedPage} onNavigate={handleNavigate} />
+        </div>
+      ) : displayedPage === 'archive' ? (
+        <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
+          <Archive
+            onInspectChange={setInspecting}
+            onBackHandlerReady={handleBackHandlerReady}
+          />
         </div>
       ) : (
         <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useLayoutEffect, useMemo } from 'react';
 import ImageViewer, { ImageViewerHandle } from '@/components/ImageViewer';
 import gallery1 from '@/assets/gallery-1.jpg';
 import gallery2 from '@/assets/gallery-2.jpg';
@@ -6,7 +6,7 @@ import gallery3 from '@/assets/gallery-3.jpg';
 import gallery4 from '@/assets/gallery-4.jpg';
 import gallery5 from '@/assets/gallery-5.jpg';
 
-interface ItemData {
+export interface ItemData {
   id: number;
   title: string;
   main: string;
@@ -64,14 +64,15 @@ const ITEMS: ItemData[] = [
   },
 ];
 
-const COLLECTION_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.main)));
-const firstImageReadyPromise = preloadImage(ITEMS[0].main);
-void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
+const DEFAULT_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.main)));
+const defaultFirstImageReadyPromise = preloadImage(ITEMS[0].main);
+void Promise.all(DEFAULT_IMAGE_SOURCES.map(preloadImage));
 
 interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
   onBackHandlerReady?: (handler: (() => void) | null) => void;
   entering?: boolean;
+  items?: ItemData[];
 }
 
 const FADE_MS = 133;
@@ -80,7 +81,17 @@ const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items }: GalleryProps) => {
+  const data = items ?? ITEMS;
+  const firstImageReadyPromise = useMemo(
+    () => (items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise),
+    [items, data]
+  );
+  useEffect(() => {
+    if (!items) return;
+    const sources = Array.from(new Set(items.map((i) => i.main)));
+    void Promise.all(sources.map(preloadImage));
+  }, [items]);
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [firstReady, setFirstReady] = useState(false);
@@ -316,7 +327,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false }: Gall
       ) : (
         <div className="bg-background text-foreground font-mono min-h-screen">
           <div className="flex flex-col items-center justify-start">
-            {ITEMS.map((item, idx) => {
+            {data.map((item, idx) => {
               const isFirst = idx === 0;
               const isSelected = selectedId === item.id;
               const isFading = othersFaded && !isSelected;

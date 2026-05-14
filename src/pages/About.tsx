@@ -1,6 +1,6 @@
 interface AboutProps {
   currentPage: 'about' | 'other';
-  onNavigate?: (page: 'about' | 'other') => void;
+  onNavigate?: (page: 'about' | 'other' | 'archive') => void;
 }
 
 const About = ({ currentPage, onNavigate }: AboutProps) => {
@@ -14,7 +14,12 @@ const About = ({ currentPage, onNavigate }: AboutProps) => {
       <div className="w-full flex items-center justify-center h-screen">
         <div className="flex flex-col gap-0.5 items-center tracking-wider uppercase">
           <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">MEDIA</p>
-          <p className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit">ARCHIVE</p>
+          <p
+            className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit"
+            onClick={() => onNavigate?.('archive')}
+          >
+            ARCHIVE
+          </p>
           <p
             className="text-muted-foreground hover:text-foreground cursor-pointer hover:font-bold transition-all w-fit"
             onClick={() => onNavigate?.('about')}
