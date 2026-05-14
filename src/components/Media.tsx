@@ -12,11 +12,14 @@ interface MediaProps {
 
 const FADE_MS = 300;
 
+const sizeClass =
+  'max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain';
+
 const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) => {
   const [inViewer, setInViewer] = useState(false);
   const [variation, setVariation] = useState<'fast' | 'slow'>('fast');
 
-  // Thumbnail video refs (fast pair always playing)
+  // Thumbnail video refs
   const thumbLightRef = useRef<HTMLVideoElement>(null);
   const thumbDarkRef = useRef<HTMLVideoElement>(null);
 
@@ -28,10 +31,14 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
 
   // Sync helper: keep two videos' currentTime aligned
   const syncPair = (a: HTMLVideoElement | null, b: HTMLVideoElement | null) => {
-    if (!a || !b) return;
+    if (!a || !b) return () => {};
     const onTime = () => {
       if (Math.abs(a.currentTime - b.currentTime) > 0.05) {
-        b.currentTime = a.currentTime;
+        try {
+          b.currentTime = a.currentTime;
+        } catch {
+          /* ignore */
+        }
       }
     };
     a.addEventListener('timeupdate', onTime);
@@ -44,10 +51,17 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
       syncPair(vFastLightRef.current, vFastDarkRef.current),
       syncPair(vSlowLightRef.current, vSlowDarkRef.current),
     ];
-    [thumbLightRef, thumbDarkRef, vFastLightRef, vFastDarkRef, vSlowLightRef, vSlowDarkRef].forEach((r) => {
+    [
+      thumbLightRef,
+      thumbDarkRef,
+      vFastLightRef,
+      vFastDarkRef,
+      vSlowLightRef,
+      vSlowDarkRef,
+    ].forEach((r) => {
       r.current?.play().catch(() => {});
     });
-    return () => cleanups.forEach((c) => c && c());
+    return () => cleanups.forEach((c) => c());
   }, [inViewer]);
 
   const handleBack = useCallback(() => {
@@ -70,8 +84,7 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
     setVariation((v) => (v === 'fast' ? 'slow' : 'fast'));
   };
 
-  const videoClass = 'w-full h-full object-contain';
-  const fadeStyle = (visible: boolean) => ({
+  const fadeStyle = (visible: boolean): React.CSSProperties => ({
     opacity: visible ? 1 : 0,
     transition: `opacity ${FADE_MS}ms ease-out`,
   });
@@ -80,11 +93,8 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
     <div className="text-foreground font-mono min-h-screen">
       {!inViewer ? (
         <div className="flex h-screen w-full items-center justify-center">
-          <div
-            className="relative max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] cursor-pointer"
-            style={{ aspectRatio: '16 / 9' }}
-            onClick={openViewer}
-          >
+          <div className="relative inline-block cursor-pointer" onClick={openViewer}>
+            {/* Light video defines layout */}
             <video
               ref={thumbLightRef}
               src={fastLight}
@@ -93,9 +103,10 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
               muted
               playsInline
               preload="auto"
-              className={`absolute inset-0 ${videoClass}`}
+              className={`block ${sizeClass}`}
               style={fadeStyle(!isDarkMode)}
             />
+            {/* Dark video overlays */}
             <video
               ref={thumbDarkRef}
               src={fastDark}
@@ -104,19 +115,15 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
               muted
               playsInline
               preload="auto"
-              className={`absolute inset-0 ${videoClass}`}
+              className="absolute inset-0 w-full h-full object-contain"
               style={fadeStyle(isDarkMode)}
             />
           </div>
         </div>
       ) : (
         <div className="min-h-screen flex items-center justify-center p-8">
-          <div
-            className="relative w-full max-w-[calc(100vw-96px)] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] max-h-[80vh] cursor-pointer"
-            style={{ aspectRatio: '16 / 9' }}
-            onClick={cycleVariation}
-          >
-            {/* Fast pair */}
+          <div className="relative inline-block cursor-pointer" onClick={cycleVariation}>
+            {/* Sizing video (always rendered, opacity controls visibility) */}
             <video
               ref={vFastLightRef}
               src={fastLight}
@@ -125,7 +132,7 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
               muted
               playsInline
               preload="auto"
-              className={`absolute inset-0 ${videoClass}`}
+              className={`block ${sizeClass}`}
               style={fadeStyle(variation === 'fast' && !isDarkMode)}
             />
             <video
@@ -136,10 +143,9 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
               muted
               playsInline
               preload="auto"
-              className={`absolute inset-0 ${videoClass}`}
+              className="absolute inset-0 w-full h-full object-contain"
               style={fadeStyle(variation === 'fast' && isDarkMode)}
             />
-            {/* Slow pair */}
             <video
               ref={vSlowLightRef}
               src={slowLight}
@@ -148,7 +154,7 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
               muted
               playsInline
               preload="auto"
-              className={`absolute inset-0 ${videoClass}`}
+              className="absolute inset-0 w-full h-full object-contain"
               style={fadeStyle(variation === 'slow' && !isDarkMode)}
             />
             <video
@@ -159,7 +165,7 @@ const Media = ({ isDarkMode, onInspectChange, onBackHandlerReady }: MediaProps) 
               muted
               playsInline
               preload="auto"
-              className={`absolute inset-0 ${videoClass}`}
+              className="absolute inset-0 w-full h-full object-contain"
               style={fadeStyle(variation === 'slow' && isDarkMode)}
             />
           </div>
