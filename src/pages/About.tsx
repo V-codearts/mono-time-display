@@ -32,7 +32,7 @@ const About = ({ currentPage, onNavigate }: AboutProps) => {
   };
 
   return (
-    <div className="bg-background text-foreground font-mono min-h-screen">
+    <div className="text-foreground font-mono min-h-screen">
       <div className="flex flex-col items-center justify-start min-h-screen">
         {pageContent[currentPage]}
       </div>

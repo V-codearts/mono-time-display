@@ -326,7 +326,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items 
       {selectedItem ? (
         <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
       ) : (
-        <div className="bg-background text-foreground font-mono min-h-screen">
+        <div className="text-foreground font-mono min-h-screen">
           <div className="flex flex-col items-center justify-start">
             {data.map((item, idx) => {
               const isFirst = idx === 0;
