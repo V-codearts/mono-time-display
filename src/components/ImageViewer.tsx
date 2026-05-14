@@ -6,6 +6,7 @@ interface ImageData {
   variations: string[];
   title: string;
   description: string;
+  compactMd?: boolean;
 }
 
 interface ImageViewerProps {
