@@ -296,10 +296,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   };
 
   const mdSize = image.compactMd
-    ? 'md:max-w-[30vw] md:max-h-[24vh] lg:max-w-[24vw] lg:max-h-[24vh]'
+    ? 'md:max-w-[40vw] md:max-h-[32vh] lg:max-w-[24vw] lg:max-h-[24vh]'
     : 'md:max-w-[calc(100vw-120px)] lg:max-w-[80vw]';
   const wrapperMdSize = image.compactMd
-    ? 'md:max-w-[30vw] md:max-h-[24vh] lg:max-w-[24vw] lg:max-h-[24vh]'
+    ? 'md:max-w-[40vw] md:max-h-[32vh] lg:max-w-[24vw] lg:max-h-[24vh]'
     : 'md:max-w-[calc(100vw-120px)] lg:max-w-[80vw]';
 
   return (
