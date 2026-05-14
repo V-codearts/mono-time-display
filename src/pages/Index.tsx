@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from '@/components/Gallery';
+import Archive from '@/components/Archive';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
 import Hud from '@/components/Hud';
 
-type Page = 'gallery' | 'about' | 'other';
+type Page = 'gallery' | 'about' | 'other' | 'archive';
 
 const FADE_MS = 134;
 
