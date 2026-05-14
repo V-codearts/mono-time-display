@@ -327,7 +327,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items 
       ) : (
         <div className="bg-background text-foreground font-mono min-h-screen">
           <div className="flex flex-col items-center justify-start">
-            {ITEMS.map((item, idx) => {
+            {data.map((item, idx) => {
               const isFirst = idx === 0;
               const isSelected = selectedId === item.id;
               const isFading = othersFaded && !isSelected;
