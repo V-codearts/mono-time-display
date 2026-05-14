@@ -83,7 +83,10 @@ const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items }: GalleryProps) => {
   const data = items ?? ITEMS;
-  const firstImageReadyPromise = items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise;
+  const firstImageReadyPromise = useMemo(
+    () => (items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise),
+    [items, data]
+  );
   useEffect(() => {
     if (!items) return;
     const sources = Array.from(new Set(items.map((i) => i.main)));
