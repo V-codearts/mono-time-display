@@ -44,6 +44,9 @@ const DEFAULT_INFO_ROWS = [
 ];
 
 const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
+  const INFO_ROWS = (image.description?.trim()
+    ? image.description.split('\n').map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_INFO_ROWS);
   const [currentVariation, setCurrentVariation] = useState(0);
   const [incomingVariation, setIncomingVariation] = useState<number | null>(null);
   const [plusY, setPlusY] = useState<number | null>(null);
