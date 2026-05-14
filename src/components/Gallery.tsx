@@ -12,6 +12,7 @@ export interface ItemData {
   main: string;
   variations: string[];
   description: string;
+  compactMd?: boolean;
 }
 
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
