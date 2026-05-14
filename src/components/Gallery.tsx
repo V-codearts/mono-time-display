@@ -64,14 +64,15 @@ const ITEMS: ItemData[] = [
   },
 ];
 
-const COLLECTION_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.main)));
-const firstImageReadyPromise = preloadImage(ITEMS[0].main);
-void Promise.all(COLLECTION_IMAGE_SOURCES.map(preloadImage));
+const DEFAULT_IMAGE_SOURCES = Array.from(new Set(ITEMS.map((item) => item.main)));
+const defaultFirstImageReadyPromise = preloadImage(ITEMS[0].main);
+void Promise.all(DEFAULT_IMAGE_SOURCES.map(preloadImage));
 
 interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
   onBackHandlerReady?: (handler: (() => void) | null) => void;
   entering?: boolean;
+  items?: ItemData[];
 }
 
 const FADE_MS = 133;
