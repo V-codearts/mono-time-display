@@ -1,27 +1,24 @@
-## Plus → Minus toggle with position shift
+## Goal
+Eliminate the dark-mode flash during page transitions by keeping the background truly static and only fading the content (text, items, images) on top of it.
 
-### Behavior
-- The `+` is currently non-clickable. Make it clickable (cursor + click handler), but no panel/description opens yet — only the symbol and its position change.
-- Clicking `+` toggles state to "expanded":
-  - Symbol becomes `−` (minus).
-  - Slides from current position (`(rect.bottom + innerHeight) / 2`) up to `rect.bottom + 15px` (15px below the image's bottom edge, exact across all devices).
-- Clicking `−` toggles back to "collapsed":
-  - Symbol becomes `+`.
-  - Slides back down to the bottom-bottom center position.
-- Slide reuses the existing `PLUS_SLIDE_MS` / `PLUS_SLIDE_EASE` transition on `transform`.
-- Hover-bold reaction stays in both states.
+## Root cause
+Each page component wraps itself in its own `bg-background` layer:
+- `src/components/Gallery.tsx` (line 329)
+- `src/pages/About.tsx` (line 35)
+- `src/components/ImageViewer.tsx` (line 306)
 
-### State & position model (in `src/components/ImageViewer.tsx`)
-- Add `expanded` state (boolean, default `false`).
-- Track two Y values from the image rect on each measure:
-  - `plusY` = `(rect.bottom + innerHeight) / 2` (current bottom-center).
-  - `minusY` = `rect.bottom + 15`.
-- The rendered `top` uses `expanded ? minusY : plusY`.
-- Off-screen entry transform keeps using the collapsed reference so slide-in on enter is unchanged.
+These wrappers sit inside the fading `<div style={fadeStyle}>` in `Index.tsx`. When the wrapper fades to partial opacity, its `bg-background` fades along with it. Even though there is a fixed `bg-background` layer behind, the global `transition: background-color 0.5s` rule in `index.css` (applied to `*`) animates the color of every element, which combined with the opacity fade produces the perceived darker frame in dark mode.
 
-### Reset rules
-- When leaving the viewer (`prepareForReturnToThumbnail`) or when the image changes, force `expanded = false` so the next entry starts as `+`.
-- On image switch (variation swipe), keep `expanded` as-is per current scope — user only specified plus↔minus toggle, so no extra behavior; if collapse-on-swipe is desired, can add later.
+## Fix
+Remove the `bg-background` class from the three page-level wrappers so the fixed layer in `Index.tsx` is the sole source of background color. The fading wrappers will then only contain text and items — exactly what the user described.
 
-### Out of scope (per "one thing at a time")
-- No description panel, no content reveal, no layout shift of the image.
+### Changes
+1. `src/components/Gallery.tsx` line 329 — drop `bg-background` from the root wrapper class list (keep `text-foreground font-mono min-h-screen`).
+2. `src/pages/About.tsx` line 35 — same removal.
+3. `src/components/ImageViewer.tsx` line 306 — same removal.
+
+No other code, layout, or behavior changes. The fixed `bg-background` layer already added in `Index.tsx` provides the background at all times, so visually nothing else moves.
+
+## Notes
+- Archive uses Gallery's ImageViewer, so it is covered automatically.
+- Theme toggling still works because the fixed layer uses the same `bg-background` token.
