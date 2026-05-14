@@ -81,7 +81,14 @@ const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items }: GalleryProps) => {
+  const data = items ?? ITEMS;
+  const firstImageReadyPromise = items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise;
+  useEffect(() => {
+    if (!items) return;
+    const sources = Array.from(new Set(items.map((i) => i.main)));
+    void Promise.all(sources.map(preloadImage));
+  }, [items]);
   const [selectedItem, setSelectedItem] = useState<ItemData | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [firstReady, setFirstReady] = useState(false);
