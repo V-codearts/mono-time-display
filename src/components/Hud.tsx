@@ -40,16 +40,14 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
 
   return (
     <>
-      <div
-        className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate"
-        style={{
-          transform: entering ? 'translateX(calc(-100% - 24px))' : 'translateX(0)',
-          transition: `transform ${ENTER_MS}ms ${ENTER_EASE}`,
-        }}
-      >
+      <div className="fixed top-[9px] md:top-[15px] left-[18px] md:left-[24px] z-50 isolate">
         <div
-          className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold"
+          className="relative text-xl cursor-pointer transition-all duration-200 hover:font-bold w-[0.6em]"
           onClick={handleGlyphClick}
+          style={{
+            transform: entering ? 'translateX(calc(-100% - 24px))' : 'translateX(0)',
+            transition: `transform ${ENTER_MS}ms ${ENTER_EASE}`,
+          }}
         >
           {/* Plus / minus toggle (hidden during inspect) */}
           <span
