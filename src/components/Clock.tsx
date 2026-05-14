@@ -14,7 +14,11 @@ const isUSFormat = () => {
   }
 };
 
-const Clock = () => {
+interface ClockProps {
+  entering?: boolean;
+}
+
+const Clock = ({ entering = false }: ClockProps) => {
   const [now, setNow] = useState(() => new Date());
   const [usFormat] = useState(isUSFormat);
 
@@ -34,7 +38,9 @@ const Clock = () => {
   const time = `${h}:${min}:${s}`;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-foreground font-mono uppercase tracking-wider gap-2">
+    <div
+      className={`min-h-screen flex flex-col items-center justify-center text-foreground font-mono uppercase tracking-wider gap-2 transition-all duration-500 ease-out ${entering ? 'translate-y-8 opacity-0' : 'translate-y-0 opacity-100'}`}
+    >
       <div className="text-base">{date}</div>
       <div className="text-base">{time}</div>
     </div>
