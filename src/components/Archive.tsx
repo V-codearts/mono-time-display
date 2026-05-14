@@ -8,7 +8,8 @@ const ARCHIVE_ITEMS: ItemData[] = [
     title: 'YE TEETH REPLICA',
     main: grills1,
     variations: [grills1, grills2],
-    description: 'YE TEETH REPLICA\nSLS 3D PRINTED\n316L STAINLESS STEEL\nMADE TO EXPERIMENT WITH SLS\n1:1 CUSTOM FIT & FULLY FUNCTIONAL',
+    description: 'YE TEETH REPLICA\nSLS 3D PRINTED\n316L STAINLESS STEEL\nMADE TO EXPERIMENT WITH SLS\n1:1 CUSTOM FIT',
+    compactMd: true,
   },
 ];
 

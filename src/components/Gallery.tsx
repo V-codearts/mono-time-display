@@ -12,6 +12,7 @@ export interface ItemData {
   main: string;
   variations: string[];
   description: string;
+  compactMd?: boolean;
 }
 
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
@@ -46,21 +47,21 @@ const ITEMS: ItemData[] = [
     title: '⊥',
     main: gallery1,
     variations: [gallery1, gallery2, gallery3, gallery4],
-    description: 'SEAMLESS\nBANANA PEEL TANNIN DYED\n"WET GRAVEL"',
+    description: '',
   },
   {
     id: 2,
     title: 'ZIP HOODIE',
     main: gallery2,
     variations: [gallery2, gallery3, gallery4, gallery5],
-    description: 'SEAMLESS',
+    description: '',
   },
   {
     id: 4,
     title: 'DENIM PANT',
     main: gallery4,
     variations: [gallery4, gallery5, gallery1, gallery2],
-    description: 'FULL SEAMLESS WRAP AROUND CONSTRUCTION\nELASTIC WAISTBAND\nYES, BACK ZIP',
+    description: '',
   },
 ];
 
@@ -353,7 +354,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items 
                     alt={item.title}
                     loading="eager"
                     decoding="async"
-                    className={`max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] md:max-h-[80vh] lg:max-w-[80vw] lg:max-h-[80vh] object-contain cursor-pointer ${
+                    className={`max-w-[calc(100vw-96px)] max-h-[80vh] ${item.compactMd ? 'md:max-w-[30vw] md:max-h-[24vh] lg:max-w-[24vw] lg:max-h-[24vh]' : 'md:max-w-[calc(100vw-120px)] md:max-h-[80vh] lg:max-w-[80vw] lg:max-h-[80vh]'} object-contain cursor-pointer ${
                       !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
                       isFirst && !firstReady ? 'opacity-0' : ''
