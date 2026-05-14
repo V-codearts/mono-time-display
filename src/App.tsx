@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import "@/lib/preload-archive";
-import "@/lib/preload-media";
 
 const queryClient = new QueryClient();
 const routerBasename = import.meta.env.PROD ? import.meta.env.BASE_URL : undefined;

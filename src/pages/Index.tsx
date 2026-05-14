@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from '@/components/Gallery';
 import Archive from '@/components/Archive';
-import Media from '@/components/Media';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
 import Hud from '@/components/Hud';
 
-type Page = 'gallery' | 'about' | 'other' | 'archive' | 'media';
+type Page = 'gallery' | 'about' | 'other' | 'archive';
 
 const FADE_MS = 134;
 
@@ -60,7 +59,7 @@ const Index = () => {
   }, []);
 
   const handleNavigate = (page: string) => {
-    if (page === 'gallery' || page === 'about' || page === 'other' || page === 'archive' || page === 'media') goToPage(page);
+    if (page === 'gallery' || page === 'about' || page === 'other' || page === 'archive') goToPage(page);
   };
 
   const handleBackHandlerReady = useCallback((handler: (() => void) | null) => {
@@ -72,7 +71,7 @@ const Index = () => {
       goToPage('other');
       return;
     }
-    if ((displayedPage === 'archive' || displayedPage === 'media') && !galleryBackRef.current) {
+    if (displayedPage === 'archive' && !galleryBackRef.current) {
       goToPage('other');
       return;
     }
@@ -89,7 +88,7 @@ const Index = () => {
   };
 
   const hudCurrentPage: 'gallery' | 'about' | 'other' =
-    displayedPage === 'archive' || displayedPage === 'media' ? 'other' : displayedPage;
+    displayedPage === 'archive' ? 'other' : displayedPage;
 
   return (
     <>
@@ -103,7 +102,7 @@ const Index = () => {
           currentPage={hudCurrentPage}
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
-          inspecting={inspecting || displayedPage === 'about' || displayedPage === 'archive' || displayedPage === 'media'}
+          inspecting={inspecting || displayedPage === 'about' || displayedPage === 'archive'}
           onBack={handleHudBack}
           entering={introEntering}
         />
@@ -116,14 +115,6 @@ const Index = () => {
       ) : displayedPage === 'archive' ? (
         <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
           <Archive
-            onInspectChange={setInspecting}
-            onBackHandlerReady={handleBackHandlerReady}
-          />
-        </div>
-      ) : displayedPage === 'media' ? (
-        <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
-          <Media
-            isDarkMode={isDarkMode}
             onInspectChange={setInspecting}
             onBackHandlerReady={handleBackHandlerReady}
           />
