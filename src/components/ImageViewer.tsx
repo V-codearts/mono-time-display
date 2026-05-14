@@ -301,7 +301,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           ref={imgRef}
           src={image.variations[currentVariation]}
           alt={`Variation ${currentVariation + 1}`}
-          className="max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
+          className="max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer"
           style={{ transition: incomingVariation === null ? 'none' : undefined }}
           onClick={nextVariation}
         />
@@ -310,7 +310,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
             ref={incomingImgRef}
             src={image.variations[incomingVariation]}
             alt={`Variation ${incomingVariation + 1}`}
-            className="absolute inset-0 m-auto max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer border border-foreground/20"
+            className="absolute inset-0 m-auto max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] lg:max-w-[80vw] object-contain cursor-pointer"
             onClick={nextVariation}
           />
         )}

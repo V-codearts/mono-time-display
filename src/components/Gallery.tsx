@@ -353,7 +353,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items 
                     alt={item.title}
                     loading="eager"
                     decoding="async"
-                    className={`max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] md:max-h-[80vh] lg:max-w-[80vw] lg:max-h-[80vh] object-contain cursor-pointer border border-foreground/20 ${
+                    className={`max-w-[calc(100vw-96px)] max-h-[80vh] md:max-w-[calc(100vw-120px)] md:max-h-[80vh] lg:max-w-[80vw] lg:max-h-[80vh] object-contain cursor-pointer ${
                       !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
                       isFirst && !firstReady ? 'opacity-0' : ''
