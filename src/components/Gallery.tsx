@@ -47,21 +47,21 @@ const ITEMS: ItemData[] = [
     title: '⊥',
     main: gallery1,
     variations: [gallery1, gallery2, gallery3, gallery4],
-    description: 'SEAMLESS\nBANANA PEEL TANNIN DYED\n"WET GRAVEL"',
+    description: '',
   },
   {
     id: 2,
     title: 'ZIP HOODIE',
     main: gallery2,
     variations: [gallery2, gallery3, gallery4, gallery5],
-    description: 'SEAMLESS',
+    description: '',
   },
   {
     id: 4,
     title: 'DENIM PANT',
     main: gallery4,
     variations: [gallery4, gallery5, gallery1, gallery2],
-    description: 'FULL SEAMLESS WRAP AROUND CONSTRUCTION\nELASTIC WAISTBAND\nYES, BACK ZIP',
+    description: '',
   },
 ];
 
