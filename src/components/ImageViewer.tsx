@@ -35,7 +35,7 @@ const ROW_OFFSET_PX = 16;
 const EXPAND_OVERLAP_MS = 120;   // delay before rows start sliding in
 const COLLAPSE_OVERLAP_MS = 320; // delay before minus collapses back
 const FADE_OUT_MS = 220;
-const INFO_ROWS = [
+const DEFAULT_INFO_ROWS = [
   'INFO TEXT',
   'MATERIAL 100%',
   'EXAMPLE COLOR',
