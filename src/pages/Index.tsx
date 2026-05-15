@@ -23,6 +23,7 @@ const Index = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
+  const [outgoingScroll, setOutgoingScroll] = useState(0);
   const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
 
