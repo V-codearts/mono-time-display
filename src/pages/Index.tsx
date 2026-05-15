@@ -51,6 +51,7 @@ const Index = () => {
   const goToPage = useCallback((page: Page) => {
     setDisplayedPage((curr) => {
       if (curr === page || outgoingPage) return curr;
+      setOutgoingScroll(window.scrollY);
       window.scrollTo(0, 0);
       setOutgoingPage(curr);
       setIncomingActive(false);
