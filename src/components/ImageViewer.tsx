@@ -303,7 +303,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     : 'md:max-w-[calc(100vw-120px)] lg:max-w-[80vw]';
 
   return (
-    <div className="text-foreground font-mono min-h-screen flex items-center justify-center p-8">
+    <div className="text-foreground font-mono min-h-screen h-screen overflow-hidden flex items-center justify-center p-8">
       <div className={`relative flex items-center justify-center w-full max-w-[calc(100vw-96px)] ${wrapperMdSize} h-full max-h-[80vh]`}>
         <img
           ref={imgRef}
