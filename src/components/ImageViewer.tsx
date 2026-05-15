@@ -80,6 +80,40 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   };
 
   useEffect(() => {
+    const scrollY = window.scrollY;
+    const html = document.documentElement;
+    const body = document.body;
+    const previous = {
+      htmlOverflow: html.style.overflow,
+      htmlOverscrollBehavior: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow,
+      bodyOverscrollBehavior: body.style.overscrollBehavior,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+    };
+
+    html.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    body.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+
+    return () => {
+      html.style.overflow = previous.htmlOverflow;
+      html.style.overscrollBehavior = previous.htmlOverscrollBehavior;
+      body.style.overflow = previous.bodyOverflow;
+      body.style.overscrollBehavior = previous.bodyOverscrollBehavior;
+      body.style.position = previous.bodyPosition;
+      body.style.top = previous.bodyTop;
+      body.style.width = previous.bodyWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+
+  useEffect(() => {
     currentVariationRef.current = currentVariation;
   }, [currentVariation]);
 
@@ -303,7 +337,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
     : 'md:max-w-[calc(100vw-120px)] lg:max-w-[80vw]';
 
   return (
-    <div className="text-foreground font-mono min-h-screen h-screen overflow-hidden flex items-center justify-center p-8">
+    <div className="text-foreground font-mono fixed inset-0 overflow-hidden overscroll-none touch-none flex items-center justify-center p-8">
       <div className={`relative flex items-center justify-center w-full max-w-[calc(100vw-96px)] ${wrapperMdSize} h-full max-h-[80vh]`}>
         <img
           ref={imgRef}
