@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Clock from '@/components/Clock';
+import Gallery from '@/components/Gallery';
 import Archive from '@/components/Archive';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
@@ -121,7 +121,11 @@ const Index = () => {
         </div>
       ) : (
         <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
-          <Clock entering={introEntering} />
+          <Gallery
+            entering={introEntering}
+            onInspectChange={setInspecting}
+            onBackHandlerReady={handleBackHandlerReady}
+          />
         </div>
       )}
     </>
