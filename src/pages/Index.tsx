@@ -7,7 +7,8 @@ import Hud from '@/components/Hud';
 
 type Page = 'gallery' | 'about' | 'other' | 'archive';
 
-const FADE_MS = 134;
+const SLIDE_MS = 600;
+const SLIDE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -17,11 +18,12 @@ const Index = () => {
   const [showIntro, setShowIntro] = useState(true);
   const [introEntering, setIntroEntering] = useState(true);
   const [displayedPage, setDisplayedPage] = useState<Page>('gallery');
-  const [pageOpacity, setPageOpacity] = useState(1);
+  const [outgoingPage, setOutgoingPage] = useState<Page | null>(null);
+  const [incomingActive, setIncomingActive] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
-  const switchTimer = useRef<number | null>(null);
+  const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -47,15 +49,26 @@ const Index = () => {
 
   const goToPage = useCallback((page: Page) => {
     setDisplayedPage((curr) => {
-      if (curr === page) return curr;
-      setPageOpacity(0);
-      if (switchTimer.current) window.clearTimeout(switchTimer.current);
-      switchTimer.current = window.setTimeout(() => {
-        setDisplayedPage(page);
-        requestAnimationFrame(() => setPageOpacity(1));
-      }, FADE_MS);
-      return curr;
+      if (curr === page || outgoingPage) return curr;
+      window.scrollTo(0, 0);
+      setOutgoingPage(curr);
+      setIncomingActive(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIncomingActive(true));
+      });
+      if (transitionTimer.current) window.clearTimeout(transitionTimer.current);
+      transitionTimer.current = window.setTimeout(() => {
+        setOutgoingPage(null);
+        transitionTimer.current = null;
+      }, SLIDE_MS);
+      return page;
     });
+  }, [outgoingPage]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimer.current) window.clearTimeout(transitionTimer.current);
+    };
   }, []);
 
   const handleNavigate = (page: string) => {
@@ -78,17 +91,35 @@ const Index = () => {
     galleryBackRef.current?.();
   }, [displayedPage, goToPage]);
 
+  const renderPage = (page: Page) => {
+    if (page === 'about' || page === 'other') {
+      return <About currentPage={page} onNavigate={handleNavigate} />;
+    }
+    if (page === 'archive') {
+      return (
+        <Archive
+          onInspectChange={setInspecting}
+          onBackHandlerReady={handleBackHandlerReady}
+        />
+      );
+    }
+    return (
+      <Gallery
+        entering={introEntering}
+        onInspectChange={setInspecting}
+        onBackHandlerReady={handleBackHandlerReady}
+      />
+    );
+  };
+
   if (showIntro) {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
   }
 
-  const fadeStyle = {
-    opacity: pageOpacity,
-    transition: `opacity ${FADE_MS}ms ease-out`,
-  };
-
   const hudCurrentPage: 'gallery' | 'about' | 'other' =
     displayedPage === 'archive' ? 'other' : displayedPage;
+
+  const transitioning = outgoingPage !== null;
 
   return (
     <>
@@ -108,24 +139,28 @@ const Index = () => {
         />
       )}
 
-      {displayedPage === 'about' || displayedPage === 'other' ? (
-        <div style={fadeStyle}>
-          <About currentPage={displayedPage} onNavigate={handleNavigate} />
-        </div>
-      ) : displayedPage === 'archive' ? (
-        <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
-          <Archive
-            onInspectChange={setInspecting}
-            onBackHandlerReady={handleBackHandlerReady}
-          />
-        </div>
-      ) : (
-        <div style={{ opacity: pageOpacity, transition: `opacity ${FADE_MS}ms ease-out` }}>
-          <Gallery
-            entering={introEntering}
-            onInspectChange={setInspecting}
-            onBackHandlerReady={handleBackHandlerReady}
-          />
+      <div
+        key={displayedPage}
+        style={{
+          transform: transitioning && !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+          transition: transitioning ? `transform ${SLIDE_MS}ms ${SLIDE_EASE}` : undefined,
+          willChange: transitioning ? 'transform' : undefined,
+        }}
+      >
+        {renderPage(displayedPage)}
+      </div>
+
+      {outgoingPage && (
+        <div
+          aria-hidden
+          className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
+          style={{
+            transform: incomingActive ? 'translateY(-100vh)' : 'translateY(0)',
+            transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+            willChange: 'transform',
+          }}
+        >
+          {renderPage(outgoingPage)}
         </div>
       )}
     </>
