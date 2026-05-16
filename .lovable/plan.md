@@ -1,35 +1,54 @@
-## The cause
+## Root cause
 
-Both the left glyph (`+`) and the right theme dot use the same 600ms duration and easing, so the timing curve is identical. The asymmetry comes from **distance**, not timing.
+The ImageViewer's `+`/`−` glyph and INFO rows use `position: fixed` with `translateY(window.innerHeight + 40/80)` to park themselves just off-screen below the viewport while waiting to slide in.
 
-In `src/components/Hud.tsx`:
+This worked in the old deployed (clock) version because nothing transformed their containing block — `fixed` was anchored to the viewport, so the parked elements stayed invisible regardless of scroll.
 
-- The right dot is wrapped in its own fixed element (12px wide). Its off-screen transform is `translateX(calc(100% + 24px))` ≈ **36px** of travel.
-- The left glyph shares its fixed wrapper with the menu items (`COLLECTION`, `MORE`). That wrapper's width is the width of its widest child — `COLLECTION`, which is roughly **110–130px**. Its off-screen transform is `translateX(calc(-100% - 24px))` ≈ **135–155px** of travel.
+The current bug was introduced by the new page-switch slide transition in `src/pages/Index.tsx`. The render now wraps `renderPage(...)` in:
 
-Same duration + ~4× the distance → the glyph is still far off-screen while the dot is already mostly home, and it only crosses the visible edge late in the animation. That's the "appears a tad bit later" effect.
+```tsx
+<div style={{ transform: 'translateY(0)', willChange: 'transform', ... }}>
+  {renderPage(displayedPage)}
+</div>
+```
 
-The menu items themselves also use `calc(-100% - 24px)` on the same wrapper, but they're staggered intentionally and slide separately, so they aren't the issue.
+A CSS `transform` (and `will-change: transform`) on an ancestor establishes a new containing block for `position: fixed` descendants. That means the viewer's "fixed" elements are now positioned relative to that wrapper div — which is as tall as its scrollable content — not the viewport. Their parking offset (`100vh + 40px`) lands inside the document, so scrolling down reveals them.
+
+The outgoing-overlay div has the same setup but is itself `position: fixed`, so that one is fine.
 
 ## Fix
 
-Decouple the glyph from the menu wrapper so its travel distance matches the dot.
+Stop turning the current page's wrapper into a containing block when no transition is in progress, and make sure even during a transition the viewer's overflow doesn't leak.
 
-Two equally simple options:
+In `src/pages/Index.tsx`, change the active-page wrapper so that `transform` and `will-change` are only applied while a transition is active:
 
-1. **Wrap the `+ / − / <` glyph in its own `fixed` element** (sibling to the menu items wrapper) and give it the same off-screen transform pattern as the dot: `translateX(calc(-100% - 24px))` on a small ~12px box. This makes the two corners visually symmetrical (~36px travel each).
-2. **Use a fixed pixel offset** (e.g. `translateX(-40px)` for the glyph and `translateX(40px)` for the dot) instead of percent-based math. Slightly less responsive-friendly, but the simplest one-line change.
+```tsx
+<div
+  key={displayedPage}
+  style={
+    transitioning
+      ? {
+          transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+          transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+          willChange: 'transform',
+        }
+      : undefined
+  }
+>
+  {renderPage(displayedPage)}
+</div>
+```
 
-Recommended: option 1 — keeps the percent-based pattern consistent with the dot, and leaves the menu items' existing stagger animation untouched.
+Effect:
+- Idle state (the 99% case while a user is browsing the viewer): no transform on any ancestor → `position: fixed` is viewport-anchored again → parked elements stay below the fold no matter how the user scrolls. Bug gone.
+- During a page switch: transform is applied for the ~600ms slide. The viewer isn't open during nav, so the parking issue can't appear in that window.
 
-## Technical details
+## Validation
 
-In `src/components/Hud.tsx`:
+- Open COLLECTION → click an item → scroll the viewer page: parked `+` and info rows should not be visible anywhere.
+- Navigate COLLECTION ↔ MORE: slide-up transition still works the same.
+- Return from viewer with `−` expanded and collapsed: no regressions in the existing slide/fade choreography.
 
-- Split the current top-left fixed container into two siblings:
-  - A small fixed element at `top-[9px] md:top-[15px] left-[18px] md:left-[24px]` containing only the glyph span; apply the `entering` transform here with `translateX(calc(-100% - 24px))`.
-  - The menu items wrapper (`COLLECTION`, `MORE`) positioned just below it (e.g. via `top` offset or by keeping the parent layout but moving the entering transform off the parent). The menu items keep their existing per-item stagger transforms unchanged.
-- Leave the right-side dot exactly as it is.
-- Keep `ENTER_MS` and `ENTER_EASE` identical for both corners.
+## Out of scope
 
-No behavior changes elsewhere; menu open/close, inspect mode, and back-arrow morph all stay the same.
+No changes to `ImageViewer.tsx`, `Gallery.tsx`, items list, or descriptions. The 6 collection items remain as they are.

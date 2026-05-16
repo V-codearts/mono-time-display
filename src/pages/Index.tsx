@@ -143,11 +143,15 @@ const Index = () => {
 
       <div
         key={displayedPage}
-        style={{
-          transform: transitioning && !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
-          transition: transitioning ? `transform ${SLIDE_MS}ms ${SLIDE_EASE}` : undefined,
-          willChange: transitioning ? 'transform' : undefined,
-        }}
+        style={
+          transitioning
+            ? {
+                transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+                transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+                willChange: 'transform',
+              }
+            : undefined
+        }
       >
         {renderPage(displayedPage)}
       </div>
