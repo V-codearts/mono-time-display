@@ -159,7 +159,7 @@ const Index = () => {
       {outgoingPage && (
         <div
           aria-hidden
-          className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
+          className="fixed inset-x-0 top-0 z-30 h-[200vh] overflow-hidden bg-background pointer-events-none"
           style={{
             transform: incomingActive ? 'translateY(-100vh)' : 'translateY(0)',
             transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
