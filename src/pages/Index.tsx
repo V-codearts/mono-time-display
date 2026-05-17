@@ -143,15 +143,7 @@ const Index = () => {
 
       <div
         key={displayedPage}
-        style={
-          transitioning
-            ? {
-                transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
-                transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
-                willChange: 'transform',
-              }
-            : undefined
-        }
+        style={transitioning ? { visibility: 'hidden' } : undefined}
       >
         {renderPage(displayedPage)}
       </div>
@@ -160,14 +152,31 @@ const Index = () => {
         <div
           aria-hidden
           className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
-          style={{
-            transform: incomingActive ? 'translateY(-100vh)' : 'translateY(0)',
-            transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
-            willChange: 'transform',
-          }}
         >
-          <div style={{ transform: `translateY(-${outgoingScroll}px)` }}>
+          {/* Outgoing page: full-height content sliding upward inside the fixed mask */}
+          <div
+            className="absolute inset-x-0 top-0"
+            style={{
+              transform: incomingActive
+                ? `translateY(${-outgoingScroll - window.innerHeight}px)`
+                : `translateY(${-outgoingScroll}px)`,
+              transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+              willChange: 'transform',
+            }}
+          >
             {renderPage(outgoingPage)}
+          </div>
+
+          {/* Incoming page: full-height content sliding up from below */}
+          <div
+            className="absolute inset-x-0 top-0"
+            style={{
+              transform: incomingActive ? 'translateY(0)' : 'translateY(100vh)',
+              transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+              willChange: 'transform',
+            }}
+          >
+            {renderPage(displayedPage)}
           </div>
         </div>
       )}
