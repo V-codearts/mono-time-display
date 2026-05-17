@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from '@/components/Gallery';
+import type { GalleryTransitionSnapshot } from '@/components/Gallery';
 import Archive from '@/components/Archive';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
@@ -24,8 +25,10 @@ const Index = () => {
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
   const [outgoingScroll, setOutgoingScroll] = useState(0);
+  const [galleryTransitionSnapshot, setGalleryTransitionSnapshot] = useState<GalleryTransitionSnapshot | null>(null);
   const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
+  const galleryTransitionSnapshotRef = useRef<(() => GalleryTransitionSnapshot | null) | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -52,6 +55,7 @@ const Index = () => {
     setDisplayedPage((curr) => {
       if (curr === page || outgoingPage) return curr;
       setOutgoingScroll(window.scrollY);
+      setGalleryTransitionSnapshot(curr === 'gallery' ? galleryTransitionSnapshotRef.current?.() ?? null : null);
       window.scrollTo(0, 0);
       setOutgoingPage(curr);
       setIncomingActive(false);
@@ -61,6 +65,7 @@ const Index = () => {
       if (transitionTimer.current) window.clearTimeout(transitionTimer.current);
       transitionTimer.current = window.setTimeout(() => {
         setOutgoingPage(null);
+        setGalleryTransitionSnapshot(null);
         transitionTimer.current = null;
       }, SLIDE_MS);
       return page;
@@ -79,6 +84,10 @@ const Index = () => {
 
   const handleBackHandlerReady = useCallback((handler: (() => void) | null) => {
     galleryBackRef.current = handler;
+  }, []);
+
+  const handleGalleryTransitionSnapshotReady = useCallback((handler: (() => GalleryTransitionSnapshot | null) | null) => {
+    galleryTransitionSnapshotRef.current = handler;
   }, []);
 
   const handleHudBack = useCallback(() => {
