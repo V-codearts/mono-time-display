@@ -358,6 +358,39 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, onTransitionSnapshotRead
     }
   }, [selectedItem, handleBack, onBackHandlerReady]);
 
+  const getTransitionSnapshot = useCallback((): GalleryTransitionSnapshot | null => {
+    if (selectedItem) return null;
+
+    const viewportHeight = window.innerHeight;
+    const visibleItems = data.flatMap((item) => {
+      const image = galleryImgRefs.current.get(item.id);
+      if (!image) return [];
+
+      const rect = image.getBoundingClientRect();
+      if (rect.bottom <= 0 || rect.top >= viewportHeight) return [];
+
+      return [{
+        id: item.id,
+        title: item.title,
+        src: item.main,
+        rect: {
+          top: rect.top,
+          left: rect.left,
+          bottom: rect.bottom,
+          width: rect.width,
+          height: rect.height,
+        },
+      }];
+    });
+
+    return visibleItems.length > 0 ? { items: visibleItems } : null;
+  }, [data, selectedItem]);
+
+  useEffect(() => {
+    onTransitionSnapshotReady?.(getTransitionSnapshot);
+    return () => onTransitionSnapshotReady?.(null);
+  }, [getTransitionSnapshot, onTransitionSnapshotReady]);
+
   // Render: when an item is selected, we show the viewer.
   // When animating-back, viewer is unmounted but gallery shows with others still faded.
   return (
