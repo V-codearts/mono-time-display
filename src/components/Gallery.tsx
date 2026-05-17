@@ -15,6 +15,23 @@ export interface ItemData {
   compactMd?: boolean;
 }
 
+export interface GalleryTransitionItem {
+  id: number;
+  title: string;
+  src: string;
+  rect: {
+    top: number;
+    left: number;
+    bottom: number;
+    width: number;
+    height: number;
+  };
+}
+
+export interface GalleryTransitionSnapshot {
+  items: GalleryTransitionItem[];
+}
+
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
   const img = new Image();
 
@@ -93,6 +110,7 @@ void Promise.all(DEFAULT_IMAGE_SOURCES.map(preloadImage));
 interface GalleryProps {
   onInspectChange?: (inspecting: boolean) => void;
   onBackHandlerReady?: (handler: (() => void) | null) => void;
+  onTransitionSnapshotReady?: (handler: (() => GalleryTransitionSnapshot | null) | null) => void;
   entering?: boolean;
   items?: ItemData[];
 }
@@ -103,7 +121,7 @@ const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, onTransitionSnapshotReady, entering = false, items }: GalleryProps) => {
   const data = items ?? ITEMS;
   const firstImageReadyPromise = useMemo(
     () => (items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise),
