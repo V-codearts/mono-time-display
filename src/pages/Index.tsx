@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from '@/components/Gallery';
-import type { GalleryTransitionSnapshot } from '@/components/Gallery';
 import Archive from '@/components/Archive';
 import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
@@ -25,10 +24,8 @@ const Index = () => {
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
   const [outgoingScroll, setOutgoingScroll] = useState(0);
-  const [galleryTransitionSnapshot, setGalleryTransitionSnapshot] = useState<GalleryTransitionSnapshot | null>(null);
   const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
-  const galleryTransitionSnapshotRef = useRef<(() => GalleryTransitionSnapshot | null) | null>(null);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -55,7 +52,6 @@ const Index = () => {
     setDisplayedPage((curr) => {
       if (curr === page || outgoingPage) return curr;
       setOutgoingScroll(window.scrollY);
-      setGalleryTransitionSnapshot(curr === 'gallery' ? galleryTransitionSnapshotRef.current?.() ?? null : null);
       window.scrollTo(0, 0);
       setOutgoingPage(curr);
       setIncomingActive(false);
@@ -65,7 +61,6 @@ const Index = () => {
       if (transitionTimer.current) window.clearTimeout(transitionTimer.current);
       transitionTimer.current = window.setTimeout(() => {
         setOutgoingPage(null);
-        setGalleryTransitionSnapshot(null);
         transitionTimer.current = null;
       }, SLIDE_MS);
       return page;
@@ -84,10 +79,6 @@ const Index = () => {
 
   const handleBackHandlerReady = useCallback((handler: (() => void) | null) => {
     galleryBackRef.current = handler;
-  }, []);
-
-  const handleGalleryTransitionSnapshotReady = useCallback((handler: (() => GalleryTransitionSnapshot | null) | null) => {
-    galleryTransitionSnapshotRef.current = handler;
   }, []);
 
   const handleHudBack = useCallback(() => {
@@ -119,7 +110,6 @@ const Index = () => {
         entering={introEntering}
         onInspectChange={setInspecting}
         onBackHandlerReady={handleBackHandlerReady}
-        onTransitionSnapshotReady={handleGalleryTransitionSnapshotReady}
       />
     );
   };
@@ -153,65 +143,31 @@ const Index = () => {
 
       <div
         key={displayedPage}
-        style={transitioning ? { visibility: 'hidden' } : undefined}
+        style={
+          transitioning
+            ? {
+                transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+                transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+                willChange: 'transform',
+              }
+            : undefined
+        }
       >
         {renderPage(displayedPage)}
       </div>
 
-      {outgoingPage && galleryTransitionSnapshot && (
+      {outgoingPage && (
         <div
           aria-hidden
           className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
+          style={{
+            transform: incomingActive ? 'translateY(-100vh)' : 'translateY(0)',
+            transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+            willChange: 'transform',
+          }}
         >
-          {galleryTransitionSnapshot.items.map((item) => (
-            <img
-              key={item.id}
-              src={item.src}
-              alt=""
-              className="absolute object-contain"
-              style={{
-                top: item.rect.top,
-                left: item.rect.left,
-                width: item.rect.width,
-                height: item.rect.height,
-                transform: incomingActive ? `translateY(${-item.rect.bottom}px)` : 'translateY(0)',
-                transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
-                willChange: 'transform',
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {outgoingPage && !galleryTransitionSnapshot && (
-        <div
-          aria-hidden
-          className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
-        >
-          {/* Outgoing page: full-height content sliding upward inside the fixed mask */}
-          <div
-            className="absolute inset-x-0 top-0"
-            style={{
-              transform: incomingActive
-                ? `translateY(${-outgoingScroll - window.innerHeight}px)`
-                : `translateY(${-outgoingScroll}px)`,
-              transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
-              willChange: 'transform',
-            }}
-          >
+          <div style={{ transform: `translateY(-${outgoingScroll}px)` }}>
             {renderPage(outgoingPage)}
-          </div>
-
-          {/* Incoming page: full-height content sliding up from below */}
-          <div
-            className="absolute inset-x-0 top-0"
-            style={{
-              transform: incomingActive ? 'translateY(0)' : 'translateY(100vh)',
-              transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
-              willChange: 'transform',
-            }}
-          >
-            {renderPage(displayedPage)}
           </div>
         </div>
       )}

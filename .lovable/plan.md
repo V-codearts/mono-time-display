@@ -1,107 +1,54 @@
-## Correction
+## Root cause
 
-You are right. Removing `overflow-hidden` is not acceptable and should not be considered again.
+The ImageViewer's `+`/`−` glyph and INFO rows use `position: fixed` with `translateY(window.innerHeight + 40/80)` to park themselves just off-screen below the viewport while waiting to slide in.
 
-The problem in the drawing is not that the viewport is clipped. The problem is that the clipped viewport layer itself is being moved.
+This worked in the old deployed (clock) version because nothing transformed their containing block — `fixed` was anchored to the viewport, so the parked elements stayed invisible regardless of scroll.
 
-That means anything below the visible screen is already cut away before the slide starts, so when the page slides upward, the lower part of the image cannot appear. It slides as an incomplete picture.
+The current bug was introduced by the new page-switch slide transition in `src/pages/Index.tsx`. The render now wraps `renderPage(...)` in:
 
-## Actual fix
-
-Keep `overflow-hidden` on the viewport transition container.
-
-But do not animate the clipped container.
-
-Instead:
-- keep one fixed viewport-sized transition mask in place
-- keep `overflow-hidden` on that mask
-- render the outgoing page as a full-height/unclipped inner content layer
-- animate that inner content layer upward inside the mask
-- render the incoming page as another full-height/unclipped inner content layer
-- animate that incoming inner layer from below into the same mask
-
-Conceptually:
-
-```text
-WRONG CURRENT STRUCTURE
-
-[moving clipped viewport]
-  [page content]
-
-The bottom/offscreen part is cut away before movement.
+```tsx
+<div style={{ transform: 'translateY(0)', willChange: 'transform', ... }}>
+  {renderPage(displayedPage)}
+</div>
 ```
 
-```text
-CORRECT STRUCTURE
+A CSS `transform` (and `will-change: transform`) on an ancestor establishes a new containing block for `position: fixed` descendants. That means the viewer's "fixed" elements are now positioned relative to that wrapper div — which is as tall as its scrollable content — not the viewport. Their parking offset (`100vh + 40px`) lands inside the document, so scrolling down reveals them.
 
-[stationary fixed viewport mask, overflow-hidden]
-  [moving full outgoing page content]
-  [moving full incoming page content]
+The outgoing-overlay div has the same setup but is itself `position: fixed`, so that one is fine.
 
-The mask stays strict, but the full image/content can move through it.
+## Fix
+
+Stop turning the current page's wrapper into a containing block when no transition is in progress, and make sure even during a transition the viewer's overflow doesn't leak.
+
+In `src/pages/Index.tsx`, change the active-page wrapper so that `transform` and `will-change` are only applied while a transition is active:
+
+```tsx
+<div
+  key={displayedPage}
+  style={
+    transitioning
+      ? {
+          transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+          transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+          willChange: 'transform',
+        }
+      : undefined
+  }
+>
+  {renderPage(displayedPage)}
+</div>
 ```
 
-## Implementation plan
+Effect:
+- Idle state (the 99% case while a user is browsing the viewer): no transform on any ancestor → `position: fixed` is viewport-anchored again → parked elements stay below the fold no matter how the user scrolls. Bug gone.
+- During a page switch: transform is applied for the ~600ms slide. The viewer isn't open during nav, so the parking issue can't appear in that window.
 
-Only change `src/pages/Index.tsx` page-transition logic.
+## Validation
 
-1. Keep the normal page rendering untouched when no transition is happening.
-2. On navigation, save the current page and current `window.scrollY` before changing page state.
-3. During transition, create a fixed `inset-0 overflow-hidden` transition stage.
-4. Do not transform this outer stage.
-5. Inside the stage, render the outgoing page in an inner wrapper.
-6. Animate the outgoing inner wrapper from:
+- Open COLLECTION → click an item → scroll the viewer page: parked `+` and info rows should not be visible anywhere.
+- Navigate COLLECTION ↔ MORE: slide-up transition still works the same.
+- Return from viewer with `−` expanded and collapsed: no regressions in the existing slide/fade choreography.
 
-```text
-translateY(-savedScrollY)
-```
+## Out of scope
 
-to:
-
-```text
-translateY(calc(-savedScrollY - 100vh))
-```
-
-7. Render the incoming page in a separate inner wrapper.
-8. Animate incoming from:
-
-```text
-translateY(100vh)
-```
-
-to:
-
-```text
-translateY(0)
-```
-
-9. While transition layers are active, hide the normal page underneath to prevent duplicate images or ghosting.
-10. After `SLIDE_MS`, remove the transition layers and show the new page normally.
-
-## Why this matches the drawing
-
-In your drawing, the red part is below the visible screen.
-
-With the current approach, that red part is clipped away because the whole clipped screen is sliding.
-
-With the revised approach, the viewport remains clipped, but the full page content moves behind it. So as example 2 slides upward, its lower part can enter the white visible screen naturally instead of being missing.
-
-## Rules for implementation
-
-- Do not remove `overflow-hidden`.
-- Do not alter `ImageViewer.tsx`.
-- Do not alter collection item data or info text.
-- Do not touch preload behavior.
-- Do not remove fade-ins.
-- Do not reintroduce the fixed-position info-text bug.
-
-## Validation checklist
-
-After implementation:
-- Scroll COLLECTION so an image is partially below the viewport.
-- Click MORE.
-- The image should slide upward as complete content, with its lower part entering naturally.
-- No visible red/offscreen gap behavior.
-- No duplicated page ghosting.
-- No page-wide overflow leak.
-- COLLECTION/MORE/ARCHIVE navigation still uses the same slide timing and easing.
+No changes to `ImageViewer.tsx`, `Gallery.tsx`, items list, or descriptions. The 6 collection items remain as they are.
