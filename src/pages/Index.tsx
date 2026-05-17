@@ -119,6 +119,7 @@ const Index = () => {
         entering={introEntering}
         onInspectChange={setInspecting}
         onBackHandlerReady={handleBackHandlerReady}
+        onTransitionSnapshotReady={handleGalleryTransitionSnapshotReady}
       />
     );
   };
@@ -157,7 +158,32 @@ const Index = () => {
         {renderPage(displayedPage)}
       </div>
 
-      {outgoingPage && (
+      {outgoingPage && galleryTransitionSnapshot && (
+        <div
+          aria-hidden
+          className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
+        >
+          {galleryTransitionSnapshot.items.map((item) => (
+            <img
+              key={item.id}
+              src={item.src}
+              alt=""
+              className="absolute object-contain"
+              style={{
+                top: item.rect.top,
+                left: item.rect.left,
+                width: item.rect.width,
+                height: item.rect.height,
+                transform: incomingActive ? `translateY(${-item.rect.bottom}px)` : 'translateY(0)',
+                transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
+                willChange: 'transform',
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {outgoingPage && !galleryTransitionSnapshot && (
         <div
           aria-hidden
           className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
