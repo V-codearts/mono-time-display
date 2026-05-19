@@ -105,7 +105,7 @@ const Index = () => {
     galleryBackRef.current?.();
   }, [displayedPage, goToPage]);
 
-  const renderPage = (page: Page) => {
+  const renderPage = (page: Page, isExiting = false) => {
     if (page === 'about' || page === 'other') {
       return <About currentPage={page} onNavigate={handleNavigate} />;
     }
@@ -114,6 +114,7 @@ const Index = () => {
         <Archive
           onInspectChange={setInspecting}
           onBackHandlerReady={handleBackHandlerReady}
+          isExiting={isExiting}
         />
       );
     }
@@ -122,6 +123,7 @@ const Index = () => {
         entering={introEntering}
         onInspectChange={setInspecting}
         onBackHandlerReady={handleBackHandlerReady}
+        isExiting={isExiting}
       />
     );
   };
@@ -158,7 +160,7 @@ const Index = () => {
         style={
           transitioning
             ? {
-                transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+                transform: !incomingActive ? `translateY(${outgoingSlideAmount}px)` : 'translateY(0)',
                 transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
                 willChange: 'transform',
               }
@@ -180,7 +182,7 @@ const Index = () => {
           }}
         >
           <div style={{ transform: `translateY(-${outgoingScroll}px)` }}>
-            {renderPage(outgoingPage)}
+            {renderPage(outgoingPage, true)}
           </div>
         </div>
       )}

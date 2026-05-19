@@ -17,6 +17,7 @@ interface ArchiveProps {
   onInspectChange?: (inspecting: boolean) => void;
   onBackHandlerReady?: (handler: (() => void) | null) => void;
   entering?: boolean;
+  isExiting?: boolean;
 }
 
 const Archive = (props: ArchiveProps) => <Gallery {...props} items={ARCHIVE_ITEMS} />;

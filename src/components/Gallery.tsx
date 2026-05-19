@@ -95,6 +95,7 @@ interface GalleryProps {
   onBackHandlerReady?: (handler: (() => void) | null) => void;
   entering?: boolean;
   items?: ItemData[];
+  isExiting?: boolean;
 }
 
 const FADE_MS = 133;
@@ -103,7 +104,7 @@ const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items, isExiting = false }: GalleryProps) => {
   const data = items ?? ITEMS;
   const firstImageReadyPromise = useMemo(
     () => (items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise),
@@ -358,7 +359,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items 
                   key={item.id}
                   className="flex h-screen w-full items-center justify-center"
                   style={
-                    isFirst
+                    isFirst && !isExiting
                       ? {
                           transform: entering ? 'translateY(100vh)' : 'translateY(0)',
                           transition: `transform ${ENTER_MS}ms ${ENTER_EASE}`,
@@ -378,7 +379,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items 
                     className={`max-w-[calc(100vw-96px)] max-h-[80vh] ${item.compactMd ? 'md:max-w-[40vw] md:max-h-[32vh] lg:max-w-[24vw] lg:max-h-[24vh]' : 'md:max-w-[calc(100vw-120px)] md:max-h-[80vh] lg:max-w-[80vw] lg:max-h-[80vh]'} object-contain cursor-pointer ${
                       !animating || isSelected ? 'transition-transform duration-300 ease-out hover:scale-105' : ''
                     } ${
-                      isFirst && !firstReady ? 'opacity-0' : ''
+                      isFirst && !firstReady && !isExiting ? 'opacity-0' : ''
                     }`}
                     style={{
                       opacity: isFading ? 0 : undefined,
