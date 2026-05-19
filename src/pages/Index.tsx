@@ -156,11 +156,16 @@ const Index = () => {
         {renderPage(displayedPage)}
       </div>
 
-      {outgoingPage && (
+      {outgoingPage && (() => {
+        const vh = window.innerHeight;
+        const rem = outgoingScroll % vh;
+        const height = rem > 0 ? 2 * vh - rem : vh;
+        return (
         <div
           aria-hidden
-          className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
+          className="fixed inset-x-0 top-0 z-30 overflow-hidden bg-background pointer-events-none"
           style={{
+            height: `${height}px`,
             transform: incomingActive ? 'translateY(-100vh)' : 'translateY(0)',
             transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
             willChange: 'transform',
@@ -170,7 +175,8 @@ const Index = () => {
             {renderPage(outgoingPage)}
           </div>
         </div>
-      )}
+        );
+      })()}
     </>
   );
 };
