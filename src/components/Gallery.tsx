@@ -95,6 +95,7 @@ interface GalleryProps {
   onBackHandlerReady?: (handler: (() => void) | null) => void;
   entering?: boolean;
   items?: ItemData[];
+  isExiting?: boolean;
 }
 
 const FADE_MS = 133;
@@ -103,7 +104,7 @@ const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items, isExiting = false }: GalleryProps) => {
   const data = items ?? ITEMS;
   const firstImageReadyPromise = useMemo(
     () => (items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise),
