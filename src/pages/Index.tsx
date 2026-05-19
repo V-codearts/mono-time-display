@@ -53,6 +53,16 @@ const Index = () => {
   const goToPage = useCallback((page: Page) => {
     setDisplayedPage((curr) => {
       if (curr === page || outgoingPage) return curr;
+      const vh = window.innerHeight;
+      let lowerImageBottom = vh;
+      document.querySelectorAll('img').forEach(img => {
+        const rect = img.getBoundingClientRect();
+        if (rect.top < vh && rect.bottom > vh) {
+          lowerImageBottom = Math.max(lowerImageBottom, rect.bottom);
+        }
+      });
+      setOutgoingContainerHeight(lowerImageBottom);
+      setOutgoingSlideAmount(lowerImageBottom);
       setOutgoingScroll(window.scrollY);
       window.scrollTo(0, 0);
       setOutgoingPage(curr);
