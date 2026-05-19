@@ -24,6 +24,8 @@ const Index = () => {
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
   const [outgoingScroll, setOutgoingScroll] = useState(0);
+  const [outgoingContainerHeight, setOutgoingContainerHeight] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 0);
+  const [outgoingSlideAmount, setOutgoingSlideAmount] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 0);
   const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
 
