@@ -160,7 +160,7 @@ const Index = () => {
         style={
           transitioning
             ? {
-                transform: !incomingActive ? 'translateY(100vh)' : 'translateY(0)',
+                transform: !incomingActive ? `translateY(${outgoingSlideAmount}px)` : 'translateY(0)',
                 transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
                 willChange: 'transform',
               }
