@@ -182,7 +182,7 @@ const Index = () => {
           }}
         >
           <div style={{ transform: `translateY(-${outgoingScroll}px)` }}>
-            {renderPage(outgoingPage)}
+            {renderPage(outgoingPage, true)}
           </div>
         </div>
       )}
