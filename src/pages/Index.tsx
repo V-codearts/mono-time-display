@@ -24,6 +24,8 @@ const Index = () => {
   const [hudVisible, setHudVisible] = useState(false);
   const [inspecting, setInspecting] = useState(false);
   const [outgoingScroll, setOutgoingScroll] = useState(0);
+  const [outgoingContainerHeight, setOutgoingContainerHeight] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 0);
+  const [outgoingSlideAmount, setOutgoingSlideAmount] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 0);
   const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
 
@@ -51,6 +53,16 @@ const Index = () => {
   const goToPage = useCallback((page: Page) => {
     setDisplayedPage((curr) => {
       if (curr === page || outgoingPage) return curr;
+      const vh = window.innerHeight;
+      let lowerImageBottom = vh;
+      document.querySelectorAll('img').forEach(img => {
+        const rect = img.getBoundingClientRect();
+        if (rect.top < vh && rect.bottom > vh) {
+          lowerImageBottom = Math.max(lowerImageBottom, rect.bottom);
+        }
+      });
+      setOutgoingContainerHeight(lowerImageBottom);
+      setOutgoingSlideAmount(lowerImageBottom);
       setOutgoingScroll(window.scrollY);
       window.scrollTo(0, 0);
       setOutgoingPage(curr);
@@ -159,9 +171,10 @@ const Index = () => {
       {outgoingPage && (
         <div
           aria-hidden
-          className="fixed inset-0 z-30 overflow-hidden bg-background pointer-events-none"
+          className="fixed inset-x-0 top-0 z-30 overflow-hidden bg-background pointer-events-none"
           style={{
-            transform: incomingActive ? 'translateY(-100vh)' : 'translateY(0)',
+            height: `${outgoingContainerHeight}px`,
+            transform: incomingActive ? `translateY(-${outgoingSlideAmount}px)` : 'translateY(0)',
             transition: `transform ${SLIDE_MS}ms ${SLIDE_EASE}`,
             willChange: 'transform',
           }}
