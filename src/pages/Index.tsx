@@ -175,7 +175,8 @@ const Index = () => {
             {renderPage(outgoingPage)}
           </div>
         </div>
-      )}
+        );
+      })()}
     </>
   );
 };
