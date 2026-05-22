@@ -300,8 +300,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
   }, [incomingVariation]);
 
   const nextVariation = () => {
-    if (incomingVariation !== null) return;
-    setIncomingVariation((currentVariation + 1) % image.variations.length);
+    if (incomingVariation !== null || videoTransition) return;
+    const next = (currentVariation + 1) % image.variations.length;
+    if (image.transitionVideos && imgRef.current) {
+      const rect = imgRef.current.getBoundingClientRect();
+      const isForward = currentVariation === 0;
+      const v = image.transitionVideos;
+      const src = isForward
+        ? (isDarkMode ? v.forwardDark : v.forwardLight)
+        : (isDarkMode ? v.backDark : v.backLight);
+      onLockTheme?.(true);
+      setVideoTransition({ src, top: rect.top, height: rect.height });
+      setCurrentVariation(next);
+      return;
+    }
+    setIncomingVariation(next);
+  };
+
+  const handleVideoEnded = () => {
+    onLockTheme?.(false);
+    setVideoTransition(null);
   };
 
   const mdSize = image.compactMd
