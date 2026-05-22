@@ -7,11 +7,19 @@ interface ImageData {
   title: string;
   description: string;
   compactMd?: boolean;
+  transitionVideos?: {
+    forwardLight: string;
+    forwardDark: string;
+    backLight: string;
+    backDark: string;
+  };
 }
 
 interface ImageViewerProps {
   image: ImageData;
   onBack: () => void;
+  isDarkMode?: boolean;
+  onLockTheme?: (locked: boolean) => void;
 }
 
 export interface ImageViewerHandle {
