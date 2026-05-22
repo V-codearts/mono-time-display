@@ -52,7 +52,8 @@ const DEFAULT_INFO_ROWS = [
   'EDITION 01 / 12',
 ];
 
-const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
+const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, isDarkMode = true, onLockTheme }, ref) => {
+  const [videoTransition, setVideoTransition] = useState<{ src: string; top: number; height: number } | null>(null);
   const INFO_ROWS = (image.description?.trim()
     ? image.description.split('\n').map((s) => s.trim()).filter(Boolean)
     : DEFAULT_INFO_ROWS);
