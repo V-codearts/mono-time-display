@@ -102,6 +102,8 @@ interface GalleryProps {
   entering?: boolean;
   items?: ItemData[];
   isExiting?: boolean;
+  isDarkMode?: boolean;
+  onLockTheme?: (locked: boolean) => void;
 }
 
 const FADE_MS = 133;
@@ -110,7 +112,7 @@ const FLIP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
-const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items, isExiting = false }: GalleryProps) => {
+const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items, isExiting = false, isDarkMode = true, onLockTheme }: GalleryProps) => {
   const data = items ?? ITEMS;
   const firstImageReadyPromise = useMemo(
     () => (items ? preloadImage(data[0].main) : defaultFirstImageReadyPromise),
