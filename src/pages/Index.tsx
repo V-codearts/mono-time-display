@@ -119,6 +119,8 @@ const Index = () => {
           onInspectChange={setInspecting}
           onBackHandlerReady={handleBackHandlerReady}
           isExiting={isExiting}
+          isDarkMode={isDarkMode}
+          onLockTheme={setThemeLocked}
         />
       );
     }
@@ -128,6 +130,8 @@ const Index = () => {
         onInspectChange={setInspecting}
         onBackHandlerReady={handleBackHandlerReady}
         isExiting={isExiting}
+        isDarkMode={isDarkMode}
+        onLockTheme={setThemeLocked}
       />
     );
   };
