@@ -350,6 +350,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
           />
         )}
       </div>
+      {videoTransition && (
+        <video
+          src={videoTransition.src}
+          autoPlay
+          muted
+          playsInline
+          onEnded={handleVideoEnded}
+          style={{
+            position: 'fixed',
+            top: videoTransition.top,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            height: videoTransition.height,
+            width: 'auto',
+            maxWidth: 'none',
+            pointerEvents: 'none',
+            zIndex: 40,
+          }}
+        />
+      )}
       {/* Preload all variations off-screen so swipes never wait on the network */}
       <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] top-0 w-px h-px overflow-hidden opacity-0">
         {image.variations.map((src, i) => (
