@@ -354,7 +354,7 @@ const Gallery = ({ onInspectChange, onBackHandlerReady, entering = false, items,
   return (
     <>
       {selectedItem ? (
-        <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} />
+        <ImageViewer ref={viewerRef} image={selectedItem} onBack={handleBack} isDarkMode={isDarkMode} onLockTheme={onLockTheme} />
       ) : (
         <div className="text-foreground font-mono min-h-screen">
           <div className="flex flex-col items-center justify-start">
