@@ -7,11 +7,19 @@ interface ImageData {
   title: string;
   description: string;
   compactMd?: boolean;
+  transitionVideos?: {
+    forwardLight: string;
+    forwardDark: string;
+    backLight: string;
+    backDark: string;
+  };
 }
 
 interface ImageViewerProps {
   image: ImageData;
   onBack: () => void;
+  isDarkMode?: boolean;
+  onLockTheme?: (locked: boolean) => void;
 }
 
 export interface ImageViewerHandle {
@@ -44,7 +52,8 @@ const DEFAULT_INFO_ROWS = [
   'EDITION 01 / 12',
 ];
 
-const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, ref) => {
+const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, isDarkMode = true, onLockTheme }, ref) => {
+  const [videoTransition, setVideoTransition] = useState<{ src: string; top: number; height: number } | null>(null);
   const INFO_ROWS = (image.description?.trim()
     ? image.description.split('\n').map((s) => s.trim()).filter(Boolean)
     : DEFAULT_INFO_ROWS);
@@ -291,8 +300,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
   }, [incomingVariation]);
 
   const nextVariation = () => {
-    if (incomingVariation !== null) return;
-    setIncomingVariation((currentVariation + 1) % image.variations.length);
+    if (incomingVariation !== null || videoTransition) return;
+    const next = (currentVariation + 1) % image.variations.length;
+    if (image.transitionVideos && imgRef.current) {
+      const rect = imgRef.current.getBoundingClientRect();
+      const isForward = currentVariation === 0;
+      const v = image.transitionVideos;
+      const src = isForward
+        ? (isDarkMode ? v.forwardDark : v.forwardLight)
+        : (isDarkMode ? v.backDark : v.backLight);
+      onLockTheme?.(true);
+      setVideoTransition({ src, top: rect.top, height: rect.height });
+      setCurrentVariation(next);
+      return;
+    }
+    setIncomingVariation(next);
+  };
+
+  const handleVideoEnded = () => {
+    onLockTheme?.(false);
+    setVideoTransition(null);
   };
 
   const mdSize = image.compactMd
@@ -323,6 +350,26 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image }, 
           />
         )}
       </div>
+      {videoTransition && (
+        <video
+          src={videoTransition.src}
+          autoPlay
+          muted
+          playsInline
+          onEnded={handleVideoEnded}
+          style={{
+            position: 'fixed',
+            top: videoTransition.top,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            height: videoTransition.height,
+            width: 'auto',
+            maxWidth: 'none',
+            pointerEvents: 'none',
+            zIndex: 40,
+          }}
+        />
+      )}
       {/* Preload all variations off-screen so swipes never wait on the network */}
       <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] top-0 w-px h-px overflow-hidden opacity-0">
         {image.variations.map((src, i) => (

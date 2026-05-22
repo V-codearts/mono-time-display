@@ -26,6 +26,7 @@ const Index = () => {
   const [outgoingScroll, setOutgoingScroll] = useState(0);
   const [outgoingContainerHeight, setOutgoingContainerHeight] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 0);
   const [outgoingSlideAmount, setOutgoingSlideAmount] = useState(() => typeof window !== 'undefined' ? window.innerHeight : 0);
+  const [themeLocked, setThemeLocked] = useState(false);
   const transitionTimer = useRef<number | null>(null);
   const galleryBackRef = useRef<(() => void) | null>(null);
 
@@ -38,7 +39,10 @@ const Index = () => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const toggleTheme = () => {
+    if (themeLocked) return;
+    setIsDarkMode(!isDarkMode);
+  };
 
   const handleIntroComplete = useCallback(() => {
     setShowIntro(false);
@@ -115,6 +119,8 @@ const Index = () => {
           onInspectChange={setInspecting}
           onBackHandlerReady={handleBackHandlerReady}
           isExiting={isExiting}
+          isDarkMode={isDarkMode}
+          onLockTheme={setThemeLocked}
         />
       );
     }
@@ -124,6 +130,8 @@ const Index = () => {
         onInspectChange={setInspecting}
         onBackHandlerReady={handleBackHandlerReady}
         isExiting={isExiting}
+        isDarkMode={isDarkMode}
+        onLockTheme={setThemeLocked}
       />
     );
   };
