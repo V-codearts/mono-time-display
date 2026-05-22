@@ -13,6 +13,12 @@ export interface ItemData {
   variations: string[];
   description: string;
   compactMd?: boolean;
+  transitionVideos?: {
+    forwardLight: string;
+    forwardDark: string;
+    backLight: string;
+    backDark: string;
+  };
 }
 
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
