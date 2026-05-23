@@ -299,6 +299,8 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
     };
   }, [incomingVariation]);
 
+  const pendingVariationRef = useRef<number | null>(null);
+
   const nextVariation = () => {
     if (incomingVariation !== null || videoTransition) return;
     const next = (currentVariation + 1) % image.variations.length;
@@ -310,14 +312,18 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
         ? (isDarkMode ? v.forwardDark : v.forwardLight)
         : (isDarkMode ? v.backDark : v.backLight);
       onLockTheme?.(true);
+      pendingVariationRef.current = next;
       setVideoTransition({ src, top: rect.top, height: rect.height });
-      setCurrentVariation(next);
       return;
     }
     setIncomingVariation(next);
   };
 
   const handleVideoEnded = () => {
+    if (pendingVariationRef.current !== null) {
+      setCurrentVariation(pendingVariationRef.current);
+      pendingVariationRef.current = null;
+    }
     onLockTheme?.(false);
     setVideoTransition(null);
   };
