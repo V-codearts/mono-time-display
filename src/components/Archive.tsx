@@ -15,8 +15,8 @@ const ARCHIVE_ITEMS: ItemData[] = [
       { light: '/transitions/lighttrans2.mp4', dark: '/transitions/darktrans2.mp4' },
     ],
     resetTransitionVideos: [
-      { light: '/transitions/reset1.mp4', dark: '/transitions/reset1.mp4' },
-      { light: '/transitions/reset1.mp4', dark: '/transitions/reset1.mp4' },
+      { light: '/transitions/lighttrans2.mp4', dark: '/transitions/darktrans2.mp4' },
+      { light: '/transitions/lighttrans2.mp4', dark: '/transitions/darktrans2.mp4' },
     ],
   },
 ];
