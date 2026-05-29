@@ -221,6 +221,11 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
     }
   }, [plusVisible]);
 
+  const videoCompletionResolversRef = useRef<Array<() => void>>([]);
+  const waitForVideoCompletion = () => new Promise<void>((resolve) => {
+    videoCompletionResolversRef.current.push(resolve);
+  });
+
   useImperativeHandle(ref, () => ({
     getImageEl: () => getVisibleImageEl(),
     getCurrentSrc: () => image.variations[incomingVariation ?? currentVariation],
@@ -235,12 +240,23 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
         exit = waitForPlusExit();
       }
       if (currentVariationRef.current !== 0) {
-        setIncomingVariation(0);
-        await waitForSwipeCompletion();
+        const fromIdx = currentVariationRef.current;
+        const v = image.resetTransitionVideos?.[fromIdx];
+        if (v && imgRef.current) {
+          const rect = imgRef.current.getBoundingClientRect();
+          const src = isDarkMode ? v.dark : v.light;
+          onLockTheme?.(true);
+          pendingVariationRef.current = 0;
+          setVideoTransition({ src, top: rect.top, height: rect.height });
+          await waitForVideoCompletion();
+        } else {
+          setIncomingVariation(0);
+          await waitForSwipeCompletion();
+        }
       }
       await exit;
     },
-  }), [image, currentVariation, incomingVariation, expanded]);
+  }), [image, currentVariation, incomingVariation, expanded, isDarkMode, onLockTheme]);
 
   useLayoutEffect(() => {
     if (incomingVariation === null || !imgRef.current || !incomingImgRef.current) return;
