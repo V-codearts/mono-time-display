@@ -7,12 +7,7 @@ interface ImageData {
   title: string;
   description: string;
   compactMd?: boolean;
-  transitionVideos?: {
-    forwardLight: string;
-    forwardDark: string;
-    backLight: string;
-    backDark: string;
-  };
+  transitionVideos?: { light: string; dark: string }[];
 }
 
 interface ImageViewerProps {
@@ -304,13 +299,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
   const nextVariation = () => {
     if (incomingVariation !== null || videoTransition) return;
     const next = (currentVariation + 1) % image.variations.length;
-    if (image.transitionVideos && imgRef.current) {
+    const v = image.transitionVideos?.[currentVariation];
+    if (v && imgRef.current) {
       const rect = imgRef.current.getBoundingClientRect();
-      const isForward = currentVariation === 0;
-      const v = image.transitionVideos;
-      const src = isForward
-        ? (isDarkMode ? v.forwardDark : v.forwardLight)
-        : (isDarkMode ? v.backDark : v.backLight);
+      const src = isDarkMode ? v.dark : v.light;
       onLockTheme?.(true);
       pendingVariationRef.current = next;
       setVideoTransition({ src, top: rect.top, height: rect.height });
