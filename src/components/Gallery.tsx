@@ -14,6 +14,7 @@ export interface ItemData {
   description: string;
   compactMd?: boolean;
   transitionVideos?: { light: string; dark: string }[];
+  resetTransitionVideos?: { light: string; dark: string }[];
 }
 
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
