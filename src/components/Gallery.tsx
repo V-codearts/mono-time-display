@@ -50,6 +50,15 @@ const PLACEHOLDER_TRANSITIONS: { light: string; dark: string }[] = [
   { light: '/transitions/placeholder4.mp4', dark: '/transitions/placeholder4.mp4' },
 ];
 
+// Reset transitions: index i = transition from variation i back to variation 0.
+// Index 0 is unused (already at variation 0).
+const PLACEHOLDER_RESET_TRANSITIONS: { light: string; dark: string }[] = [
+  { light: '/transitions/reset1.mp4', dark: '/transitions/reset1.mp4' },
+  { light: '/transitions/reset1.mp4', dark: '/transitions/reset1.mp4' },
+  { light: '/transitions/reset2.mp4', dark: '/transitions/reset2.mp4' },
+  { light: '/transitions/reset3.mp4', dark: '/transitions/reset3.mp4' },
+];
+
 const ITEMS: ItemData[] = [
   {
     id: 1,
