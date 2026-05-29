@@ -67,6 +67,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery2, gallery3, gallery4, gallery5],
     description: 'ZIP H∞DIE\nCOTTON FRENCH TERRY\nSEAMLESS',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 2,
@@ -75,6 +76,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery3, gallery4, gallery5, gallery1],
     description: 'SHIRT\nCOTTON KNIT\nSEAMLESS\n“WET GRAVEL”',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 3,
@@ -83,6 +85,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery4, gallery5, gallery1, gallery2],
     description: 'DENIM PANT\nSEAMLESS WRAP AROUND\nELASTIC WAIST\nYES, BACK ZIP',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 4,
@@ -91,6 +94,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery5, gallery1, gallery2, gallery3],
     description: 'SHIRT\nCOTTON\nSEAMLESS\n“STEEL WOOL”',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 5,
@@ -99,6 +103,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery1, gallery2, gallery3, gallery4],
     description: 'PANT\nCOTTON CANVAS\nSEAMLESS WRAP AROUND\nDRAWSTRING WAIST\n“STEEL WOOL”',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 6,
@@ -107,6 +112,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery2, gallery3, gallery4, gallery5],
     description: 'BOOT\nTO BE CRAFTED\n(NOT CONCRETE YET)',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
 ];
 
