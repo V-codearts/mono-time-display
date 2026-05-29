@@ -335,6 +335,10 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
     }
     onLockTheme?.(false);
     setVideoTransition(null);
+    if (videoCompletionResolversRef.current.length > 0) {
+      const resolvers = videoCompletionResolversRef.current.splice(0);
+      resolvers.forEach((r) => r());
+    }
   };
 
   const mdSize = image.compactMd
