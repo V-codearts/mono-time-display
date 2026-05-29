@@ -14,6 +14,7 @@ export interface ItemData {
   description: string;
   compactMd?: boolean;
   transitionVideos?: { light: string; dark: string }[];
+  resetTransitionVideos?: { light: string; dark: string }[];
 }
 
 const preloadImage = (src: string) => new Promise<void>((resolve) => {
@@ -49,6 +50,15 @@ const PLACEHOLDER_TRANSITIONS: { light: string; dark: string }[] = [
   { light: '/transitions/placeholder4.mp4', dark: '/transitions/placeholder4.mp4' },
 ];
 
+// Reset transitions: index i = transition from variation i back to variation 0.
+// Index 0 is unused (already at variation 0).
+const PLACEHOLDER_RESET_TRANSITIONS: { light: string; dark: string }[] = [
+  { light: '/transitions/reset1.mp4', dark: '/transitions/reset1.mp4' },
+  { light: '/transitions/reset1.mp4', dark: '/transitions/reset1.mp4' },
+  { light: '/transitions/reset2.mp4', dark: '/transitions/reset2.mp4' },
+  { light: '/transitions/reset3.mp4', dark: '/transitions/reset3.mp4' },
+];
+
 const ITEMS: ItemData[] = [
   {
     id: 1,
@@ -57,6 +67,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery2, gallery3, gallery4, gallery5],
     description: 'ZIP H∞DIE\nCOTTON FRENCH TERRY\nSEAMLESS',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 2,
@@ -65,6 +76,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery3, gallery4, gallery5, gallery1],
     description: 'SHIRT\nCOTTON KNIT\nSEAMLESS\n“WET GRAVEL”',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 3,
@@ -73,6 +85,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery4, gallery5, gallery1, gallery2],
     description: 'DENIM PANT\nSEAMLESS WRAP AROUND\nELASTIC WAIST\nYES, BACK ZIP',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 4,
@@ -81,6 +94,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery5, gallery1, gallery2, gallery3],
     description: 'SHIRT\nCOTTON\nSEAMLESS\n“STEEL WOOL”',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 5,
@@ -89,6 +103,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery1, gallery2, gallery3, gallery4],
     description: 'PANT\nCOTTON CANVAS\nSEAMLESS WRAP AROUND\nDRAWSTRING WAIST\n“STEEL WOOL”',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
   {
     id: 6,
@@ -97,6 +112,7 @@ const ITEMS: ItemData[] = [
     variations: [gallery2, gallery3, gallery4, gallery5],
     description: 'BOOT\nTO BE CRAFTED\n(NOT CONCRETE YET)',
     transitionVideos: PLACEHOLDER_TRANSITIONS,
+    resetTransitionVideos: PLACEHOLDER_RESET_TRANSITIONS,
   },
 ];
 
