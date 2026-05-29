@@ -8,6 +8,7 @@ interface ImageData {
   description: string;
   compactMd?: boolean;
   transitionVideos?: { light: string; dark: string }[];
+  resetTransitionVideos?: { light: string; dark: string }[];
 }
 
 interface ImageViewerProps {
