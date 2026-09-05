@@ -16,8 +16,8 @@ interface HudProps {
 
 const NAV_ITEMS: { label: string; page: NavPage; interactive: boolean }[] = [
   { label: 'COLLECTION', page: 'gallery', interactive: true },
-  { label: 'MEDIA', page: 'media', interactive: false },
   { label: 'ARCHIVE', page: 'archive', interactive: true },
+  { label: 'MEDIA', page: 'media', interactive: false },
   { label: 'ABOUT', page: 'about', interactive: true },
 ];
 
