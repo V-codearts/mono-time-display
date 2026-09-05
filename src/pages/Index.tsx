@@ -5,7 +5,7 @@ import IntroVideo from '@/components/IntroVideo';
 import About from '@/pages/About';
 import Hud from '@/components/Hud';
 
-type Page = 'gallery' | 'about' | 'other' | 'archive';
+type Page = 'gallery' | 'about' | 'archive';
 
 const SLIDE_MS = 600;
 const SLIDE_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
@@ -90,7 +90,7 @@ const Index = () => {
   }, []);
 
   const handleNavigate = (page: string) => {
-    if (page === 'gallery' || page === 'about' || page === 'other' || page === 'archive') goToPage(page);
+    if (page === 'gallery' || page === 'about' || page === 'archive') goToPage(page);
   };
 
   const handleBackHandlerReady = useCallback((handler: (() => void) | null) => {
@@ -99,19 +99,19 @@ const Index = () => {
 
   const handleHudBack = useCallback(() => {
     if (displayedPage === 'about') {
-      goToPage('other');
+      goToPage('gallery');
       return;
     }
     if (displayedPage === 'archive' && !galleryBackRef.current) {
-      goToPage('other');
+      goToPage('gallery');
       return;
     }
     galleryBackRef.current?.();
   }, [displayedPage, goToPage]);
 
   const renderPage = (page: Page, isExiting = false) => {
-    if (page === 'about' || page === 'other') {
-      return <About currentPage={page} onNavigate={handleNavigate} />;
+    if (page === 'about') {
+      return <About />;
     }
     if (page === 'archive') {
       return (
@@ -140,8 +140,7 @@ const Index = () => {
     return <IntroVideo isDarkMode={isDarkMode} onComplete={handleIntroComplete} />;
   }
 
-  const hudCurrentPage: 'gallery' | 'about' | 'other' =
-    displayedPage === 'archive' ? 'other' : displayedPage;
+  const hudCurrentPage: 'gallery' | 'about' | 'archive' = displayedPage;
 
   const transitioning = outgoingPage !== null;
 
