@@ -156,7 +156,7 @@ const Index = () => {
           currentPage={hudCurrentPage}
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
-          inspecting={inspecting || displayedPage === 'about' || displayedPage === 'archive'}
+          inspecting={inspecting}
           onBack={handleHudBack}
           entering={introEntering}
         />
