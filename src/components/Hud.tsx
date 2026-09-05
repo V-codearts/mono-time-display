@@ -1,10 +1,12 @@
 
 
+type NavPage = 'gallery' | 'media' | 'archive' | 'about';
+
 interface HudProps {
   isDarkMode: boolean;
   onToggleTheme: () => void;
   onNavigate: (page: string) => void;
-  currentPage: 'gallery' | 'about' | 'other';
+  currentPage: 'gallery' | 'about' | 'archive';
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
   inspecting?: boolean;
