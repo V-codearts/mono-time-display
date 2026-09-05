@@ -49,9 +49,7 @@ const warmVideo = (src: string) => {
 
 if (typeof window !== 'undefined') {
   const start = () => VIDEOS.forEach(warmVideo);
-  if ('requestIdleCallback' in window) {
-    (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(start);
-  } else {
-    window.setTimeout(start, 500);
-  }
+  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
+  if (ric) ric(start);
+  else setTimeout(start, 500);
 }
