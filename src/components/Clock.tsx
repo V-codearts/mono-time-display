@@ -31,11 +31,11 @@ const Clock = ({ entering = false }: ClockProps) => {
   const m = now.getMonth() + 1;
   const y = now.getFullYear();
   const h = now.getHours();
-  const min = now.getMinutes().toString().padStart(2, '0');
-  const s = now.getSeconds().toString().padStart(2, '0');
+  const min = now.getMinutes();
+  const s = now.getSeconds();
 
   const date = usFormat ? `${m} ${d} ${y}` : `${d} ${m} ${y}`;
-  const time = `${h}:${min}:${s}`;
+  const time = `${h} ${min} ${s}`;
 
   return (
     <div
