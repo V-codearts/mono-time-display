@@ -14,6 +14,13 @@ interface HudProps {
   entering?: boolean;
 }
 
+const NAV_ITEMS: { label: string; page: NavPage; interactive: boolean }[] = [
+  { label: 'COLLECTION', page: 'gallery', interactive: true },
+  { label: 'MEDIA', page: 'media', interactive: false },
+  { label: 'ARCHIVE', page: 'archive', interactive: true },
+  { label: 'ABOUT', page: 'about', interactive: true },
+];
+
 const MORPH_MS = 180;
 const ENTER_MS = 600;
 const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
