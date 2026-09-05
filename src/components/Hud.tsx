@@ -21,7 +21,7 @@ const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, inspecting = false, onBack, entering = false }: HudProps) => {
   const effectiveMenuOpen = menuOpen && !inspecting;
 
-  const itemClass = (page: 'gallery' | 'about' | 'other', interactive: boolean) => {
+  const itemClass = (page: NavPage, interactive: boolean) => {
     const isCurrent = currentPage === page;
     if (isCurrent) {
       return 'text-foreground cursor-default font-normal transition-transform duration-300 ease-in-out whitespace-nowrap w-fit';
@@ -84,28 +84,27 @@ const Hud = ({ onToggleTheme, onNavigate, currentPage, menuOpen, setMenuOpen, in
         </div>
 
         <div className="flex flex-col gap-0.5 tracking-wider uppercase mt-0 overflow-visible">
-          <span
-            className={itemClass('gallery', true)}
-            style={{
-              transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
-              transitionDuration: currentPage === 'gallery' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '100ms' : '200ms',
-            }}
-            onClick={() => !inspecting && currentPage !== 'gallery' && onNavigate('gallery')}
-          >
-            COLLECTION
-          </span>
-          <span
-            className={itemClass('other', true)}
-            style={{
-              transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
-              transitionDuration: currentPage === 'other' ? '300ms' : '300ms, 200ms',
-              transitionDelay: effectiveMenuOpen ? '200ms, 0ms' : '100ms, 0ms',
-            }}
-            onClick={() => !inspecting && currentPage !== 'other' && onNavigate('other')}
-          >
-            MORE
-          </span>
+          {NAV_ITEMS.map((item, i) => (
+            <span
+              key={item.page}
+              className={itemClass(item.page, item.interactive)}
+              style={{
+                transform: effectiveMenuOpen ? 'translateX(0)' : 'translateX(calc(-100% - 24px))',
+                transitionDuration: currentPage === item.page ? '300ms' : '300ms, 200ms',
+                transitionDelay: effectiveMenuOpen
+                  ? `${100 + i * 100}ms`
+                  : `${(NAV_ITEMS.length - i) * 100}ms`,
+              }}
+              onClick={() =>
+                item.interactive &&
+                !inspecting &&
+                currentPage !== item.page &&
+                onNavigate(item.page)
+              }
+            >
+              {item.label}
+            </span>
+          ))}
         </div>
       </div>
 
