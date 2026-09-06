@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { preloadVideo, resolveVideoSrc } from '@/lib/video-cache';
 
 interface ImageData {
   id: number;
@@ -244,7 +245,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
         const v = image.resetTransitionVideos?.[fromIdx];
         if (v && imgRef.current) {
           const rect = imgRef.current.getBoundingClientRect();
-          const src = isDarkMode ? v.dark : v.light;
+          const src = await preloadVideo(isDarkMode ? v.dark : v.light);
           onLockTheme?.(true);
           pendingVariationRef.current = 0;
           setVideoTransition({ src, top: rect.top, height: rect.height });
@@ -313,13 +314,15 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
 
   const pendingVariationRef = useRef<number | null>(null);
 
-  const nextVariation = () => {
+  const nextVariation = async () => {
     if (incomingVariation !== null || videoTransition) return;
     const next = (currentVariation + 1) % image.variations.length;
     const v = image.transitionVideos?.[currentVariation];
     if (v && imgRef.current) {
       const rect = imgRef.current.getBoundingClientRect();
-      const src = isDarkMode ? v.dark : v.light;
+      const raw = isDarkMode ? v.dark : v.light;
+      const src = resolveVideoSrc(raw) === raw ? await preloadVideo(raw) : resolveVideoSrc(raw);
+      if (!imgRef.current) return;
       onLockTheme?.(true);
       pendingVariationRef.current = next;
       setVideoTransition({ src, top: rect.top, height: rect.height });
@@ -357,7 +360,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
           alt={`Variation ${currentVariation + 1}`}
           className={`max-w-[calc(100vw-96px)] max-h-[80vh] ${mdSize} object-contain cursor-pointer`}
           style={{ transition: incomingVariation === null ? 'none' : undefined }}
-          onClick={nextVariation}
+          onClick={() => void nextVariation()}
         />
         {incomingVariation !== null && (
           <img
@@ -365,7 +368,7 @@ const ImageViewer = forwardRef<ImageViewerHandle, ImageViewerProps>(({ image, is
             src={image.variations[incomingVariation]}
             alt={`Variation ${incomingVariation + 1}`}
             className={`absolute inset-0 m-auto max-w-[calc(100vw-96px)] max-h-[80vh] ${mdSize} object-contain cursor-pointer`}
-            onClick={nextVariation}
+            onClick={() => void nextVariation()}
           />
         )}
       </div>
