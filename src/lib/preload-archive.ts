@@ -5,6 +5,7 @@ import gallery2 from '@/assets/gallery-2.jpg';
 import gallery3 from '@/assets/gallery-3.jpg';
 import gallery4 from '@/assets/gallery-4.jpg';
 import gallery5 from '@/assets/gallery-5.jpg';
+import { preloadVideos } from '@/lib/video-cache';
 
 // Preload every collection/archive image at app boot so pages never decode
 // images while they are sliding into view.
@@ -20,12 +21,13 @@ const preloadImage = (src: string) => {
 const IMAGES = [grills1, grills2, gallery1, gallery2, gallery3, gallery4, gallery5];
 IMAGES.forEach(preloadImage);
 
-// Warm the variation transition videos so the first play is instant.
+// Fully download the transition clips (in priority order) so the very first
+// play is instant instead of waiting on a progressive network fetch.
 const VIDEOS = [
-  '/transitions/lighttrans1.mp4',
   '/transitions/darktrans1.mp4',
-  '/transitions/lighttrans2.mp4',
+  '/transitions/lighttrans1.mp4',
   '/transitions/darktrans2.mp4',
+  '/transitions/lighttrans2.mp4',
   '/transitions/placeholder1.mp4',
   '/transitions/placeholder2.mp4',
   '/transitions/placeholder3.mp4',
@@ -35,21 +37,9 @@ const VIDEOS = [
   '/transitions/reset3.mp4',
 ];
 
-const warmVideo = (src: string) => {
-  const video = document.createElement('video');
-  video.preload = 'auto';
-  video.muted = true;
-  video.playsInline = true;
-  video.src = src;
-  video.load();
-  // Keep a reference alive so the browser finishes buffering.
-  (window as unknown as { __warmedVideos?: HTMLVideoElement[] }).__warmedVideos =
-    [...((window as unknown as { __warmedVideos?: HTMLVideoElement[] }).__warmedVideos ?? []), video];
-};
-
 if (typeof window !== 'undefined') {
-  const start = () => VIDEOS.forEach(warmVideo);
+  const start = () => void preloadVideos(VIDEOS);
   const ric = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
   if (ric) ric(start);
-  else setTimeout(start, 500);
+  else setTimeout(start, 300);
 }
